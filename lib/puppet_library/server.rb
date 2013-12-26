@@ -3,6 +3,8 @@ require 'json'
 require 'rubygems/package'
 require 'zlib'
 
+require 'puppet_library/module_repo'
+
 class Hash
     def deep_merge(other)
         merge(other) do |key, old_val, new_val|
@@ -16,21 +18,6 @@ class Hash
 end
 
 module PuppetLibrary
-
-    class ModuleRepo
-        def initialize(module_dir)
-            @module_dir = module_dir
-        end
-
-        def get_metadata(author, module_name)
-            Dir["#{@module_dir}/#{author}-#{module_name}*"].map do |module_path|
-                tar = Gem::Package::TarReader.new(Zlib::GzipReader.open(module_path))
-                tar.rewind
-                metadata_source = tar.find {|e| e.full_name =~ /[^\/]+\/metadata\.json/}.read
-                JSON.parse(metadata_source)
-            end
-        end
-    end
 
     class ModuleMetadata
 
@@ -76,7 +63,7 @@ module PuppetLibrary
             {
                 "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
                 "version" => version,
-                    "dependencies" => dependencies.map {|m| [ m["name"], m["version_requirement"] ]}
+                "dependencies" => dependencies.map {|m| [ m["name"], m["version_requirement"] ]}
             }
         end
     end
