@@ -1,6 +1,6 @@
 # Puppet Library
 
-A server for your Puppet modules.
+A server for your Puppet modules. Compatible with [librarian-puppet](http://librarian-puppet.com).
 
 ## Installation
 
