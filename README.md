@@ -24,6 +24,10 @@ Run the server
 6. Push to the branch (`git push origin my-new-feature`)
 7. Create new Pull Request
 
+## Acknowledgements
+
+This project was inspired by [dalen/simple-puppet-forge](https://github.com/dalen/simple-puppet-forge).
+
 ## License
 
 Puppet Library
