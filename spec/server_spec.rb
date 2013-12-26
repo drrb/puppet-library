@@ -6,13 +6,9 @@ module PuppetLibrary
     describe Server do
         include Rack::Test::Methods
 
-        let(:module_repository) { double('module_repo') }
+        let(:module_repo) { double(ModuleRepo) }
         let(:app) do
-            Server.new
-        end
-
-        before do
-            Server.set :repo, module_repository
+            Server.new(module_repo)
         end
 
         describe "GET /<author>/<module>.json" do
@@ -28,7 +24,7 @@ module PuppetLibrary
                     "description" => "Apache module",
                     "version" => "1.1.0"
                 } ]
-                expect(module_repository).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
+                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
 
                 get "/puppetlabs/apache.json"
 
@@ -42,7 +38,7 @@ module PuppetLibrary
 
             context "when no modules found" do
                 it "returns an error" do
-                    expect(module_repository).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
+                    expect(module_repo).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
 
                     get "/nonexistant/nonexistant.json"
 
@@ -87,9 +83,9 @@ module PuppetLibrary
                     "version" => "1.0.0",
                     "dependencies" => [ ]
                 } ]
-                expect(module_repository).to receive(:get_metadata).with("puppetlabs", "apache").and_return(apache_metadata)
-                expect(module_repository).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
-                expect(module_repository).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(apache_metadata)
+                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
+                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
 
                 get "/api/v1/releases.json?module=puppetlabs/apache"
 
@@ -104,7 +100,7 @@ module PuppetLibrary
 
             context "when the module can't be found" do
                 it "returns an error" do
-                    expect(module_repository).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
+                    expect(module_repo).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 

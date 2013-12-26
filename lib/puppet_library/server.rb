@@ -69,9 +69,13 @@ module PuppetLibrary
     end
 
     class Server < Sinatra::Base
+
+        def initialize(module_repo = ModuleRepo.new("modules"))
+            super(nil)
+            @repo = module_repo
+        end
+
         configure do
-            set :module_dir, "modules"
-            set :repo, ModuleRepo.new(settings.module_dir)
             enable :logging
         end
 
@@ -118,7 +122,7 @@ module PuppetLibrary
         end
 
         def get_metadata(author, module_name)
-            settings.repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
+            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
         end
     end
 end
