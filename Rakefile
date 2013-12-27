@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "bundler/gem_tasks"
+require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec)
@@ -28,7 +28,7 @@ task :verify do
 end
 
 desc "Check all files for license headers"
-task 'check-license' do
+task "check-license" do
     puts "Checking that all program files contain license headers"
 
     files = `git ls-files`.split "\n"
@@ -40,7 +40,7 @@ task 'check-license' do
 end
 
 desc "Print the version number"
-task 'version' do
+task "version" do
     puts PuppetLibrary::VERSION
 end
 
