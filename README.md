@@ -14,6 +14,18 @@ Run the server
 
     $ puppet-library
 
+Serve modules from a specific directory
+
+    $ puppet-library --module-dir /var/puppet/library
+
+Serve modules on a specific port
+
+    $ puppet-library --port 8888
+
+See all options
+
+    $ puppet-library --help
+
 ## Contributing
 
 1. Fork it
