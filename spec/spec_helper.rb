@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "simplecov"
 require "puppet_library"
 
 def write_tar_gzip(file_name)
