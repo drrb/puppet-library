@@ -107,7 +107,7 @@ module PuppetLibrary
                 get "/api/v1/releases.json?module=puppetlabs/apache"
 
                 response = JSON.parse(last_response.body)
-                expect(response.keys).to eq(["puppetlabs/apache", "puppetlabs/stdlib", "puppetlabs/concat"])
+                expect(response.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
                 expect(response["puppetlabs/apache"].size).to eq(2)
                 expect(response["puppetlabs/apache"][0]["file"]).to eq("/modules/puppetlabs-apache-1.0.0.tar.gz")
                 expect(response["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
