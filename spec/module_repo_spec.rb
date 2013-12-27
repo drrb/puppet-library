@@ -65,6 +65,7 @@ module PuppetLibrary
                 it "returns an array containing the module's versions' metadata" do
                     metadata_list = module_repo.get_metadata("puppetlabs", "apache")
                     expect(metadata_list.size).to eq 2
+                    metadata_list.sort_by {|m| m["version"] }
                     expect(metadata_list[0]).to eq({ "name" => "puppetlabs-apache", "version" => "1.0.0" })
                     expect(metadata_list[1]).to eq({ "name" => "puppetlabs-apache", "version" => "1.1.0" })
                 end
