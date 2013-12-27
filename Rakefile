@@ -16,3 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "bundler/gem_tasks"
+
+desc "Check all files for license headers"
+task 'check-license' do
+    puts "Checking that all program files contain license headers"
+
+    files = `git ls-files`.split "\n"
+    ignored_files = File.read(".licenseignore").split("\n") << ".licenseignore"
+    offending_files = files.reject { |file| File.read(file).include? "WITHOUT ANY WARRANTY" } - ignored_files
+    unless offending_files.empty?
+        abort("ERROR: THE FOLLOWING FILES HAVE NO LICENSE HEADERS: \n" + offending_files.join("\n"))
+    end
+end
+
+desc "Print the version number"
+task 'version' do
+    puts PuppetLibrary::VERSION
+end
+
