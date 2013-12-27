@@ -20,6 +20,7 @@ require 'rubygems/package'
 
 module PuppetLibrary
     describe ModuleRepo do
+        include ModuleSpecHelper
 
         let(:module_dir) { "/tmp/#{$$}" }
         let(:module_repo) { ModuleRepo.new(module_dir) }
@@ -30,22 +31,6 @@ module PuppetLibrary
 
         after do
             FileUtils.rm_rf module_dir
-        end
-
-        def add_module(author, name, version)
-            full_name = "#{author}-#{name}"
-            fqn = "#{full_name}-#{version}"
-            module_file = File.join(module_dir, "#{fqn}.tar.gz")
-
-            write_tar_gzip(module_file) do |archive|
-                archive.add_file("#{fqn}/metadata.json", 0644) do |file|
-                    content = {
-                        "name" => full_name,
-                        "version" => version
-                    }
-                    file.write content.to_json
-                end
-            end
         end
 
         describe "#get_metadata" do

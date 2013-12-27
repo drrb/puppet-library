@@ -15,19 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "simplecov"
-require "puppet_library"
-
-def write_tar_gzip(file_name)
-    tar = StringIO.new
-
-    Gem::Package::TarWriter.new(tar) do |writer|
-        yield(writer)
-    end
-    tar.seek(0)
-
-    gz = Zlib::GzipWriter.new(File.new(file_name, 'wb'))
-    gz.write(tar.read)
-    tar.close
-    gz.close
-end
+require 'simplecov'
+require 'puppet_library'
+require 'module_spec_helper'
