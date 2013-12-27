@@ -16,6 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "bundler/gem_tasks"
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => [:spec]
+
+desc "Check it works on all local rubies"
+task :verify do
+    system "rvm all do rake"
+end
 
 desc "Check all files for license headers"
 task 'check-license' do
