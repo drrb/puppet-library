@@ -1,3 +1,5 @@
+require 'zlib'
+require 'rubygems/package'
 
 module ModuleSpecHelper
     def write_tar_gzip(file_name)
