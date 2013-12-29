@@ -13,6 +13,32 @@ Install the server as a Gem:
 
     $ gem install puppet-library
 
+## Getting Started
+
+Create a module directory and add the modules to it
+
+    $ mkdir modules
+    $ cd modules
+    $ wget -P modules/ forge.puppetlabs.com/system/releases/p/puppetlabs/puppetlabs-apache-0.9.0.tar.gz
+    $ wget -P modules/ forge.puppetlabs.com/system/releases/p/puppetlabs/puppetlabs-concat-1.0.0.tar.gz
+    $ wget -P modules/ forge.puppetlabs.com/system/releases/p/puppetlabs/puppetlabs-stdlib-2.4.0.tar.gz
+
+Start the server
+
+    $ puppet-library
+
+Point librarian-puppet to the server
+
+    $ cat > Puppetfile <<EOF
+    forge 'http://localhost:4567'
+
+    mod 'puppetlabs/apache', '0.9.0'
+    EOF
+
+Resolve and download the modules
+
+    $ librarian-puppet install
+
 ## Usage
 
 Run the server
