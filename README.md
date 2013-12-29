@@ -5,6 +5,8 @@ A server for your Puppet modules. Compatible with [librarian-puppet](http://libr
 [![Build Status](https://travis-ci.org/drrb/puppet-library.png?branch=master)](https://travis-ci.org/drrb/puppet-library)
 [![Coverage Status](https://coveralls.io/repos/drrb/puppet-library/badge.png)](https://coveralls.io/r/drrb/puppet-library)
 
+Puppet library serves packaged (`tar.gz`) modules from a directory of your choosing in the same format as [the Puppet Forge](http://forge.puppetlabs.com).
+
 ## Installation
 
 Install the server as a Gem:
@@ -19,7 +21,7 @@ Run the server
 
 Serve modules from a specific directory
 
-    $ puppet-library --module-dir /var/puppet/library
+    $ puppet-library --module-dir /var/puppet-modules
 
 Serve modules on a specific port
 
