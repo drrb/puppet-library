@@ -26,7 +26,7 @@ task :default => [:spec, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    system "rvm all do rake"
+    system "rvm all do rake spec check-license"
 end
 
 desc "Check all files for license headers"
