@@ -45,9 +45,7 @@ module PuppetLibrary
                 end
                 it "serves the module" do
                     file_buffer = StringIO.new("module content")
-                    expect(module_repo).to receive(:get_module)
-                        .with("puppetlabs", "apache", "1.0.0")
-                        .and_return(file_buffer)
+                    expect(module_repo).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -60,9 +58,7 @@ module PuppetLibrary
 
             context "when the module is not on the server" do
                 it "returns an error" do
-                    expect(module_repo).to receive(:get_module)
-                        .with("puppetlabs", "apache", "1.0.0")
-                        .and_return(nil)
+                    expect(module_repo).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return(nil)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
