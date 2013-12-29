@@ -31,6 +31,28 @@ module PuppetLibrary
             FileUtils.rm_rf module_dir
         end
 
+        describe "#get_module" do
+            context "when the module archive exists" do
+                before do
+                    add_module("puppetlabs", "apache", "1.0.0")
+                end
+
+                it "returns a the module archive as a file buffer" do
+                    buffer = module_repo.get_module("puppetlabs", "apache", "1.0.0")
+
+                    expect(buffer.path).to end_with("puppetlabs-apache-1.0.0.tar.gz")
+                end
+            end
+
+            context "when the module file doesn't exist" do
+                it "returns nil" do
+                    buffer = module_repo.get_module("puppetlabs", "noneixstant", "1.0.0")
+
+                    expect(buffer).to be_nil
+                end
+            end
+        end
+
         describe "#get_metadata" do
             context "when the module directory is empty" do
                 it "returns an empty array" do

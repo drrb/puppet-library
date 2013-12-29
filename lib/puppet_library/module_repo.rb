@@ -22,12 +22,22 @@ module PuppetLibrary
             @module_dir = module_dir
         end
 
+        def get_module(author, name, version)
+            file_name = "#{author}-#{name}-#{version}.tar.gz"
+            path = File.join(File.expand_path(@module_dir), file_name)
+            if File.exist? path
+                File.open(path, 'r')
+            else
+                nil
+            end
+        end
+
         def get_metadata(author, module_name)
             Dir["#{@module_dir}/#{author}-#{module_name}*"].map do |module_path|
                 tar = Gem::Package::TarReader.new(Zlib::GzipReader.open(module_path))
                 tar.rewind
-                metadata_source = tar.find {|e| e.full_name =~ /[^\/]+\/metadata\.json/}.read
-                JSON.parse(metadata_source)
+                metadata_file = tar.find {|e| e.full_name =~ /[^\/]+\/metadata\.json/}
+                JSON.parse(metadata_file.read)
             end
         end
     end

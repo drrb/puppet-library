@@ -131,8 +131,17 @@ module PuppetLibrary
         end
 
         get "/modules/:author-:module-:version.tar.gz" do
-            file_name = "#{params[:author]}-#{params[:module]}-#{params[:version]}.tar.gz"
-            send_file File.join(File.expand_path(settings.module_dir), file_name), :filename => file_name
+            author = params[:author]
+            name = params[:module]
+            version = params[:version]
+            buffer = @repo.get_module(author, name, version)
+            content_type "application/octet-stream"
+            if buffer.nil?
+                status 404
+            else
+                attachment "#{author}-#{name}-#{version}.tar.gz"
+                buffer
+            end
         end
 
         def get_metadata(author, module_name)

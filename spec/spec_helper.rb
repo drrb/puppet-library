@@ -18,3 +18,4 @@
 require 'simplecov'
 require 'puppet_library'
 require 'module_spec_helper'
+require 'pry'

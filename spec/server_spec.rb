@@ -22,10 +22,54 @@ require 'rack/test'
 module PuppetLibrary
     describe Server do
         include Rack::Test::Methods
+        include ModuleSpecHelper
 
+        let(:module_dir) { "/tmp/#{$$}" }
         let(:module_repo) { double(ModuleRepo) }
         let(:app) do
             Server.new(module_repo)
+        end
+
+        before do
+            FileUtils.mkdir_p module_dir
+        end
+
+        after do
+            FileUtils.rm_rf module_dir
+        end
+
+        describe "GET /modules/<author>-<module>-<version>.tar.gz" do
+            context "when the module is on the server" do
+                before do
+                    add_module("puppetlabs", "apache", "1.0.0")
+                end
+                it "serves the module" do
+                    file_buffer = StringIO.new("module content")
+                    expect(module_repo).to receive(:get_module)
+                        .with("puppetlabs", "apache", "1.0.0")
+                        .and_return(file_buffer)
+
+                    get "/modules/puppetlabs-apache-1.0.0.tar.gz"
+
+                    expect(last_response.body).to eq "module content"
+                    expect(last_response.content_type).to eq "application/octet-stream"
+                    expect(last_response.headers["Content-Disposition"]).to eq 'attachment; filename="puppetlabs-apache-1.0.0.tar.gz"'
+                    expect(last_response).to be_ok
+                end
+            end
+
+            context "when the module is not on the server" do
+                it "returns an error" do
+                    expect(module_repo).to receive(:get_module)
+                        .with("puppetlabs", "apache", "1.0.0")
+                        .and_return(nil)
+
+                    get "/modules/puppetlabs-apache-1.0.0.tar.gz"
+
+                    expect(last_response.content_type).to eq "application/octet-stream"
+                    expect(last_response.status).to eq 404
+                end
+            end
         end
 
         describe "GET /<author>/<module>.json" do
