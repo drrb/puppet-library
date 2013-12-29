@@ -36,7 +36,9 @@ task "check-license" do
     files = `git ls-files`.split "\n"
     ignored_files = File.read(".licenseignore").split("\n") << ".licenseignore"
     offending_files = files.reject { |file| File.read(file).include? "WITHOUT ANY WARRANTY" } - ignored_files
-    unless offending_files.empty?
+    if offending_files.empty?
+        puts "Done"
+    else
         abort("ERROR: THE FOLLOWING FILES HAVE NO LICENSE HEADERS: \n" + offending_files.join("\n"))
     end
 end
