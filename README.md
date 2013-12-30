@@ -29,7 +29,7 @@ Start the server
 Point librarian-puppet to the server
 
     $ cat > Puppetfile <<EOF
-    forge 'http://localhost:4567'
+    forge 'http://localhost:9292'
 
     mod 'puppetlabs/apache', '0.9.0'
     EOF
