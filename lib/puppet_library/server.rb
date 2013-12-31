@@ -14,9 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-require 'sinatra/base'
-require 'json'
 
+require 'sinatra/base'
+
+require 'puppet_library/module_metadata'
 require 'puppet_library/module_repo'
 
 class Hash
@@ -32,56 +33,6 @@ class Hash
 end
 
 module PuppetLibrary
-
-    class ModuleMetadata
-
-        def initialize(metadata)
-            @metadata = metadata
-        end
-
-        def author
-            @metadata["name"][/^[^-]+/]
-        end
-
-        def name
-            @metadata["name"].sub(/^[^-]+-/, "")
-        end
-
-        def full_name
-            @metadata["name"].sub("-", "/")
-        end
-
-        def version
-            @metadata["version"]
-        end
-
-        def dependencies
-            @metadata["dependencies"]
-        end
-
-        def dependency_names
-            dependencies.map {|d| d["name"]}
-        end
-
-        def to_info
-            {
-                "author" => author,
-                "full_name" => full_name,
-                "name" => name,
-                "desc" => @metadata["description"],
-                "releases" => [ { "version" => version } ]
-            }
-        end
-
-        def to_version
-            {
-                "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
-                "version" => version,
-                "dependencies" => dependencies.map {|m| [ m["name"], m["version_requirement"] ]}
-            }
-        end
-    end
-
     class Server < Sinatra::Base
 
         def initialize(module_repo = ModuleRepo.new("modules"))
