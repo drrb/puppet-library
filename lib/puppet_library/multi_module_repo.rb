@@ -15,8 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/server'
-require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo'
-require 'puppet_library/multi_module_repo'
-require 'puppet_library/version'
+module PuppetLibrary
+    class MultiModuleRepo
+        def repos
+            @repos ||= []
+        end
+
+        def add_repo(repo)
+            repos << repo
+        end
+
+        def get_module(author, name, version)
+            repos.each do |repo|
+                mod = repo.get_module(author, name, version)
+                return mod unless mod.nil?
+            end
+            return nil
+        end
+
+        def get_metadata(author, name)
+            metadata_list = repos.inject([]) do |metadata_list, repo|
+                metadata_list + repo.get_metadata(author, name)
+            end
+            metadata_list.uniq { |metadata| metadata["version"] }
+        end
+    end
+end

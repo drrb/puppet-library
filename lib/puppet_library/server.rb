@@ -18,7 +18,7 @@
 require 'sinatra/base'
 
 require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo'
+require 'puppet_library/multi_module_repo'
 
 class Hash
     def deep_merge(other)
@@ -35,7 +35,7 @@ end
 module PuppetLibrary
     class Server < Sinatra::Base
 
-        def initialize(module_repo = ModuleRepo.new("modules"))
+        def initialize(module_repo = MultiModuleRepo.new)
             super(nil)
             @repo = module_repo
         end
@@ -95,6 +95,7 @@ module PuppetLibrary
             end
         end
 
+        private
         def get_metadata(author, module_name)
             @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
         end

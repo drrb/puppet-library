@@ -36,18 +36,23 @@ module PuppetLibrary
             options[:hostname] = hostname
         end
 
-        options[:module_dir] = "./modules"
+        options[:module_dirs] = []
         opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (defaults to #{options[:module_dir]})") do |module_dir|
-            options[:module_dir] = module_dir
+            options[:module_dirs] << module_dir
         end
     end.parse!
 
-    server = Server.new(ModuleRepo.new(options[:module_dir]))
+    module_dirs = options[:module_dirs] || ["./modules"]
+    puts "Starting Puppet Library server on port #{options[:port]}, serving modules from #{module_dirs.join ", "}"
+    module_repo = MultiModuleRepo.new
+    module_dirs.each do |dir|
+        subrepo = ModuleRepo.new(dir)
+        module_repo.add_repo(subrepo)
+    end
+    server = Server.new(module_repo)
 
     dispatch = Rack::Builder.app do
-        map '/' do
-            run Server.new
-        end
+        run server
     end
 
     Rack::Server.start({
