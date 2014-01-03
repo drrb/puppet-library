@@ -29,8 +29,12 @@ module PuppetLibrary
             allow(Server).to receive(:new).and_return(server)
             return server
         end
-        let(:library) { PuppetLibrary.new }
+        let(:log) { double('log').as_null_object }
+        let(:library) { PuppetLibrary.new(log) }
         let(:default_options) {{ :app => server, :Host => "0.0.0.0", :Port => "9292"}}
+        before do
+            allow(Rack::Server).to receive(:start)
+        end
 
         def default_options_with(substitutions)
             default_options.clone.tap do |options|
@@ -71,6 +75,12 @@ module PuppetLibrary
                 expect(Rack::Server).to receive(:start).with(default_options)
 
                 library.go(["--module-dir", "dir1", "--module-dir", "dir2"])
+            end
+
+            it "logs the server options" do
+                expect(log).to receive(:puts).with(/Port: 9292/)
+                expect(log).to receive(:puts).with(/Host: 0\.0\.0\.0/)
+                library.go([])
             end
         end
     end

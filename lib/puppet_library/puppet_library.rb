@@ -19,9 +19,15 @@ require 'rack'
 
 module PuppetLibrary
     class PuppetLibrary
+        def initialize(log = STDERR)
+            @log = log
+        end
+
         def go(args)
             options = parse_options(args)
             server = build_server(options)
+            announce_server_start(options)
+
             start_server(server, options)
         end
 
@@ -61,6 +67,16 @@ module PuppetLibrary
                 module_repo.add_repo(subrepo)
             end
             Server.new(module_repo)
+        end
+
+        def announce_server_start(options)
+            @log.puts "Starting Puppet Library server:"
+            @log.puts " |- Port: #{options[:port]}"
+            @log.puts " |- Host: #{options[:hostname]}"
+            @log.puts " `- Module dirs:"
+            options[:module_dirs].each do |dir|
+                @log.puts "    - #{dir}"
+            end
         end
 
         def start_server(server, options)
