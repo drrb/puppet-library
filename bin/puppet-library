@@ -22,42 +22,5 @@ require "puppet_library"
 require 'optparse'
 
 module PuppetLibrary
-    options = {}
-    OptionParser.new do |opts|
-        opts.banner = "Usage: #{File.basename $0} [options]"
-
-        options[:port] = "9292"
-        opts.on("-p", "--port [PORT]", "Port to listen on (defaults to #{options[:port]}") do |port|
-            options[:port] = port
-        end
-
-        options[:hostname] = "0.0.0.0"
-        opts.on("-b", "--bind-host [HOSTNAME]", "Host name to bind to (defaults to #{options[:hostname]}") do |hostname|
-            options[:hostname] = hostname
-        end
-
-        options[:module_dirs] = []
-        opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (defaults to #{options[:module_dir]})") do |module_dir|
-            options[:module_dirs] << module_dir
-        end
-    end.parse!
-
-    module_dirs = options[:module_dirs] || ["./modules"]
-    puts "Starting Puppet Library server on port #{options[:port]}, serving modules from #{module_dirs.join ", "}"
-    module_repo = MultiModuleRepo.new
-    module_dirs.each do |dir|
-        subrepo = ModuleRepo.new(dir)
-        module_repo.add_repo(subrepo)
-    end
-    server = Server.new(module_repo)
-
-    dispatch = Rack::Builder.app do
-        run server
-    end
-
-    Rack::Server.start({
-        app: dispatch,
-        Host: options[:hostname],
-        Port: options[:port]
-    })
+    PuppetLibrary.new.go(ARGV)
 end
