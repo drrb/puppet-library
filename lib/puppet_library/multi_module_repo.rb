@@ -19,10 +19,14 @@ class Array
     # Like 'uniq' with a block, but also works on Ruby < 1.9
     def unique_by
         attr_to_element = {}
-        each do |element|
-           attr_to_element[yield(element)] ||= element
+        select do |element|
+            attribute = yield(element)
+            is_duplicate = attr_to_element.include? attribute
+            unless is_duplicate
+                attr_to_element[yield(element)] = element
+            end
+            !is_duplicate
         end
-        attr_to_element.values
     end
 end
 
