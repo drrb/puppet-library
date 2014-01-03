@@ -15,6 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+class Array
+    # Like 'uniq' with a block, but also works on Ruby < 1.9
+    def unique_by
+        attr_to_element = {}
+        each do |element|
+           attr_to_element[yield(element)] ||= element
+        end
+        attr_to_element.values
+    end
+end
+
 module PuppetLibrary
     class MultiModuleRepo
         def repos
@@ -37,7 +48,7 @@ module PuppetLibrary
             metadata_list = repos.inject([]) do |metadata_list, repo|
                 metadata_list + repo.get_metadata(author, name)
             end
-            metadata_list.uniq { |metadata| metadata["version"] }
+            metadata_list.unique_by { |metadata| metadata["version"] }
         end
     end
 end
