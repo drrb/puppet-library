@@ -15,29 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary
-    class MultiModuleRepo
-        def repos
-            @repos ||= []
-        end
-
-        def add_repo(repo)
-            repos << repo
-        end
-
-        def get_module(author, name, version)
-            repos.each do |repo|
-                mod = repo.get_module(author, name, version)
-                return mod unless mod.nil?
+class Array
+    # Like 'uniq' with a block, but also works on Ruby < 1.9
+    def unique_by
+        attr_to_element = {}
+        select do |element|
+            attribute = yield(element)
+            is_duplicate = attr_to_element.include? attribute
+            unless is_duplicate
+                attr_to_element[yield(element)] = element
             end
-            return nil
-        end
-
-        def get_metadata(author, name)
-            metadata_list = repos.inject([]) do |metadata_list, repo|
-                metadata_list + repo.get_metadata(author, name)
-            end
-            metadata_list.unique_by { |metadata| metadata["version"] }
+            !is_duplicate
         end
     end
 end
