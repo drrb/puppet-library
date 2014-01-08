@@ -20,6 +20,14 @@ require 'sinatra/base'
 require 'puppet_library/module_metadata'
 require 'puppet_library/multi_module_repo'
 
+class Array
+    def deep_merge
+        inject({}) do |merged, map|
+            merged.deep_merge(map)
+        end
+    end
+end
+
 class Hash
     def deep_merge(other)
         merge(other) do |key, old_val, new_val|
@@ -37,7 +45,7 @@ module PuppetLibrary
 
         def initialize(module_repo = MultiModuleRepo.new)
             super(nil)
-            @repo = module_repo
+            @repo = settings.respond_to?(:module_repo) ? settings.module_repo : module_repo
         end
 
         configure do
@@ -47,37 +55,22 @@ module PuppetLibrary
         get "/:author/:module.json" do
             author = params[:author]
             module_name = params[:module]
-            modules = get_metadata(author, module_name)
-            if modules.empty?
+
+            begin
+                get_module_metadata(author, module_name).to_json
+            rescue ModuleNotFound
                 status 410
                 {"error" => "Could not find module \"#{module_name}\""}.to_json
-            else
-                modules.map do |metadata|
-                    metadata.to_info
-                end.inject({}) do |merged, map|
-                    merged.deep_merge(map)
-                end.to_json
             end
         end
 
         get "/api/v1/releases.json" do
-            full_name = params[:module]
-            module_queue = [full_name]
-            modules_versions = {}
-            while module_full_name = module_queue.shift
-                next if modules_versions[module_full_name]
-                author, module_name = module_full_name.split "/"
-                module_versions = get_metadata(author, module_name)
-                dependencies = module_versions.map {|v| v.dependency_names }.flatten
-                module_queue += dependencies
-                modules_versions[module_full_name] = module_versions.map { |v| v.to_version }
-            end
-
-            if modules_versions.values == [[]]
+            author, module_name = params[:module].split "/"
+            begin
+                get_module_metadata_with_dependencies(author, module_name).to_json
+            rescue ModuleNotFound
                 status 410
-                {"error" => "Module #{full_name} not found"}.to_json
-            else
-                modules_versions.to_json
+                {"error" => "Module #{author}/#{module_name} not found"}.to_json
             end
         end
 
@@ -85,19 +78,57 @@ module PuppetLibrary
             author = params[:author]
             name = params[:module]
             version = params[:version]
-            buffer = @repo.get_module(author, name, version)
+
             content_type "application/octet-stream"
-            if buffer.nil?
+
+            begin
+                get_module_buffer(author, name, version).tap do
+                    attachment "#{author}-#{name}-#{version}.tar.gz"
+                end
+            rescue ModuleNotFound
                 status 404
-            else
-                attachment "#{author}-#{name}-#{version}.tar.gz"
-                buffer
             end
         end
 
         private
+        def get_module_metadata(author, name)
+            modules = get_metadata(author, name)
+            raise ModuleNotFound if modules.empty?
+
+            module_infos = modules.map { |m| m.to_info }
+            module_infos.deep_merge
+        end
+
+        def get_module_metadata_with_dependencies(author, name)
+            full_name = "#{author}/#{name}"
+
+            module_queue = []
+            modules_versions = {}
+            module_queue << full_name
+            until module_queue.empty?
+                module_full_name = module_queue.shift
+                already_added = modules_versions.include? module_full_name
+                unless already_added
+                    author, module_name = module_full_name.split "/"
+                    module_versions = get_metadata(author, module_name)
+                    dependencies = module_versions.map {|v| v.dependency_names }.flatten
+                    module_queue += dependencies
+                    modules_versions[module_full_name] = module_versions.map { |v| v.to_version }
+                end
+            end
+            raise ModuleNotFound if modules_versions.values == [[]]
+            modules_versions
+        end
+
+        def get_module_buffer(author, name, version)
+            @repo.get_module(author, name, version) or raise ModuleNotFound
+        end
+
         def get_metadata(author, module_name)
             @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
         end
     end
+end
+
+class ModuleNotFound < Exception
 end
