@@ -31,12 +31,14 @@ module PuppetLibrary
             announce_server_start(options)
 
             start_server(server, options)
+        rescue ExpectedError => error
+            @log.puts "Error: #{error}"
         end
 
         private
         def parse_options(args)
             options = {}
-            OptionParser.new do |opts|
+            option_parser = OptionParser.new do |opts|
                 opts.banner = "Usage: #{File.basename $0} [options]"
 
                 options[:port] = "9292"
@@ -53,7 +55,12 @@ module PuppetLibrary
                 opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
                     options[:module_dirs] << module_dir
                 end
-            end.parse(args)
+            end
+            begin
+                option_parser.parse(args)
+            rescue OptionParser::InvalidOption => parse_error
+                raise ExpectedError, parse_error.message + "\n" + option_parser.help
+            end
 
             if options[:module_dirs].empty?
                 options[:module_dirs] << "./modules"
@@ -88,5 +95,8 @@ module PuppetLibrary
                 :Port => options[:port]
             )
         end
+    end
+
+    class ExpectedError < StandardError
     end
 end

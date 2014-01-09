@@ -45,6 +45,14 @@ module PuppetLibrary
         end
 
         describe "#go" do
+            context "when specifying a bad option" do
+                it "prints the usage" do
+                    expect(log).to receive(:puts).with(/invalid option: --die\nUsage:/)
+
+                    library.go(["--die"])
+                end
+            end
+
             context "when specifying no options" do
                 it "runs the server with the default options" do
                     expect(Rack::Server).to receive(:start).with(default_options)
