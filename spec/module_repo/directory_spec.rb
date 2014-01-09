@@ -16,12 +16,12 @@
 
 require 'spec_helper'
 
-module PuppetLibrary
-    describe ModuleRepo do
+module PuppetLibrary::ModuleRepo
+    describe Directory do
         include ModuleSpecHelper
 
         let(:module_dir) { "/tmp/#{$$}" }
-        let(:module_repo) { ModuleRepo.new(module_dir) }
+        let(:module_repo) { Directory.new(module_dir) }
 
         before do
             FileUtils.mkdir_p module_dir

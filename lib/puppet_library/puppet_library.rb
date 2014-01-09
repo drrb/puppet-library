@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rack'
+require 'puppet_library/module_repo/directory'
+require 'puppet_library/module_repo/multi'
 
 module PuppetLibrary
     class PuppetLibrary
@@ -61,9 +63,9 @@ module PuppetLibrary
         end
 
         def build_server(options)
-            module_repo = MultiModuleRepo.new
+            module_repo = ModuleRepo::Multi.new
             options[:module_dirs].each do |dir|
-                subrepo = ModuleRepo.new(dir)
+                subrepo = ModuleRepo::Directory.new(dir)
                 module_repo.add_repo(subrepo)
             end
             Server.new(module_repo)

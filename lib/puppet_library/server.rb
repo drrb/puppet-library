@@ -18,7 +18,7 @@
 require 'sinatra/base'
 
 require 'puppet_library/module_metadata'
-require 'puppet_library/multi_module_repo'
+require 'puppet_library/module_repo/multi'
 
 class Array
     def deep_merge
@@ -43,7 +43,7 @@ end
 module PuppetLibrary
     class Server < Sinatra::Base
 
-        def initialize(module_repo = MultiModuleRepo.new)
+        def initialize(module_repo = ModuleRepo::Multi.new)
             super(nil)
             @repo = settings.respond_to?(:module_repo) ? settings.module_repo : module_repo
         end

@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/version'
+
 require 'puppet_library/puppet_library'
 require 'puppet_library/server'
 require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo'
-require 'puppet_library/multi_module_repo'
+require 'puppet_library/module_repo/directory'
+require 'puppet_library/module_repo/multi'
 require 'puppet_library/util'
-require 'puppet_library/version'

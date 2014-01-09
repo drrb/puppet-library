@@ -16,14 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'spec_helper'
-require 'puppet_library/multi_module_repo'
 
-module PuppetLibrary
-    describe MultiModuleRepo do
+module PuppetLibrary::ModuleRepo
+    describe Multi do
         let(:subrepo_one) { double('subrepo_one').as_null_object }
         let(:subrepo_two) { double('subrepo_two').as_null_object }
         let(:multi_repo) do
-            repo = MultiModuleRepo.new
+            repo = Multi.new
             repo.add_repo(subrepo_one)
             repo.add_repo(subrepo_two)
             return repo

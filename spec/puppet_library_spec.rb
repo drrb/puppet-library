@@ -20,8 +20,8 @@ require 'spec_helper'
 module PuppetLibrary
     describe PuppetLibrary do
         let(:module_repo) do
-            module_repo = double(MultiModuleRepo)
-            allow(MultiModuleRepo).to receive(:new).and_return(module_repo)
+            module_repo = double(ModuleRepo::Multi)
+            allow(ModuleRepo::Multi).to receive(:new).and_return(module_repo)
             return module_repo
         end
         let(:server) do
