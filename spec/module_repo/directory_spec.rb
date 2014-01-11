@@ -19,16 +19,18 @@ require 'spec_helper'
 module PuppetLibrary::ModuleRepo
     describe Directory do
         include ModuleSpecHelper
+        include FileUtils
 
-        let(:module_dir) { "/tmp/#{$$}" }
+        let(:module_dir) { Tempfile.new("module_dir").path }
         let(:module_repo) { Directory.new(module_dir) }
 
         before do
-            FileUtils.mkdir_p module_dir
+            rm_rf module_dir
+            mkdir_p module_dir
         end
 
         after do
-            FileUtils.rm_rf module_dir
+            rm_rf module_dir
         end
 
         describe "#get_module" do

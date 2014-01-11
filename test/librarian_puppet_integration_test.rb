@@ -16,8 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'spec_helper'
-require 'rack'
-require 'fileutils'
 
 include FileUtils
 
@@ -25,8 +23,8 @@ module PuppetLibrary
     describe "librarian-puppet integration test" do
         include ModuleSpecHelper
 
-        let(:module_dir) { "/tmp/integration_test#{$$}" }
-        let(:project_dir) { "/tmp/integration_test_project#{$$}" }
+        let(:module_dir) { Tempfile.new("module_dir").path }
+        let(:project_dir) { Tempfile.new("project_dir").path }
         let(:start_dir) { pwd }
         let(:repo) { ModuleRepo::Directory.new(module_dir) }
         let(:server) {
@@ -46,6 +44,8 @@ module PuppetLibrary
         end
 
         before do
+            rm_rf module_dir
+            rm_rf project_dir
             mkdir_p module_dir
             mkdir_p project_dir
             server_runner

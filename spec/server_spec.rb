@@ -23,19 +23,21 @@ module PuppetLibrary
     describe Server do
         include Rack::Test::Methods
         include ModuleSpecHelper
+        include FileUtils
 
-        let(:module_dir) { "/tmp/#{$$}" }
+        let(:module_dir) { Tempfile.new("module_dir").path }
         let(:module_repo) { double(ModuleRepo) }
         let(:app) do
             Server.new(module_repo)
         end
 
         before do
-            FileUtils.mkdir_p module_dir
+            rm_rf module_dir
+            mkdir_p module_dir
         end
 
         after do
-            FileUtils.rm_rf module_dir
+            rm_rf module_dir
         end
 
         describe "GET /modules/<author>-<module>-<version>.tar.gz" do
