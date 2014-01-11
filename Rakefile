@@ -48,3 +48,15 @@ task "version" do
     puts PuppetLibrary::VERSION
 end
 
+desc "Release Puppet Library"
+task "push-release" => ["check-license", :verify] do
+    puts "Releasing #{PuppetLibrary::VERSION}"
+    Rake::Task[:release].invoke
+
+    major, minor, patch = PuppetLibrary::VERSION.split(".").map {|n| n.to_i}
+    new_version = "#{major}.#{minor + 1}.0"
+    puts "Updating version number to #{new_version}"
+    system(%q[sed -i '' -E 's/VERSION = ".*"/VERSION = "] + new_version + %q["/' lib/puppet_library/version.rb]) or fail "Couldn't update version"
+    PuppetLibrary::VERSION.replace new_version
+    system "git commit lib/puppet_library/version.rb --message='[release] Incremented version number'" or fail "Couldn't commit new version number"
+end
