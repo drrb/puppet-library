@@ -42,8 +42,10 @@ module ModuleSpecHelper
             archive.add_file("#{fqn}/metadata.json", 0644) do |file|
                 content = {
                     "name" => full_name,
-                    "version" => version
+                    "version" => version,
+                    "dependencies" => []
                 }
+                yield(content) if block_given?
                 file.write content.to_json
             end
         end

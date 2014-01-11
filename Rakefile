@@ -19,14 +19,21 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'coveralls/rake/task'
 
-RSpec::Core::RakeTask.new(:spec)
 Coveralls::RakeTask.new
 
-task :default => [:spec, 'coveralls:push']
+desc "Run the specs"
+RSpec::Core::RakeTask.new(:spec)
+
+desc "Run the integration tests"
+RSpec::Core::RakeTask.new("integration-test") do |rspec|
+    rspec.pattern = "spec/**/*_integration_test.rb"
+end
+
+task :default => [:spec, 'integration-test', 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    system "rvm all do rake spec check-license"
+    system "rvm all do rake spec integration-test"
 end
 
 desc "Check all files for license headers"
