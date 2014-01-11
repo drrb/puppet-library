@@ -8,7 +8,7 @@ A private server for your Puppet modules. Compatible with [librarian-puppet](htt
 [![Gem Version](https://badge.fury.io/rb/puppet-library.png)](http://badge.fury.io/rb/puppet-library)
 [![Dependency Status](https://gemnasium.com/drrb/puppet-library.png)](https://gemnasium.com/drrb/puppet-library)
 
-Puppet Library serves Puppet modules in the same format as [the Puppet Forge](http://forge.puppetlabs.com). This allows you to manage all the modules you use completely within your infrastructure. It currently supports serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing.
+Puppet Library serves Puppet modules in the same format as [the Puppet Forge](http://forge.puppetlabs.com). This allows you to create a private Puppet Forge and manage all the modules you use completely within your infrastructure. It currently supports serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing.
 
 ## Installation
 
