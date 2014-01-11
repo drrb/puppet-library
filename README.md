@@ -1,12 +1,14 @@
 # Puppet Library
 
-A server for your Puppet modules. Compatible with [librarian-puppet](http://librarian-puppet.com).
+A private server for your Puppet modules. Compatible with [librarian-puppet](http://librarian-puppet.com).
 
 [![Build Status](https://travis-ci.org/drrb/puppet-library.png?branch=master)](https://travis-ci.org/drrb/puppet-library)
 [![Coverage Status](https://coveralls.io/repos/drrb/puppet-library/badge.png)](https://coveralls.io/r/drrb/puppet-library)
-[![Gem Version](https://badge.fury.io/rb/puppet-library.png)](http://badge.fury.io/rb/puppet-library)
 
-Puppet library serves packaged (`tar.gz`) modules from a directory of your choosing in the same format as [the Puppet Forge](http://forge.puppetlabs.com).
+[![Gem Version](https://badge.fury.io/rb/puppet-library.png)](http://badge.fury.io/rb/puppet-library)
+[![Dependency Status](https://gemnasium.com/drrb/puppet-library.png)](https://gemnasium.com/drrb/puppet-library)
+
+Puppet Library serves Puppet modules in the same format as [the Puppet Forge](http://forge.puppetlabs.com). This allows you to manage all the modules you use completely within your infrastructure. It currently supports serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing.
 
 ## Installation
 
