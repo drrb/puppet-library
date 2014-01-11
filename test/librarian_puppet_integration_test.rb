@@ -17,11 +17,10 @@
 
 require 'spec_helper'
 
-include FileUtils
-
 module PuppetLibrary
     describe "librarian-puppet integration test" do
         include ModuleSpecHelper
+        include FileUtils
 
         let(:module_dir) { Tempfile.new("module_dir").path }
         let(:project_dir) { Tempfile.new("project_dir").path }
