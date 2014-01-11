@@ -26,10 +26,10 @@ RSpec::Core::RakeTask.new(:spec)
 
 desc "Run the integration tests"
 RSpec::Core::RakeTask.new("integration-test") do |rspec|
-    rspec.pattern = "spec/**/*_integration_test.rb"
+    rspec.pattern = "test/**/*_integration_test.rb"
 end
 
-task :default => [:spec, 'integration-test', 'coveralls:push']
+task :default => ['integration-test', :spec, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
