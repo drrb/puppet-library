@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ module PuppetLibrary
         end
         let(:log) { double('log').as_null_object }
         let(:library) { PuppetLibrary.new(log) }
-        let(:default_options) {{ :app => server, :Host => "0.0.0.0", :Port => "9292"}}
+        let(:default_options) {{ :app => server, :Host => "0.0.0.0", :Port => "9292", :server => nil }}
         before do
             allow(Rack::Server).to receive(:start)
         end
@@ -69,6 +69,14 @@ module PuppetLibrary
                 end
             end
 
+            context "when specifying --server option" do
+                it "runs the app on the specified server" do
+                    expect(Rack::Server).to receive(:start).with(default_options_with(:server => "thin"))
+
+                    library.go(["--server", "thin"])
+                end
+            end
+
             context "when specifying --bind-host option" do
                 it "runs the server with the specified bind host" do
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Host => "localhost"))
@@ -88,6 +96,7 @@ module PuppetLibrary
             it "logs the server options" do
                 expect(log).to receive(:puts).with(/Port: 9292/)
                 expect(log).to receive(:puts).with(/Host: 0\.0\.0\.0/)
+                expect(log).to receive(:puts).with(/Server: default/)
                 library.go([])
             end
         end

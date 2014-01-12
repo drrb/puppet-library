@@ -1,5 +1,4 @@
 Features:
-    - Configure embedded server (currently uses the default Rack server)
     - Proxy another repository
     - Use config from a config file
     - Document usage with Passenger

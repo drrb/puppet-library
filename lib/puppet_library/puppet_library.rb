@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,6 +46,10 @@ module PuppetLibrary
                     options[:port] = port
                 end
 
+                opts.on("-s", "--server [SERVER]", "Server to use (defaults to whatever Rack wants to use)") do |server|
+                    options[:server] = server
+                end
+
                 options[:hostname] = "0.0.0.0"
                 opts.on("-b", "--bind-host [HOSTNAME]", "Host name to bind to (defaults to #{options[:hostname]})") do |hostname|
                     options[:hostname] = hostname
@@ -82,6 +86,7 @@ module PuppetLibrary
             @log.puts "Starting Puppet Library server:"
             @log.puts " |- Port: #{options[:port]}"
             @log.puts " |- Host: #{options[:hostname]}"
+            @log.puts " |- Server: #{options[:server] ? options[:server] : 'default'}"
             @log.puts " `- Module dirs:"
             options[:module_dirs].each do |dir|
                 @log.puts "    - #{dir}"
@@ -92,7 +97,8 @@ module PuppetLibrary
             Rack::Server.start(
                 :app => server,
                 :Host => options[:hostname],
-                :Port => options[:port]
+                :Port => options[:port],
+                :server => options[:server]
             )
         end
     end
