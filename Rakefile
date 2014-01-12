@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ task :default => [:test, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    system "rvm all do rake spec integration-test"
+    system "rvm all do rake test"
 end
 
 desc "Check all files for license headers"
