@@ -1,4 +1,7 @@
 Features:
     - Use config from a config file
+    - Cache proxied requests for an arbitray amount of time
+    - Add REST API to clear cache
+    - Validate proxy URLs (make sure they work with and without trailing slashes)
     - Allow failover between module repositories
     - Document usage with Passenger

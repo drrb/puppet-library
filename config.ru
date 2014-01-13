@@ -18,5 +18,5 @@
 require 'rubygems'
 require 'puppet_library'
 
-PuppetLibrary::Server.set :module_repo, ModuleRepo::Directory.new("/var/puppet-library/modules")
+PuppetLibrary::Server.configure "/etc/puppet-library.yml"
 run PuppetLibrary::Server
