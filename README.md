@@ -51,6 +51,10 @@ Serve modules from a specific directory
 
     $ puppet-library --module-dir /var/puppet-modules
 
+Serve modules from remote forge as a proxy
+
+    $ puppet-library --proxy http://forge.puppetlabs.com
+
 Serve modules on a specific port
 
     $ puppet-library --port 8888

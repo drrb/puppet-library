@@ -59,6 +59,11 @@ module PuppetLibrary
                 opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
                     options[:module_dirs] << module_dir
                 end
+
+                options[:proxies] = []
+                opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |proxy|
+                    options[:proxies] << proxy
+                end
             end
             begin
                 option_parser.parse(args)
@@ -66,15 +71,21 @@ module PuppetLibrary
                 raise ExpectedError, parse_error.message + "\n" + option_parser.help
             end
 
-            if options[:module_dirs].empty?
-                options[:module_dirs] << "./modules"
-            end
-
             return options
         end
 
         def build_server(options)
             module_repo = ModuleRepo::Multi.new
+            options[:proxies].each do |url|
+                subrepo = ModuleRepo::Proxy.new(url)
+                module_repo.add_repo(subrepo)
+            end
+
+            #TODO: maybe don't have a default module directory
+            if options[:proxies].empty? && options[:module_dirs].empty?
+                options[:module_dirs] << "./modules"
+            end
+
             options[:module_dirs].each do |dir|
                 subrepo = ModuleRepo::Directory.new(dir)
                 module_repo.add_repo(subrepo)

@@ -45,7 +45,7 @@ module PuppetLibrary
         end
 
         describe "#go" do
-            context "when specifying a bad option" do
+            context "when using a bad option" do
                 it "prints the usage" do
                     expect(log).to receive(:puts).with(/invalid option: --die\nUsage:/)
 
@@ -53,7 +53,7 @@ module PuppetLibrary
                 end
             end
 
-            context "when specifying no options" do
+            context "when using no options" do
                 it "runs the server with the default options" do
                     expect(Rack::Server).to receive(:start).with(default_options)
 
@@ -61,7 +61,7 @@ module PuppetLibrary
                 end
             end
 
-            context "when specifying --port option" do
+            context "when using --port option" do
                 it "runs the server with the specified port" do
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Port => "8080"))
 
@@ -69,7 +69,7 @@ module PuppetLibrary
                 end
             end
 
-            context "when specifying --server option" do
+            context "when using --server option" do
                 it "runs the app on the specified server" do
                     expect(Rack::Server).to receive(:start).with(default_options_with(:server => "thin"))
 
@@ -77,11 +77,25 @@ module PuppetLibrary
                 end
             end
 
-            context "when specifying --bind-host option" do
+            context "when using --bind-host option" do
                 it "runs the server with the specified bind host" do
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Host => "localhost"))
 
                     library.go(["--bind-host", "localhost"])
+                end
+            end
+
+            context "when using --proxy option" do
+                it "adds a proxy module repository for each option specified" do
+                    proxy1 = double('proxy1')
+                    proxy2 = double('proxy2')
+                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
+                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
+                    expect(Server).to receive(:new).with(module_repo).and_return(server)
+                    expect(module_repo).to receive(:add_repo).twice
+                    expect(Rack::Server).to receive(:start).with(default_options)
+
+                    library.go(["--proxy", "http://forge1.example.com", "--proxy", "http://forge2.example.com"])
                 end
             end
 

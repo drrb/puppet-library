@@ -25,20 +25,34 @@ module PuppetLibrary
         let(:module_dir) { Tempfile.new("module_dir").path }
         let(:project_dir) { Tempfile.new("project_dir").path }
         let(:start_dir) { pwd }
-        let(:repo) { ModuleRepo::Directory.new(module_dir) }
-        let(:server) {
-            Server.new(repo)
-        }
-        let(:rack_server) do
+        let(:disk_repo) { ModuleRepo::Directory.new(module_dir) }
+        let(:disk_server) { Server.new(disk_repo) }
+        let(:disk_rack_server) do
             Rack::Server.new(
-                :app => server,
+                :app => disk_server,
                 :Host => "localhost",
-                :Port => 9000
+                :Port => 9000,
+                :server => "webrick"
             )
         end
-        let(:server_runner) do
+        let(:disk_server_runner) do
             Thread.new do
-                rack_server.start
+                disk_rack_server.start
+            end
+        end
+        let(:proxy_repo) { ModuleRepo::Proxy.new("http://localhost:9000") }
+        let(:proxy_server) { Server.new(proxy_repo) }
+        let(:proxy_rack_server) do
+            Rack::Server.new(
+                :app => proxy_server,
+                :Host => "localhost",
+                :Port => 9001,
+                :server => "webrick"
+            )
+        end
+        let(:proxy_server_runner) do
+            Thread.new do
+                proxy_rack_server.start
             end
         end
 
@@ -47,8 +61,8 @@ module PuppetLibrary
             rm_rf project_dir
             mkdir_p module_dir
             mkdir_p project_dir
-            server_runner
-            sleep(2) # Wait for the server to start
+            disk_server_runner
+            proxy_server_runner
             start_dir
             cd project_dir
         end
@@ -74,7 +88,7 @@ module PuppetLibrary
             add_module("puppetlabs", "stdlib", "3.0.0")
 
             write_puppetfile <<-EOF
-                forge 'http://localhost:9000'
+                forge 'http://localhost:9001'
                 mod 'puppetlabs/apache'
             EOF
 

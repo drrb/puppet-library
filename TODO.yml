@@ -1,4 +1,4 @@
 Features:
-    - Proxy another repository
     - Use config from a config file
+    - Allow failover between module repositories
     - Document usage with Passenger
