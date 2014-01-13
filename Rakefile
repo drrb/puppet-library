@@ -29,7 +29,7 @@ RSpec::Core::RakeTask.new(:test) do |rspec|
     rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
 end
 
-task :default => [:test, 'coveralls:push']
+task :default => [:spec, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
