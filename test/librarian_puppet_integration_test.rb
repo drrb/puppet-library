@@ -63,6 +63,7 @@ module PuppetLibrary
             mkdir_p project_dir
             disk_server_runner
             proxy_server_runner
+            sleep(2) # Wait for the servers to start
             start_dir
             cd project_dir
         end
