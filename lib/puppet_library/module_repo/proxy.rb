@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'open-uri'
 require 'puppet_library/http/http_client'
 
 module PuppetLibrary::ModuleRepo
