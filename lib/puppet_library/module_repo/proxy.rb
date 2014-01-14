@@ -23,7 +23,6 @@ module PuppetLibrary::ModuleRepo
         def initialize(url, http_client = PuppetLibrary::Http::HttpClient.new)
             @url = url
             @http_client = http_client
-            #TODO: Make cache TTL configurable
             @cache = PuppetLibrary::Http::Cache.new
         end
 
