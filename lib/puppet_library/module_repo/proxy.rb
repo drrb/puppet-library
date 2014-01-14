@@ -20,12 +20,11 @@ require 'puppet_library/http/cache'
 
 module PuppetLibrary::ModuleRepo
     class Proxy
-        ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
         def initialize(url, http_client = PuppetLibrary::Http::HttpClient.new)
             @url = url
             @http_client = http_client
-            #TODO:make this configurable
-            @cache = PuppetLibrary::Http::Cache.new(ARBITRARY_CACHE_TTL_MILLIS)
+            #TODO: Make cache TTL configurable
+            @cache = PuppetLibrary::Http::Cache.new
         end
 
         def get_module(author, name, version)
