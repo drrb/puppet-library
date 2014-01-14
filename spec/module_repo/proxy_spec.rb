@@ -62,7 +62,7 @@ module PuppetLibrary::ModuleRepo
             end
 
             context "when versions of the module exist" do
-                it "returns an empty array" do
+                it "returns an array of the versions" do
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
                         and_return('{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
@@ -71,6 +71,15 @@ module PuppetLibrary::ModuleRepo
                     expect(metadata.size).to eq 2
                     expect(metadata.first).to eq({ "name" => "puppetlabs-apache", "author" => "puppetlabs", "version" => "1.0.0", "dependencies" => [{ "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }, { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 2.0.0" }] })
                     expect(metadata.last).to eq({ "name" => "puppetlabs-apache", "author" => "puppetlabs", "version" => "2.0.0", "dependencies" => [] })
+                end
+
+                it "caches requests" do
+                    expect(http_client).to receive(:get).
+                        once.with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
+                        and_return('{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
+
+                    repo.get_metadata("puppetlabs", "apache")
+                    repo.get_metadata("puppetlabs", "apache")
                 end
             end
         end

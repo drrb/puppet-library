@@ -16,12 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'puppet_library/http/http_client'
+require 'puppet_library/http/cache'
 
 module PuppetLibrary::ModuleRepo
     class Proxy
         def initialize(url, http_client = PuppetLibrary::Http::HttpClient.new)
             @url = url
             @http_client = http_client
+            @cache = PuppetLibrary::Http::Cache.new
         end
 
         def get_module(author, name, version)
@@ -66,7 +68,10 @@ module PuppetLibrary::ModuleRepo
         end
 
         def get(relative_url)
-            JSON.parse(@http_client.get(url(relative_url)))
+            response = @cache.get(relative_url) do
+                @http_client.get(url(relative_url))
+            end
+            JSON.parse(response)
         end
 
         def url(relative_url)
