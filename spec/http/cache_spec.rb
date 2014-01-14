@@ -25,9 +25,7 @@ module PuppetLibrary::Http
         describe "#get" do
             context "the first time it's called" do
                 it "returns the value from the provided block" do
-                    greeting = cache.get("greeting") do
-                        "hello"
-                    end
+                    greeting = cache.get("greeting") { "hello" }
 
                     expect(greeting).to eq "hello"
                 end
@@ -35,12 +33,8 @@ module PuppetLibrary::Http
 
             context "the second time it's called" do
                 it "returns the cached value" do
-                    cache.get("greeting") do
-                        "hello"
-                    end
-                    greeting = cache.get("greeting") do
-                        "hi"
-                    end
+                    cache.get("greeting") { "hello" }
+                    greeting = cache.get("greeting") { "hi" }
 
                     expect(greeting).to eq "hello"
                 end
@@ -48,14 +42,20 @@ module PuppetLibrary::Http
 
             context "when the cached value is falsey" do
                 it "returns the cached value" do
-                    cache.get("greeting") do
-                        false
-                    end
-                    greeting = cache.get("greeting") do
-                        true
-                    end
+                    cache.get("greeting") { false }
+                    greeting = cache.get("greeting") { true }
 
                     expect(greeting).to be_false
+                end
+            end
+
+            context "when the time limit has expired" do
+                it "looks up the value again" do
+                    cache = Cache.new(0)
+
+                    greeting = cache.get("greeting") { "hi" }
+                    greeting = cache.get("greeting") { "bye" }
+                    expect(greeting).to eq "bye"
                 end
             end
         end
