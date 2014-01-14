@@ -45,7 +45,7 @@ module PuppetLibrary::Http
                     cache.get("greeting") { false }
                     greeting = cache.get("greeting") { true }
 
-                    expect(greeting).to be_false
+                    expect(greeting).to be false
                 end
             end
 
