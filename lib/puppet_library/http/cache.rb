@@ -17,7 +17,8 @@
 
 module PuppetLibrary::Http
     class Cache
-        def initialize(millis_to_live = 10 * 1000)
+        ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
+        def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
             @reaper = Reaper.new(millis_to_live)
             @cache = {}
         end
