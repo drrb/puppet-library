@@ -84,8 +84,7 @@ module PuppetLibrary
                 subrepo = repo_type.new(config)
                 module_repo.add_repo(subrepo)
             end
-            forge = Forge.new(module_repo)
-            Server.new(forge)
+            Server.create(module_repo)
         end
 
         def announce_server_start(options)

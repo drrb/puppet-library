@@ -23,8 +23,11 @@ require 'puppet_library/module_repo/multi'
 
 module PuppetLibrary
     class Server < Sinatra::Base
+        def self.create(module_repo)
+            Server.new(Forge.new(module_repo))
+        end
 
-        def initialize(forge = Forge.new(ModuleRepo::Multi.new))
+        def initialize(forge)
             super(nil)
             @forge = forge
         end
