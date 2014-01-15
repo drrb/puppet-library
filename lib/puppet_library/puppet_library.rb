@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rack'
+require 'puppet_library/forge'
 require 'puppet_library/module_repo/directory'
 require 'puppet_library/module_repo/multi'
 
@@ -90,7 +91,8 @@ module PuppetLibrary
                 subrepo = ModuleRepo::Directory.new(dir)
                 module_repo.add_repo(subrepo)
             end
-            Server.new(module_repo)
+            forge = Forge.new(module_repo)
+            Server.new(forge)
         end
 
         def announce_server_start(options)

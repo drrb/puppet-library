@@ -24,9 +24,14 @@ module PuppetLibrary
             allow(ModuleRepo::Multi).to receive(:new).and_return(module_repo)
             return module_repo
         end
+        let(:forge) do
+            forge = double(Forge)
+            allow(Forge).to receive(:new).and_return(forge)
+            return forge
+        end
         let(:server) do
             server = double(Server)
-            allow(Server).to receive(:new).and_return(server)
+            allow(Server).to receive(:new).with(forge).and_return(server)
             return server
         end
         let(:log) { double('log').as_null_object }
@@ -91,7 +96,7 @@ module PuppetLibrary
                     proxy2 = double('proxy2')
                     expect(ModuleRepo::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
                     expect(ModuleRepo::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
-                    expect(Server).to receive(:new).with(module_repo).and_return(server)
+                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
                     expect(module_repo).to receive(:add_repo).twice
                     expect(Rack::Server).to receive(:start).with(default_options)
 
@@ -100,7 +105,7 @@ module PuppetLibrary
             end
 
             it "adds a module repository to the server for each module directory" do
-                expect(Server).to receive(:new).with(module_repo).and_return(server)
+                expect(Forge).to receive(:new).with(module_repo).and_return(forge)
                 expect(module_repo).to receive(:add_repo).twice
                 expect(Rack::Server).to receive(:start).with(default_options)
 

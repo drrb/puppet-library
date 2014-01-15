@@ -22,18 +22,17 @@ require 'rack/test'
 module PuppetLibrary
     describe Server do
         include Rack::Test::Methods
-        include FileUtils
 
-        let(:module_repo) { double(ModuleRepo) }
+        let(:forge) { double(Forge) }
         let(:app) do
-            Server.new(module_repo)
+            Server.new(forge)
         end
 
         describe "GET /modules/<author>-<module>-<version>.tar.gz" do
             context "when the module is on the server" do
                 it "serves the module" do
                     file_buffer = StringIO.new("module content")
-                    expect(module_repo).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
+                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -46,7 +45,7 @@ module PuppetLibrary
 
             context "when the module is not on the server" do
                 it "returns an error" do
-                    expect(module_repo).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return(nil)
+                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_raise(ModuleNotFound)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -58,32 +57,27 @@ module PuppetLibrary
 
         describe "GET /<author>/<module>.json" do
             it "gets module metadata for all versions" do
-                metadata = [ {
+                metadata = {
                     "author" => "puppetlabs",
-                    "name" => "puppetlabs-apache",
-                    "description" => "Apache module",
-                    "version" => "1.0.0"
-                }, {
-                    "author" => "puppetlabs",
-                    "name" => "puppetlabs-apache",
-                    "description" => "Apache module",
-                    "version" => "1.1.0"
-                } ]
-                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
+                    "full_name" => "puppetlabs/apache",
+                    "name" => "apache",
+                    "desc" => "Puppet module for Apache",
+                    "releases" => [
+                        { "version" => "0.10.0" },
+                        { "version" => "0.9.0" },
+                    ]
+                }
+                expect(forge).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(metadata)
 
                 get "/puppetlabs/apache.json"
 
-                expect(last_response.body).to include('"author":"puppetlabs"')
-                expect(last_response.body).to include('"full_name":"puppetlabs/apache"')
-                expect(last_response.body).to include('"name":"apache"')
-                expect(last_response.body).to include('"desc":"Apache module"')
-                expect(last_response.body).to include('"releases":[{"version":"1.0.0"},{"version":"1.1.0"}]')
+                expect(last_response.body).to eq metadata.to_json
                 expect(last_response).to be_ok
             end
 
             context "when no modules found" do
                 it "returns an error" do
-                    expect(module_repo).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
+                    expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(ModuleNotFound)
 
                     get "/nonexistant/nonexistant.json"
 
@@ -95,57 +89,43 @@ module PuppetLibrary
 
         describe "GET /api/v1/releases.json" do
             it "gets metadata for module and dependencies" do
-                apache_metadata = [ {
-                    "author" => "puppetlabs",
-                    "name" => "puppetlabs-apache",
-                    "description" => "Apache module",
-                    "version" => "1.0.0",
-                    "dependencies" => [
-                        { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
-                        { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
+                metadata = {
+                    "puppetlabs/apache" => [
+                        {
+                            "file" => "/system/releases/p/puppetlabs/puppetlabs-apache-0.9.0.tar.gz",
+                            "version" => "0.9.0",
+                            "dependencies" => [
+                                [ "puppetlabs/concat", ">= 1.0.0" ],
+                                [ "puppetlabs/stdlib", ">= 2.4.0" ]
+                            ]
+                        }
+                    ],
+                    "puppetlabs/stdlib" => [
+                        {
+                            "file" => "/system/releases/p/puppetlabs/puppetlabs-stdlib-3.0.0.tar.gz",
+                            "version" => "3.0.0",
+                            "dependencies" => [ ]
+                        }
+                    ],
+                    "puppetlabs/concat" => [
+                        {
+                            "file" => "/system/releases/p/puppetlabs/puppetlabs-concat-1.0.0-rc1.tar.gz",
+                            "version" => "1.0.0-rc1",
+                            "dependencies" => [ ]
+                        }
                     ]
-                }, {
-                    "author" => "puppetlabs",
-                    "name" => "puppetlabs-apache",
-                    "description" => "Apache module",
-                    "version" => "1.1.0",
-                    "dependencies" => [
-                        { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
-                        { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
-                    ]
-                } ]
-                stdlib_metadata = [ {
-                    "author" => "puppetlabs",
-                    "name" => "puppetlabs-stdlib",
-                    "description" => "Stdlib module",
-                    "version" => "2.0.0",
-                    "dependencies" => [ ]
-                } ]
-                concat_metadata = [ {
-                    "author" => "puppetlabs",
-                    "name" => "puppetlabs-concat",
-                    "description" => "Concat module",
-                    "version" => "1.0.0",
-                    "dependencies" => [ ]
-                } ]
-                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(apache_metadata)
-                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
-                expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                }
+                expect(forge).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache").and_return(metadata)
 
                 get "/api/v1/releases.json?module=puppetlabs/apache"
 
-                response = JSON.parse(last_response.body)
-                expect(response.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
-                expect(response["puppetlabs/apache"].size).to eq(2)
-                expect(response["puppetlabs/apache"][0]["file"]).to eq("/modules/puppetlabs-apache-1.0.0.tar.gz")
-                expect(response["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
-                expect(response["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                expect(last_response.body).to eq metadata.to_json
                 expect(last_response).to be_ok
             end
 
             context "when the module can't be found" do
                 it "returns an error" do
-                    expect(module_repo).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
+                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("nonexistant", "nonexistant").and_raise(ModuleNotFound)
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 

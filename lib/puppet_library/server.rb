@@ -24,10 +24,9 @@ require 'puppet_library/module_repo/multi'
 module PuppetLibrary
     class Server < Sinatra::Base
 
-        def initialize(module_repo = ModuleRepo::Multi.new)
+        def initialize(forge = Forge.new(ModuleRepo::Multi.new))
             super(nil)
-            @repo = settings.respond_to?(:module_repo) ? settings.module_repo : module_repo
-            @forge = Forge.new(@repo)
+            @forge = forge
         end
 
         configure do
