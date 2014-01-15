@@ -116,6 +116,8 @@ module PuppetLibrary
                 expect(log).to receive(:puts).with(/Port: 9292/)
                 expect(log).to receive(:puts).with(/Host: 0\.0\.0\.0/)
                 expect(log).to receive(:puts).with(/Server: default/)
+                expect(log).to receive(:puts).with(/Repositories:/)
+                expect(log).to receive(:puts).with(/- PuppetLibrary::ModuleRepo::Directory: \.\/modules/)
                 library.go([])
             end
         end

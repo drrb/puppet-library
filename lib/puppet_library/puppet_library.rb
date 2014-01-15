@@ -56,14 +56,12 @@ module PuppetLibrary
                     options[:hostname] = hostname
                 end
 
-                options[:module_dirs] = []
+                options[:repositories] = []
                 opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
-                    options[:module_dirs] << module_dir
+                    options[:repositories] << [ModuleRepo::Directory, module_dir]
                 end
-
-                options[:proxies] = []
-                opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |proxy|
-                    options[:proxies] << proxy
+                opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |url|
+                    options[:repositories] << [ModuleRepo::Proxy, url]
                 end
             end
             begin
@@ -76,19 +74,14 @@ module PuppetLibrary
         end
 
         def build_server(options)
-            module_repo = ModuleRepo::Multi.new
-            options[:proxies].each do |url|
-                subrepo = ModuleRepo::Proxy.new(url)
-                module_repo.add_repo(subrepo)
-            end
-
             #TODO: maybe don't have a default module directory
-            if options[:proxies].empty? && options[:module_dirs].empty?
-                options[:module_dirs] << "./modules"
+            if options[:repositories].empty?
+                options[:repositories] << [ ModuleRepo::Directory, "./modules" ]
             end
 
-            options[:module_dirs].each do |dir|
-                subrepo = ModuleRepo::Directory.new(dir)
+            module_repo = ModuleRepo::Multi.new
+            options[:repositories].each do |(repo_type, config)|
+                subrepo = repo_type.new(config)
                 module_repo.add_repo(subrepo)
             end
             forge = Forge.new(module_repo)
@@ -100,9 +93,9 @@ module PuppetLibrary
             @log.puts " |- Port: #{options[:port]}"
             @log.puts " |- Host: #{options[:hostname]}"
             @log.puts " |- Server: #{options[:server] ? options[:server] : 'default'}"
-            @log.puts " `- Module dirs:"
-            options[:module_dirs].each do |dir|
-                @log.puts "    - #{dir}"
+            @log.puts " `- Repositories:"
+            options[:repositories].each do |(repo_type, config)|
+                @log.puts "    - #{repo_type}: #{config}"
             end
         end
 
