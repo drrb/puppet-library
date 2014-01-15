@@ -27,31 +27,24 @@ module PuppetLibrary::ModuleRepo
         end
 
         def get_module(author, name, version)
-            versions = proxy_releases_query(author, name)
-            module_versions = versions["#{author}/#{name}"]
-            module_info = module_versions.find do |v|
-                v["version"] == version
-            end
-            if module_info.nil?
+            version_info = get_module_version(author, name, version)
+            if version_info.nil?
                 nil
             else
-                download_file(module_info["file"])
+                download_file(version_info["file"])
             end
         end
 
         def get_metadata(author, name)
-            versions = proxy_releases_query(author, name)
-
-            module_versions = versions["#{author}/#{name}"]
-            module_versions.map do |version|
-                dependencies = version["dependencies"].map do |(dep_name, dep_spec)|
-                    { "name" => dep_name, "version_requirement" => dep_spec }
-                end
+            module_versions = get_module_versions(author, name)
+            module_versions.map do |version_info|
                 {
                     "name" => "#{author}-#{name}",
                     "author" => author,
-                    "version" => version["version"],
-                    "dependencies" => dependencies
+                    "version" => version_info["version"],
+                    "dependencies" => version_info["dependencies"].map do |(dep_name, dep_spec)|
+                        { "name" => dep_name, "version_requirement" => dep_spec }
+                    end
                 }
             end
         rescue OpenURI::HTTPError => http_error
@@ -59,8 +52,21 @@ module PuppetLibrary::ModuleRepo
         end
 
         private
-        def proxy_releases_query(author, name)
-            get("/api/v1/releases.json?module=#{author}/#{name}")
+        def get_module_version(author, name, version)
+            module_versions = get_module_versions(author, name)
+            module_versions.find do |version_info|
+                version_info["version"] == version
+            end
+        end
+
+        def get_module_versions(author, name)
+            versions = look_up_releases(author, name)
+            versions["#{author}/#{name}"]
+        end
+
+        def look_up_releases(author, name)
+            response = get("/api/v1/releases.json?module=#{author}/#{name}")
+            JSON.parse(response)
         end
 
         def download_file(file)
@@ -68,10 +74,9 @@ module PuppetLibrary::ModuleRepo
         end
 
         def get(relative_url)
-            response = @cache.get(relative_url) do
+            @cache.get(relative_url) do
                 @http_client.get(url(relative_url))
             end
-            JSON.parse(response)
         end
 
         def url(relative_url)
