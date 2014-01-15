@@ -26,7 +26,11 @@ module PuppetLibrary
         let(:project_dir) { Tempfile.new("project_dir").path }
         let(:start_dir) { pwd }
         let(:disk_repo) { ModuleRepo::Directory.new(module_dir) }
-        let(:disk_server) { Server.create(disk_repo) }
+        let(:disk_server) do
+            Server.set_up do |server|
+                server.module_repo disk_repo
+            end
+        end
         let(:disk_rack_server) do
             Rack::Server.new(
                 :app => disk_server,
@@ -41,7 +45,11 @@ module PuppetLibrary
             end
         end
         let(:proxy_repo) { ModuleRepo::Proxy.new("http://localhost:9000") }
-        let(:proxy_server) { Server.create(proxy_repo) }
+        let(:proxy_server) do
+            Server.set_up do |server|
+                server.module_repo proxy_repo
+            end
+        end
         let(:proxy_rack_server) do
             Rack::Server.new(
                 :app => proxy_server,

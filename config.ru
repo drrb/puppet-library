@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,5 +18,7 @@
 require 'rubygems'
 require 'puppet_library'
 
-PuppetLibrary::Server.configure "/etc/puppet-library.yml"
-run PuppetLibrary::Server
+run PuppetLibrary::Server.set_up do |library|
+    library.module_repo PuppetLibrary::ModuleRepo::Proxy.new("http://forge.puppetlabs.com")
+    library.module_repo PuppetLibrary::ModuleRepo::Directory.new("/var/lib/modules")
+end

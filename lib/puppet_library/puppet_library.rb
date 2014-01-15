@@ -77,12 +77,12 @@ module PuppetLibrary
                 options[:repositories] << [ ModuleRepo::Directory, "./modules" ]
             end
 
-            module_repo = ModuleRepo::Multi.new
-            options[:repositories].each do |(repo_type, config)|
-                subrepo = repo_type.new(config)
-                module_repo.add_repo(subrepo)
+            Server.set_up do |server|
+                options[:repositories].each do |(repo_type, config)|
+                    subrepo = repo_type.new(config)
+                    server.module_repo subrepo
+                end
             end
-            Server.create(module_repo)
         end
 
         def announce_server_start(options)
