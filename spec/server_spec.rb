@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,29 +22,15 @@ require 'rack/test'
 module PuppetLibrary
     describe Server do
         include Rack::Test::Methods
-        include ModuleSpecHelper
         include FileUtils
 
-        let(:module_dir) { Tempfile.new("module_dir").path }
         let(:module_repo) { double(ModuleRepo) }
         let(:app) do
             Server.new(module_repo)
         end
 
-        before do
-            rm_rf module_dir
-            mkdir_p module_dir
-        end
-
-        after do
-            rm_rf module_dir
-        end
-
         describe "GET /modules/<author>-<module>-<version>.tar.gz" do
             context "when the module is on the server" do
-                before do
-                    add_module("puppetlabs", "apache", "1.0.0")
-                end
                 it "serves the module" do
                     file_buffer = StringIO.new("module content")
                     expect(module_repo).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
