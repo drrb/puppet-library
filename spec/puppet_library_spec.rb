@@ -36,7 +36,7 @@ module PuppetLibrary
         end
         let(:log) { double('log').as_null_object }
         let(:library) { PuppetLibrary.new(log) }
-        let(:default_options) {{ :app => server, :Host => "0.0.0.0", :Port => "9292", :server => nil }}
+        let(:default_options) {{ :app => server, :Host => nil, :Port => nil, :server => nil }}
         before do
             allow(Rack::Server).to receive(:start)
         end
@@ -113,8 +113,8 @@ module PuppetLibrary
             end
 
             it "logs the server options" do
-                expect(log).to receive(:puts).with(/Port: 9292/)
-                expect(log).to receive(:puts).with(/Host: 0\.0\.0\.0/)
+                expect(log).to receive(:puts).with(/Port: default/)
+                expect(log).to receive(:puts).with(/Host: default/)
                 expect(log).to receive(:puts).with(/Server: default/)
                 expect(log).to receive(:puts).with(/Repositories:/)
                 expect(log).to receive(:puts).with(/- PuppetLibrary::ModuleRepo::Directory: \.\/modules/)

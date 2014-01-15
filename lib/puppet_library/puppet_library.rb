@@ -42,8 +42,7 @@ module PuppetLibrary
             option_parser = OptionParser.new do |opts|
                 opts.banner = "Usage: #{File.basename $0} [options]"
 
-                options[:port] = "9292"
-                opts.on("-p", "--port [PORT]", "Port to listen on (defaults to #{options[:port]})") do |port|
+                opts.on("-p", "--port [PORT]", "Port to listen on (defaults to whatever Rack wants to use)") do |port|
                     options[:port] = port
                 end
 
@@ -51,8 +50,7 @@ module PuppetLibrary
                     options[:server] = server
                 end
 
-                options[:hostname] = "0.0.0.0"
-                opts.on("-b", "--bind-host [HOSTNAME]", "Host name to bind to (defaults to #{options[:hostname]})") do |hostname|
+                opts.on("-b", "--bind-host [HOSTNAME]", "Host name to bind to (defaults to whatever Rack wants to use)") do |hostname|
                     options[:hostname] = hostname
                 end
 
@@ -88,10 +86,12 @@ module PuppetLibrary
         end
 
         def announce_server_start(options)
+            options = options.clone
+            options.default = "default"
             @log.puts "Starting Puppet Library server:"
             @log.puts " |- Port: #{options[:port]}"
             @log.puts " |- Host: #{options[:hostname]}"
-            @log.puts " |- Server: #{options[:server] ? options[:server] : 'default'}"
+            @log.puts " |- Server: #{options[:server]}"
             @log.puts " `- Repositories:"
             options[:repositories].each do |(repo_type, config)|
                 @log.puts "    - #{repo_type}: #{config}"
