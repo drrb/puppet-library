@@ -1,6 +1,8 @@
 features:
     - Use config from a config file
+    - Default to caching forge.puppetlabs.com instead of using a default module dir
     - Validate proxy URLs (make sure they work with and without trailing slashes)
+    - Validate repo dirs (make sure they're readable)
     - Allow failover between module repositories
     - Document usage with Passenger
 
