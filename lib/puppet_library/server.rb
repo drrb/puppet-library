@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,28 +17,9 @@
 
 require 'sinatra/base'
 
+require 'puppet_library/forge'
 require 'puppet_library/module_metadata'
 require 'puppet_library/module_repo/multi'
-
-class Array
-    def deep_merge
-        inject({}) do |merged, map|
-            merged.deep_merge(map)
-        end
-    end
-end
-
-class Hash
-    def deep_merge(other)
-        merge(other) do |key, old_val, new_val|
-            if old_val.instance_of? Array
-                old_val + new_val
-            else
-                new_val
-            end
-        end
-    end
-end
 
 module PuppetLibrary
     class Server < Sinatra::Base
@@ -46,6 +27,7 @@ module PuppetLibrary
         def initialize(module_repo = ModuleRepo::Multi.new)
             super(nil)
             @repo = settings.respond_to?(:module_repo) ? settings.module_repo : module_repo
+            @forge = Forge.new(@repo)
         end
 
         configure do
@@ -57,7 +39,7 @@ module PuppetLibrary
             module_name = params[:module]
 
             begin
-                get_module_metadata(author, module_name).to_json
+                @forge.get_module_metadata(author, module_name).to_json
             rescue ModuleNotFound
                 status 410
                 {"error" => "Could not find module \"#{module_name}\""}.to_json
@@ -67,7 +49,7 @@ module PuppetLibrary
         get "/api/v1/releases.json" do
             author, module_name = params[:module].split "/"
             begin
-                get_module_metadata_with_dependencies(author, module_name).to_json
+                @forge.get_module_metadata_with_dependencies(author, module_name).to_json
             rescue ModuleNotFound
                 status 410
                 {"error" => "Module #{author}/#{module_name} not found"}.to_json
@@ -82,53 +64,12 @@ module PuppetLibrary
             content_type "application/octet-stream"
 
             begin
-                get_module_buffer(author, name, version).tap do
+                @forge.get_module_buffer(author, name, version).tap do
                     attachment "#{author}-#{name}-#{version}.tar.gz"
                 end
             rescue ModuleNotFound
                 status 404
             end
         end
-
-        private
-        def get_module_metadata(author, name)
-            modules = get_metadata(author, name)
-            raise ModuleNotFound if modules.empty?
-
-            module_infos = modules.map { |m| m.to_info }
-            module_infos.deep_merge
-        end
-
-        def get_module_metadata_with_dependencies(author, name)
-            full_name = "#{author}/#{name}"
-
-            module_queue = []
-            modules_versions = {}
-            module_queue << full_name
-            until module_queue.empty?
-                module_full_name = module_queue.shift
-                already_added = modules_versions.include? module_full_name
-                unless already_added
-                    author, module_name = module_full_name.split "/"
-                    module_versions = get_metadata(author, module_name)
-                    dependencies = module_versions.map {|v| v.dependency_names }.flatten
-                    module_queue += dependencies
-                    modules_versions[module_full_name] = module_versions.map { |v| v.to_version }
-                end
-            end
-            raise ModuleNotFound if modules_versions.values == [[]]
-            modules_versions
-        end
-
-        def get_module_buffer(author, name, version)
-            @repo.get_module(author, name, version) or raise ModuleNotFound
-        end
-
-        def get_metadata(author, module_name)
-            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
-        end
     end
-end
-
-class ModuleNotFound < Exception
 end

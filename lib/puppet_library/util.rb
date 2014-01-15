@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ class Array
             attribute = yield(element)
             is_duplicate = attr_to_element.include? attribute
             unless is_duplicate
-                attr_to_element[yield(element)] = element
+                attr_to_element[attribute] = element
             end
             !is_duplicate
         end

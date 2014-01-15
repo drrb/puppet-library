@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 module PuppetLibrary
     class ModuleMetadata
-
         def initialize(metadata)
             @metadata = metadata
         end
@@ -42,6 +41,10 @@ module PuppetLibrary
             @metadata["dependencies"]
         end
 
+        def description
+            @metadata["description"]
+        end
+
         def dependency_names
             dependencies.map {|d| d["name"]}
         end
@@ -51,7 +54,7 @@ module PuppetLibrary
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
-                "desc" => @metadata["description"],
+                "desc" => description,
                 "releases" => [ { "version" => version } ]
             }
         end
@@ -60,7 +63,9 @@ module PuppetLibrary
             {
                 "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
                 "version" => version,
-                    "dependencies" => dependencies.map {|m| [ m["name"], m["version_requirement"] ]}
+                "dependencies" => dependencies.map do |dependency|
+                    [ dependency["name"], dependency["version_requirement"] ]
+                end
             }
         end
     end
