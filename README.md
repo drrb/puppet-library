@@ -4,6 +4,7 @@ A private server for your Puppet modules. Compatible with [librarian-puppet](htt
 
 [![Build Status](https://travis-ci.org/drrb/puppet-library.png?branch=master)](https://travis-ci.org/drrb/puppet-library)
 [![Coverage Status](https://coveralls.io/repos/drrb/puppet-library/badge.png)](https://coveralls.io/r/drrb/puppet-library)
+[![Code Climate](https://codeclimate.com/github/drrb/puppet-library.png)](https://codeclimate.com/github/drrb/puppet-library)
 
 [![Gem Version](https://badge.fury.io/rb/puppet-library.png)](http://badge.fury.io/rb/puppet-library)
 [![Dependency Status](https://gemnasium.com/drrb/puppet-library.png)](https://gemnasium.com/drrb/puppet-library)
