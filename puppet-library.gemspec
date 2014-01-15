@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry"
   spec.add_development_dependency "puppet"
   spec.add_development_dependency "rack-test"
-  spec.add_development_dependency "thin"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "simplecov"

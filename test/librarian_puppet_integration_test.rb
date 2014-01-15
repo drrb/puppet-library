@@ -47,7 +47,7 @@ module PuppetLibrary
                 :app => proxy_server,
                 :Host => "localhost",
                 :Port => 9001,
-                :server => "thin"
+                :server => "webrick"
             )
         end
         let(:proxy_server_runner) do

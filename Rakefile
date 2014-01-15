@@ -19,6 +19,13 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'coveralls/rake/task'
 
+if RUBY_VERSION.start_with? "1.8"
+    # The integration test doesn't work on Ruby 1.8.
+    DEFAULT_TEST_TASK = :spec
+else
+    DEFAULT_TEST_TASK = :test
+end
+
 Coveralls::RakeTask.new
 
 desc "Run the specs"
@@ -29,7 +36,7 @@ RSpec::Core::RakeTask.new(:test) do |rspec|
     rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
 end
 
-task :default => [:test, 'coveralls:push']
+task :default => [DEFAULT_TEST_TASK, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
