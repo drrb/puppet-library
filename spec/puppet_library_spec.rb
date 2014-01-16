@@ -104,12 +104,31 @@ module PuppetLibrary
                 end
             end
 
-            it "adds a module repository to the server for each module directory" do
-                expect(Forge).to receive(:new).with(module_repo).and_return(forge)
-                expect(module_repo).to receive(:add_repo).twice
-                expect(Rack::Server).to receive(:start).with(default_options)
+            context "when using --module-dir option" do
+                it "adds a module repository to the server for each module directory" do
+                    directory_repo_1 = double("directory_repo_1")
+                    directory_repo_2 = double("directory_repo_2")
+                    expect(ModuleRepo::Directory).to receive(:new).with("dir1").and_return(directory_repo_1)
+                    expect(ModuleRepo::Directory).to receive(:new).with("dir2").and_return(directory_repo_2)
+                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
+                    expect(module_repo).to receive(:add_repo).with(directory_repo_1)
+                    expect(module_repo).to receive(:add_repo).with(directory_repo_2)
+                    expect(Rack::Server).to receive(:start).with(default_options)
 
-                library.go(["--module-dir", "dir1", "--module-dir", "dir2"])
+                    library.go(["--module-dir", "dir1", "--module-dir", "dir2"])
+                end
+            end
+
+            context "when no proxy URLs or module directories specified" do
+                it "proxies the Puppet Forge" do
+                    proxy = double("proxy")
+                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
+                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
+                    expect(module_repo).to receive(:add_repo).with(proxy)
+                    expect(Rack::Server).to receive(:start).with(default_options)
+
+                    library.go([])
+                end
             end
 
             it "logs the server options" do
@@ -118,7 +137,7 @@ module PuppetLibrary
                 expect(log).to receive(:puts).with(/Server: default/)
                 expect(log).to receive(:puts).with(/Repositories:/)
                 expect(log).to receive(:puts).with(/- PuppetLibrary::ModuleRepo::Directory: \.\/modules/)
-                library.go([])
+                library.go(["--module-dir", "./modules"])
             end
         end
     end

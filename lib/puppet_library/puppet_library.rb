@@ -72,9 +72,8 @@ module PuppetLibrary
         end
 
         def build_server(options)
-            #TODO: maybe don't have a default module directory
             if options[:repositories].empty?
-                options[:repositories] << [ ModuleRepo::Directory, "./modules" ]
+                options[:repositories] << [ ModuleRepo::Proxy, "http://forge.puppetlabs.com" ]
             end
 
             Server.set_up do |server|
