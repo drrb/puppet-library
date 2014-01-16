@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,5 +16,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module PuppetLibrary
-    VERSION = "0.1.0"
+    VERSION = "0.2.0"
 end
