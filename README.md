@@ -21,6 +21,12 @@ Install the server as a Gem:
 
     $ gem install puppet-library
 
+Or, to get the latest, you can install from source
+
+    $ git clone https://github.com/drrb/puppet-library.git
+    $ cd puppet-library
+    $ rake install
+
 ## Getting Started
 
 Create a module directory and add the modules to it
@@ -32,7 +38,7 @@ Create a module directory and add the modules to it
 
 Start the server
 
-    $ puppet-library
+    $ puppet-library --port 9292 --module-dir ./modules
 
 Point librarian-puppet to the server
 
@@ -48,7 +54,7 @@ Resolve and download the modules
 
 ## Usage
 
-Run the server
+Run the server (proxies the Puppet Forge by default)
 
     $ puppet-library
 
@@ -56,7 +62,7 @@ Serve modules from a specific directory
 
     $ puppet-library --module-dir /var/puppet-modules
 
-Serve modules from remote forge as a proxy
+Serve modules from a remote forge as a proxy
 
     $ puppet-library --proxy http://forge.puppetlabs.com
 
