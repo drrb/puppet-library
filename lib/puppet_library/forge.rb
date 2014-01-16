@@ -40,6 +40,22 @@ module PuppetLibrary
     end
 
     class Forge
+        class Config
+            def initialize(module_repo)
+                @module_repo = module_repo
+            end
+
+            def module_repo(repo)
+                @module_repo.add_repo repo
+            end
+        end
+
+        def self.configure(&config_block)
+            module_repo = ModuleRepo::Multi.new
+            yield(Config.new(module_repo))
+            Forge.new(module_repo)
+        end
+
         def initialize(module_repo)
             @repo = module_repo
         end
