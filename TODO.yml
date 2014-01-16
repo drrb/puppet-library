@@ -12,4 +12,5 @@ features:
 
 dubious_features:
     - Make proxy cache TTL configurable
-    - Add REST API to clear proxy cache
+    - REST API to clear proxy cache
+    - REST API to upload modules
