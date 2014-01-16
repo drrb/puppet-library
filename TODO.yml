@@ -1,9 +1,12 @@
 features:
     - Use config from a config file
+    - Allow proxy to cache downloaded modules/API calls on disk
     - Default to caching forge.puppetlabs.com instead of using a default module dir
     - Validate repo dirs (make sure they're readable)
     - Allow failover between module repositories
     - Document usage with Passenger
+    - Web UI
+    - Authentication
 
 dubious_features:
     - Make proxy cache TTL configurable
