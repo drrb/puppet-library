@@ -62,6 +62,7 @@ module PuppetLibrary
 
         def get_module_metadata(author, name)
             modules = get_metadata(author, name)
+
             raise ModuleNotFound if modules.empty?
 
             module_infos = modules.map { |m| m.to_info }
@@ -71,22 +72,21 @@ module PuppetLibrary
         def get_module_metadata_with_dependencies(author, name)
             full_name = "#{author}/#{name}"
 
-            module_queue = []
-            modules_versions = {}
-            module_queue << full_name
-            until module_queue.empty?
-                module_full_name = module_queue.shift
-                already_added = modules_versions.include? module_full_name
-                unless already_added
-                    author, module_name = module_full_name.split "/"
-                    module_versions = get_metadata(author, module_name)
-                    dependencies = module_versions.map {|v| v.dependency_names }.flatten
-                    module_queue += dependencies
-                    modules_versions[module_full_name] = module_versions.map { |v| v.to_version }
-                end
+            collect_dependencies_versions(full_name).tap do |versions|
+                raise ModuleNotFound if versions[full_name].empty?
             end
-            raise ModuleNotFound if modules_versions.values == [[]]
-            modules_versions
+        end
+
+        def collect_dependencies_versions(module_full_name, metadata = {})
+            author, module_name = module_full_name.split "/"
+            module_versions = get_metadata(author, module_name)
+            metadata[module_full_name] = module_versions.map {|v| v.to_version }
+
+            dependencies = module_versions.map {|v| v.dependency_names }.flatten
+            dependencies.each do |dependency|
+                collect_dependencies_versions(dependency, metadata) unless metadata.include? dependency
+            end
+            return metadata
         end
 
         def get_module_buffer(author, name, version)
