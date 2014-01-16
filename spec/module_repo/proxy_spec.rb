@@ -22,6 +22,24 @@ module PuppetLibrary::ModuleRepo
         let(:http_client) { double('http_client') }
         let(:repo) { Proxy.new("http://puppetforge.example.com", http_client) }
 
+        describe "url" do
+            it "defaults to HTTP, when protocol not specified" do
+                repo = Proxy.new("forge.puppetlabs.com", http_client)
+
+                expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com/).and_return('{"puppetlabs/apache":[]}')
+
+                repo.get_metadata("puppetlabs", "apache")
+            end
+
+            it "copes with a trailing slash" do
+                repo = Proxy.new("forge.puppetlabs.com/", http_client)
+
+                expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com\/api/).and_return('{"puppetlabs/apache":[]}')
+
+                repo.get_metadata("puppetlabs", "apache")
+            end
+        end
+
         describe "#get_module" do
             context "when the module exists" do
                 it "downloads the module" do

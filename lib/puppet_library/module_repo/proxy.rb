@@ -17,11 +17,12 @@
 
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache'
+require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
     class Proxy
         def initialize(url, http_client = PuppetLibrary::Http::HttpClient.new)
-            @url = url
+            @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @cache = PuppetLibrary::Http::Cache.new
         end
@@ -80,7 +81,6 @@ module PuppetLibrary::ModuleRepo
         end
 
         def url(relative_url)
-            #TODO: do this properly
             @url + relative_url
         end
     end

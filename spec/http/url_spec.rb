@@ -15,15 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/version'
+require 'spec_helper'
 
-require 'puppet_library/puppet_library'
-require 'puppet_library/server'
-require 'puppet_library/http/cache'
-require 'puppet_library/http/http_client'
-require 'puppet_library/http/url'
-require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo/directory'
-require 'puppet_library/module_repo/multi'
-require 'puppet_library/module_repo/proxy'
-require 'puppet_library/util'
+module PuppetLibrary::Http
+    describe Url do
+        describe "#normalize" do
+            it "leaves normal URLs alone" do
+                result = Url.normalize "http://localhost"
+                expect(result).to eq "http://localhost"
+            end
+
+            it "adds http:// to URI with no scheme" do
+                result = Url.normalize "localhost"
+                expect(result).to eq "http://localhost"
+            end
+
+            it "removes a trailing slash" do
+                result = Url.normalize "http://localhost/"
+                expect(result).to eq "http://localhost"
+            end
+        end
+    end
+end
