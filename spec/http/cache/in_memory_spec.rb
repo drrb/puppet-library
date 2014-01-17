@@ -17,10 +17,10 @@
 
 require 'spec_helper'
 
-module PuppetLibrary::Http
-    describe Cache do
+module PuppetLibrary::Http::Cache
+    describe InMemory do
 
-        let(:cache) { Cache.new }
+        let(:cache) { InMemory.new }
 
         describe "#get" do
             context "the first time it's called" do
@@ -51,7 +51,7 @@ module PuppetLibrary::Http
 
             context "when the time limit has expired" do
                 it "looks up the value again" do
-                    cache = Cache.new(0)
+                    cache = InMemory.new(0)
 
                     greeting = cache.get("greeting") { "hi" }
                     greeting = cache.get("greeting") { "bye" }

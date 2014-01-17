@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/http/cache'
+require 'puppet_library/http/cache/in_memory'
 
-module PuppetLibrary::Http::Caches
-    class NoOp < PuppetLibrary::Http::Cache
+module PuppetLibrary::Http::Cache
+    class NoOp < PuppetLibrary::Http::Cache::InMemory
         def save(key, entry)
         end
 

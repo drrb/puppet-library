@@ -20,8 +20,8 @@ require 'spec_helper'
 module PuppetLibrary::ModuleRepo
     describe Proxy do
         let(:http_client) { double('http_client') }
-        let(:query_cache) { PuppetLibrary::Http::Cache.new }
-        let(:download_cache) { PuppetLibrary::Http::Cache.new }
+        let(:query_cache) { PuppetLibrary::Http::Cache::InMemory.new }
+        let(:download_cache) { PuppetLibrary::Http::Cache::InMemory.new }
         let(:repo) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
         describe "url" do

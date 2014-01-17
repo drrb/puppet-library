@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Http
-    class Cache
+module PuppetLibrary::Http::Cache
+    class InMemory
         ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
         def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
             @reaper = Reaper.new(millis_to_live)

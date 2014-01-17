@@ -16,15 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'puppet_library/http/http_client'
-require 'puppet_library/http/cache'
-require 'puppet_library/http/caches/noop'
+require 'puppet_library/http/cache/in_memory'
+require 'puppet_library/http/cache/noop'
 require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
+    #include PuppetLibrary::Http
     class Proxy
         def initialize(url,
-                       query_cache = PuppetLibrary::Http::Cache.new,
-                       download_cache = PuppetLibrary::Http::Caches::NoOp.new,
+                       query_cache = PuppetLibrary::Http::Cache::InMemory.new,
+                       download_cache = PuppetLibrary::Http::Cache::NoOp.new,
                        http_client = PuppetLibrary::Http::HttpClient.new)
             @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client

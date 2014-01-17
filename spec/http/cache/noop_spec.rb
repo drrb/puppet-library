@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 
-module PuppetLibrary::Http::Caches
+module PuppetLibrary::Http::Cache
     describe NoOp do
         let(:cache) { NoOp.new }
 
