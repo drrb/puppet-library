@@ -20,18 +20,30 @@ module PuppetLibrary::Http
         ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
         def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
             @reaper = Reaper.new(millis_to_live)
-            @cache = {}
         end
 
         def get(key)
-            entry = @cache[key]
+            entry = retrieve(key)
             if entry
                 return entry.value unless @reaper.wants_to_kill? entry
             end
 
             value = yield
-            @cache[key] = Entry.new(value)
+            save(key, Entry.new(value))
             return value
+        end
+
+        def retrieve(key)
+            cache[key]
+        end
+
+        def save(key, entry)
+            cache[key] = entry
+        end
+
+        private
+        def cache
+            @cache ||= {}
         end
 
         class Entry

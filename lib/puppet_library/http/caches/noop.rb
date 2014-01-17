@@ -15,16 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/version'
-
-require 'puppet_library/puppet_library'
-require 'puppet_library/server'
 require 'puppet_library/http/cache'
-require 'puppet_library/http/caches/noop'
-require 'puppet_library/http/http_client'
-require 'puppet_library/http/url'
-require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo/directory'
-require 'puppet_library/module_repo/multi'
-require 'puppet_library/module_repo/proxy'
-require 'puppet_library/util'
+
+module PuppetLibrary::Http::Caches
+    class NoOp < PuppetLibrary::Http::Cache
+        def save(key, entry)
+        end
+
+        def retrieve(key)
+        end
+    end
+end

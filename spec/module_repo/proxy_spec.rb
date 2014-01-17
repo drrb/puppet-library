@@ -20,11 +20,13 @@ require 'spec_helper'
 module PuppetLibrary::ModuleRepo
     describe Proxy do
         let(:http_client) { double('http_client') }
-        let(:repo) { Proxy.new("http://puppetforge.example.com", http_client) }
+        let(:query_cache) { PuppetLibrary::Http::Cache.new }
+        let(:download_cache) { PuppetLibrary::Http::Cache.new }
+        let(:repo) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
         describe "url" do
             it "defaults to HTTP, when protocol not specified" do
-                repo = Proxy.new("forge.puppetlabs.com", http_client)
+                repo = Proxy.new("forge.puppetlabs.com", query_cache, download_cache, http_client) 
 
                 expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com/).and_return('{"puppetlabs/apache":[]}')
 
@@ -32,7 +34,7 @@ module PuppetLibrary::ModuleRepo
             end
 
             it "copes with a trailing slash" do
-                repo = Proxy.new("forge.puppetlabs.com/", http_client)
+                repo = Proxy.new("forge.puppetlabs.com/", query_cache, download_cache, http_client) 
 
                 expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com\/api/).and_return('{"puppetlabs/apache":[]}')
 
@@ -52,6 +54,14 @@ module PuppetLibrary::ModuleRepo
 
                     module_buffer = repo.get_module("puppetlabs", "apache", "1.2.3")
                     expect(module_buffer).to eq "module buffer"
+                end
+
+                it "caches the download" do
+                    expect(http_client).to receive(:get).at_least(1).times.and_return('{"puppetlabs/apache":[{"version": "1", "file":"/module.tar.gz"}]}')
+                    expect(http_client).to receive(:download).once
+
+                    repo.get_module("puppetlabs", "apache", "1")
+                    repo.get_module("puppetlabs", "apache", "1")
                 end
             end
 

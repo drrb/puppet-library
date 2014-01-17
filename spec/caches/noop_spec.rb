@@ -15,16 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/version'
+require 'spec_helper'
 
-require 'puppet_library/puppet_library'
-require 'puppet_library/server'
-require 'puppet_library/http/cache'
-require 'puppet_library/http/caches/noop'
-require 'puppet_library/http/http_client'
-require 'puppet_library/http/url'
-require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo/directory'
-require 'puppet_library/module_repo/multi'
-require 'puppet_library/module_repo/proxy'
-require 'puppet_library/util'
+module PuppetLibrary::Http::Caches
+    describe NoOp do
+        let(:cache) { NoOp.new }
+
+        describe "#get" do
+            it "never caches the content" do
+                name = cache.get("name") { "joe" }
+                name = cache.get("name") { "james" }
+                expect(name).to eq "james"
+            end
+        end
+    end
+end

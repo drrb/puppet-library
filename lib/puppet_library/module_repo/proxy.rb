@@ -17,14 +17,19 @@
 
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache'
+require 'puppet_library/http/caches/noop'
 require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
     class Proxy
-        def initialize(url, http_client = PuppetLibrary::Http::HttpClient.new, query_cache = PuppetLibrary::Http::Cache.new)
+        def initialize(url,
+                       query_cache = PuppetLibrary::Http::Cache.new,
+                       download_cache = PuppetLibrary::Http::Caches::NoOp.new,
+                       http_client = PuppetLibrary::Http::HttpClient.new)
             @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @query_cache = query_cache
+            @download_cache = download_cache
         end
 
         def get_module(author, name, version)
@@ -71,7 +76,9 @@ module PuppetLibrary::ModuleRepo
         end
 
         def download_file(file)
-            @http_client.download(url(file))
+            @download_cache.get(file) do
+                @http_client.download(url(file))
+            end
         end
 
         def get(relative_url)
