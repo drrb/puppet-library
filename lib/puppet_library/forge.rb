@@ -69,12 +69,24 @@ module PuppetLibrary
             module_infos.deep_merge
         end
 
-        def get_module_metadata_with_dependencies(author, name)
-            full_name = "#{author}/#{name}"
+        def get_module_metadata_with_dependencies(author, name, version)
+            raise ModuleNotFound if get_metadata(author, name).empty?
 
-            collect_dependencies_versions(full_name).tap do |versions|
-                raise ModuleNotFound if versions[full_name].empty?
+            full_name = "#{author}/#{name}"
+            versions = collect_dependencies_versions(full_name)
+            return versions if version.nil?
+
+            versions[full_name].select! do |v|
+                v["version"].start_with?(version)
             end
+
+            dependencies = versions[full_name].map do |v|
+                v["dependencies"].map {|(name, spec)| name}
+            end.flatten
+            versions.select! do |name, info|
+                name == full_name || dependencies.include?(name)
+            end
+            return versions
         end
 
         def collect_dependencies_versions(module_full_name, metadata = {})

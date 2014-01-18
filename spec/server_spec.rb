@@ -115,7 +115,7 @@ module PuppetLibrary
                         }
                     ]
                 }
-                expect(forge).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache").and_return(metadata)
+                expect(forge).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", nil).and_return(metadata)
 
                 get "/api/v1/releases.json?module=puppetlabs/apache"
 
@@ -125,12 +125,20 @@ module PuppetLibrary
 
             context "when the module can't be found" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("nonexistant", "nonexistant").and_raise(ModuleNotFound)
+                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("nonexistant", "nonexistant", nil).and_raise(ModuleNotFound)
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 
                     expect(last_response.body).to eq('{"error":"Module nonexistant/nonexistant not found"}')
                     expect(last_response.status).to eq(410)
+                end
+            end
+
+            context "when a version is specified" do
+                it "looks up the specified version" do
+                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", "1.0.0")
+
+                    get "/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0"
                 end
             end
         end

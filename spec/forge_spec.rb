@@ -90,56 +90,129 @@ module PuppetLibrary
                     expect(module_repo).to receive(:get_metadata).with("nonexistant", "nonexistant").and_return([])
 
                     expect {
-                        forge.get_module_metadata_with_dependencies("nonexistant", "nonexistant")
+                        forge.get_module_metadata_with_dependencies("nonexistant", "nonexistant", "1.0.0")
                     }.to raise_error ModuleNotFound
                 end
             end
 
-            context "when module versions found" do
-                it "returns metadata for module and dependencies" do
-                    apache_metadata = [ {
+            context "when only different module versions found" do
+                it "returns an empty array" do
+                    metadata = [ {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
                         "description" => "Apache module",
                         "version" => "1.0.0",
-                        "dependencies" => [
-                            { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
-                            { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
-                        ]
-                    }, {
-                        "author" => "puppetlabs",
-                        "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
-                        "version" => "1.1.0",
-                        "dependencies" => [
-                            { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
-                            { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
-                        ]
+                        "dependencies" => []
                     } ]
-                    stdlib_metadata = [ {
-                        "author" => "puppetlabs",
-                        "name" => "puppetlabs-stdlib",
-                        "description" => "Stdlib module",
-                        "version" => "2.0.0",
-                        "dependencies" => [ ]
-                    } ]
-                    concat_metadata = [ {
-                        "author" => "puppetlabs",
-                        "name" => "puppetlabs-concat",
-                        "description" => "Concat module",
-                        "version" => "1.0.0",
-                        "dependencies" => [ ]
-                    } ]
-                    expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(apache_metadata)
-                    expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
-                    expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                    expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(metadata)
 
-                    result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache")
-                    expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
-                    expect(result["puppetlabs/apache"].size).to eq(2)
-                    expect(result["puppetlabs/apache"][0]["file"]).to eq("/modules/puppetlabs-apache-1.0.0.tar.gz")
-                    expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
-                    expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                    result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "2.0.0")
+                    expect(result).to eq({"puppetlabs/apache" => []})
+                end
+            end
+
+            context "when module versions found" do
+                context "when a version specified" do
+                    it "returns metadata for that module version and its dependencies" do
+                        apache_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-apache",
+                            "description" => "Apache module",
+                            "version" => "1.0.0",
+                            "dependencies" => [
+                                { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                                { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
+                            ]
+                        }, {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-apache",
+                            "description" => "Apache module",
+                            "version" => "1.1.0",
+                            "dependencies" => [
+                                { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                                { "name" => "puppetlabs/newthing", "version_requirement" => ">= 1.0.0" }
+                            ]
+                        } ]
+                        stdlib_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-stdlib",
+                            "description" => "Stdlib module",
+                            "version" => "2.4.0",
+                            "dependencies" => [ ]
+                        } ]
+                        concat_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-concat",
+                            "description" => "Concat module",
+                            "version" => "1.0.0",
+                            "dependencies" => [ ]
+                        } ]
+                        newthing_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-newthing",
+                            "description" => "New module",
+                            "version" => "1.0.0",
+                            "dependencies" => [ ]
+                        } ]
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(apache_metadata)
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "newthing").and_return(newthing_metadata)
+
+                        result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+                        expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
+                        expect(result["puppetlabs/apache"].size).to eq(1)
+                        expect(result["puppetlabs/apache"][0]["file"]).to eq("/modules/puppetlabs-apache-1.0.0.tar.gz")
+                        expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                        expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                    end
+                end
+                context "when no version specified" do
+                    it "returns metadata for all module versions and their dependencies" do
+                        apache_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-apache",
+                            "description" => "Apache module",
+                            "version" => "1.0.0",
+                            "dependencies" => [
+                                { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                                { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
+                            ]
+                        }, {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-apache",
+                            "description" => "Apache module",
+                            "version" => "1.1.0",
+                            "dependencies" => [
+                                { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                                { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }
+                            ]
+                        } ]
+                        stdlib_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-stdlib",
+                            "description" => "Stdlib module",
+                            "version" => "2.0.0",
+                            "dependencies" => [ ]
+                        } ]
+                        concat_metadata = [ {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-concat",
+                            "description" => "Concat module",
+                            "version" => "1.0.0",
+                            "dependencies" => [ ]
+                        } ]
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(apache_metadata)
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
+                        expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+
+                        result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", nil)
+                        expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
+                        expect(result["puppetlabs/apache"].size).to eq(2)
+                        expect(result["puppetlabs/apache"][0]["file"]).to eq("/modules/puppetlabs-apache-1.0.0.tar.gz")
+                        expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                        expect(result["puppetlabs/apache"][0]["version"]).to eq("1.0.0")
+                    end
                 end
             end
         end

@@ -50,8 +50,9 @@ module PuppetLibrary
 
         get "/api/v1/releases.json" do
             author, module_name = params[:module].split "/"
+            version = params[:version]
             begin
-                @forge.get_module_metadata_with_dependencies(author, module_name).to_json
+                @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
             rescue ModuleNotFound
                 status 410
                 {"error" => "Module #{author}/#{module_name} not found"}.to_json
