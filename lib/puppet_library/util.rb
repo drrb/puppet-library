@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'rubygems/package'
+
 class Array
     # Like 'uniq' with a block, but also works on Ruby < 1.9
     def unique_by
@@ -26,6 +28,17 @@ class Array
                 attr_to_element[attribute] = element
             end
             !is_duplicate
+        end
+    end
+end
+
+class Gem::Package::TarReader
+    # Old versions of RubyGems don't include Enumerable in here
+    def find
+        each do |entry|
+            if yield(entry)
+                return entry
+            end
         end
     end
 end
