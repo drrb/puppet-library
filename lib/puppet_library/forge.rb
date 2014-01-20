@@ -76,16 +76,16 @@ module PuppetLibrary
             versions = collect_dependencies_versions(full_name)
             return versions if version.nil?
 
-            versions[full_name].select! do |v|
+            versions[full_name] = versions[full_name].select do |v|
                 v["version"].start_with?(version)
             end
 
             dependencies = versions[full_name].map do |v|
                 v["dependencies"].map {|(name, spec)| name}
             end.flatten
-            versions.select! do |name, info|
+            versions = Hash[versions.select do |name, info|
                 name == full_name || dependencies.include?(name)
-            end
+            end]
             return versions
         end
 
