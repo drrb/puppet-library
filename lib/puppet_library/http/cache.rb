@@ -15,12 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary
-    require 'puppet_library/http'
-    require 'puppet_library/module_metadata'
-    require 'puppet_library/module_repo'
-    require 'puppet_library/puppet_library'
-    require 'puppet_library/server'
-    require 'puppet_library/util'
-    require 'puppet_library/version'
+module PuppetLibrary::Http::Cache
+    require 'puppet_library/http/cache/in_memory'
+    require 'puppet_library/http/cache/noop'
 end

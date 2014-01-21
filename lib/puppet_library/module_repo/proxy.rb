@@ -21,7 +21,6 @@ require 'puppet_library/http/cache/noop'
 require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
-    #include PuppetLibrary::Http
     class Proxy
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
