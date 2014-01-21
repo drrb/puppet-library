@@ -15,8 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/forge'
+
 module PuppetLibrary::ModuleRepo
-    class Multi
+    class Multi < PuppetLibrary::Forge
+        def initialize
+            super(self)
+        end
+
         def repos
             @repos ||= []
         end

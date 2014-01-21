@@ -15,13 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/forge'
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
 require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
-    class Proxy
+    class Proxy < PuppetLibrary::Forge
+        def initialize
+            super(self)
+        end
+
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
                        download_cache = PuppetLibrary::Http::Cache::NoOp.new,

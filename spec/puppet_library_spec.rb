@@ -20,18 +20,13 @@ require 'spec_helper'
 module PuppetLibrary
     describe PuppetLibrary do
         let(:module_repo) do
-            module_repo = double(ModuleRepo::Multi)
+            module_repo = double(ModuleRepo::Multi).as_null_object
             allow(ModuleRepo::Multi).to receive(:new).and_return(module_repo)
             return module_repo
         end
-        let(:forge) do
-            forge = double(Forge)
-            allow(Forge).to receive(:new).and_return(forge)
-            return forge
-        end
         let(:server) do
             server = double(Server)
-            allow(Server).to receive(:new).with(forge).and_return(server)
+            allow(Server).to receive(:new).with(module_repo).and_return(server)
             return server
         end
         let(:log) { double('log').as_null_object }
@@ -96,7 +91,6 @@ module PuppetLibrary
                     proxy2 = double('proxy2')
                     expect(ModuleRepo::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
                     expect(ModuleRepo::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
-                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
                     expect(module_repo).to receive(:add_repo).twice
                     expect(Rack::Server).to receive(:start).with(default_options)
 
@@ -110,7 +104,6 @@ module PuppetLibrary
                     directory_repo_2 = double("directory_repo_2")
                     expect(ModuleRepo::Directory).to receive(:new).with("dir1").and_return(directory_repo_1)
                     expect(ModuleRepo::Directory).to receive(:new).with("dir2").and_return(directory_repo_2)
-                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
                     expect(module_repo).to receive(:add_repo).with(directory_repo_1)
                     expect(module_repo).to receive(:add_repo).with(directory_repo_2)
                     expect(Rack::Server).to receive(:start).with(default_options)
@@ -123,7 +116,6 @@ module PuppetLibrary
                 it "proxies the Puppet Forge" do
                     proxy = double("proxy")
                     expect(ModuleRepo::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
-                    expect(Forge).to receive(:new).with(module_repo).and_return(forge)
                     expect(module_repo).to receive(:add_repo).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 

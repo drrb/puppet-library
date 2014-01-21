@@ -40,28 +40,12 @@ module PuppetLibrary
     end
 
     class Forge
-        class Config
-            def initialize(module_repo)
-                @module_repo = module_repo
-            end
-
-            def module_repo(repo)
-                @module_repo.add_repo repo
-            end
-        end
-
-        def self.configure(&config_block)
-            module_repo = ModuleRepo::Multi.new
-            yield(Config.new(module_repo))
-            Forge.new(module_repo)
-        end
-
         def initialize(module_repo)
             @repo = module_repo
         end
 
         def get_module_metadata(author, name)
-            modules = get_metadata(author, name)
+            modules = retrieve_metadata(author, name)
 
             raise ModuleNotFound if modules.empty?
 
@@ -70,7 +54,7 @@ module PuppetLibrary
         end
 
         def get_module_metadata_with_dependencies(author, name, version)
-            raise ModuleNotFound if get_metadata(author, name).empty?
+            raise ModuleNotFound if retrieve_metadata(author, name).empty?
 
             full_name = "#{author}/#{name}"
             versions = collect_dependencies_versions(full_name)
@@ -91,7 +75,7 @@ module PuppetLibrary
 
         def collect_dependencies_versions(module_full_name, metadata = {})
             author, module_name = module_full_name.split "/"
-            module_versions = get_metadata(author, module_name)
+            module_versions = retrieve_metadata(author, module_name)
             metadata[module_full_name] = module_versions.map {|v| v.to_version }
 
             dependencies = module_versions.map {|v| v.dependency_names }.flatten
@@ -105,7 +89,7 @@ module PuppetLibrary
             @repo.get_module(author, name, version) or raise ModuleNotFound
         end
 
-        def get_metadata(author, module_name)
+        def retrieve_metadata(author, module_name)
             @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
         end
     end
