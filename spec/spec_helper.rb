@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'simplecov'
+require 'simplecov' unless RUBY_VERSION.start_with? "1.8"
 require 'puppet_library'
 require 'module_spec_helper'
 require 'pry'
