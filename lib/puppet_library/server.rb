@@ -36,6 +36,11 @@ module PuppetLibrary
             enable :logging
         end
 
+        get "/modules.json" do
+            search_term = params[:q]
+            @forge.search_modules(search_term).to_json
+        end
+
         get "/:author/:module.json" do
             author = params[:author]
             module_name = params[:module]

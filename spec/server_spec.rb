@@ -28,6 +28,29 @@ module PuppetLibrary
             Server.new(forge)
         end
 
+        describe "GET /modules.json" do
+            it "renders the search result as JSON" do
+                search_results = [
+                    {
+                        "author" => "puppetlabs",
+                        "name" => "apache",
+                        "tag_list" => ["apache", "httpd"],
+                        "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
+                        "full_name" => "puppetlabs/apache",
+                        "version" => "0.0.2",
+                        "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
+                        "desc" => "Puppet module for Apache"
+                    }
+                ]
+                expect(forge).to receive(:search_modules).with("apache").and_return(search_results)
+
+                get "/modules.json?q=apache"
+
+                expect(last_response.body).to eq search_results.to_json
+                expect(last_response).to be_ok
+            end
+        end
+
         describe "GET /modules/<author>-<module>-<version>.tar.gz" do
             context "when the module is on the server" do
                 it "serves the module" do
