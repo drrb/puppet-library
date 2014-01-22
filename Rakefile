@@ -31,6 +31,11 @@ Coveralls::RakeTask.new
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec)
 
+desc "Run the integration tests"
+RSpec::Core::RakeTask.new(:integration_test) do |rspec|
+    rspec.pattern = "test/**/*_integration_test.rb"
+end
+
 desc "Run all the tests"
 RSpec::Core::RakeTask.new(:test) do |rspec|
     rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
@@ -40,7 +45,22 @@ task :default => [DEFAULT_TEST_TASK, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    system "rvm all do rake test"
+    versions = %w[1.8 1.9 2.0]
+    spec_results = versions.map do |ruby_version|
+        system "rvm #{ruby_version} do rake spec"
+    end
+    integration_test_results = versions.map do |ruby_version|
+        system "rvm #{ruby_version} do rake integration_test"
+    end
+    puts "Results:"
+    results = spec_results.zip(integration_test_results)
+    puts "+---------+-------+-------+"
+    puts "| Version | Specs | Tests |"
+    puts "+---------+-------+-------+"
+    versions.zip(results).each do |(version, (spec_result, integration_test_result))|
+        puts "| #{version}     | #{ spec_result ? "pass" : "fail" }  | #{ integration_test_result ? "pass" : "fail" }  |"
+    end
+    puts "+---------+-------+-------+"
 end
 
 desc "Check all files for license headers"
