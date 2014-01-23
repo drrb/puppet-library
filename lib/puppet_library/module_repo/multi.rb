@@ -18,11 +18,7 @@
 require 'puppet_library/forge'
 
 module PuppetLibrary::ModuleRepo
-    class Multi < PuppetLibrary::Forge
-        def initialize
-            super(self)
-        end
-
+    class Multi
         def repos
             @repos ||= []
         end
