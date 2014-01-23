@@ -52,6 +52,59 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
+        describe "#get_module_metadata" do
+            context "when versions of the module are found in subrepositories" do
+                it "combines the metadata" do
+                    apache_module_metadata_one = {
+                        "full_name" => "puppetlabs-apache", "releases" => [{"version"=>"1.0.0"}]
+                    }
+                    apache_module_metadata_two = {
+                        "full_name" => "puppetlabs-apache", "releases" => [{"version"=>"2.0.0"}]
+                    }
+                    expect(subrepo_one).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(apache_module_metadata_one)
+                    expect(subrepo_two).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(apache_module_metadata_two)
+
+                    metadata_list = multi_repo.get_module_metadata("puppetlabs", "apache")
+
+                    expect(metadata_list).to eq({
+                        "full_name" => "puppetlabs-apache",
+                        "releases" => [{"version"=>"1.0.0"}, {"version"=>"2.0.0"}]
+                    })
+                end
+            end
+
+            context "when no versions of the module are found in any subrepository" do
+                it "raises an error" do
+                    expect(subrepo_one).to receive(:get_module_metadata).with("puppetlabs", "apache").and_raise(PuppetLibrary::ModuleNotFound)
+                    expect(subrepo_two).to receive(:get_module_metadata).with("puppetlabs", "apache").and_raise(PuppetLibrary::ModuleNotFound)
+
+                    expect {
+                        multi_repo.get_module_metadata("puppetlabs", "apache")
+                    }.to raise_exception(PuppetLibrary::ModuleNotFound)
+                end
+            end
+
+            context "when the same version of a module is found in multiple repositories" do
+                it "returns the one from the first repository it appears in" do
+                    apache_module_metadata_one = {
+                        "full_name" => "puppetlabs-apache", "releases" => [{"version"=>"1.0.0", "repo" => "one"}]
+                    }
+                    apache_module_metadata_two = {
+                        "full_name" => "puppetlabs-apache", "releases" => [{"version"=>"1.0.0", "repo" => "two"}]
+                    }
+                    expect(subrepo_one).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(apache_module_metadata_one)
+                    expect(subrepo_two).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(apache_module_metadata_two)
+
+                    metadata_list = multi_repo.get_module_metadata("puppetlabs", "apache")
+
+                    expect(metadata_list).to eq({
+                        "full_name" => "puppetlabs-apache",
+                        "releases" => [{"version"=>"1.0.0", "repo"=>"one"}]
+                    })
+                end
+            end
+        end
+
         describe "#get_metadata" do
             context "when versions of the module are found in subrepositories" do
                 it "returns the metadata in an array" do

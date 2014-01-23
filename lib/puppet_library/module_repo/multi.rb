@@ -42,6 +42,20 @@ module PuppetLibrary::ModuleRepo
             raise PuppetLibrary::ModuleNotFound
         end
 
+        def get_module_metadata(author, name)
+            metadata_list = repos.inject([]) do |metadata_list, repo|
+                begin
+                    metadata_list << repo.get_module_metadata(author, name)
+                rescue PuppetLibrary::ModuleNotFound
+                    metadata_list
+                end
+            end
+            raise PuppetLibrary::ModuleNotFound if metadata_list.empty?
+            metadata_list.deep_merge.tap do |metadata|
+                metadata["releases"] = metadata["releases"].unique_by { |release| release["version"] }
+            end
+        end
+
         def get_metadata(author, name)
             metadata_list = repos.inject([]) do |metadata_list, repo|
                 metadata_list + repo.get_metadata(author, name)
