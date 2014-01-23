@@ -19,6 +19,16 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'coveralls/rake/task'
 
+class String
+    def green
+        "\e[32m#{self}\e[0m"
+    end
+
+    def red
+        "\e[31m#{self}\e[0m"
+    end
+end
+
 if RUBY_VERSION.start_with? "1.8"
     # The integration test doesn't work on Ruby 1.8.
     DEFAULT_TEST_TASK = :spec
@@ -45,20 +55,29 @@ task :default => [DEFAULT_TEST_TASK, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    versions = %w[1.8 1.9 2.0]
+    versions = %w[1.8 1.9 2.0 2.1]
+    puts "\nRunning Specs".green
     spec_results = versions.map do |ruby_version|
+        puts "\n- Ruby #{ruby_version}".green
         system "rvm #{ruby_version} do rake spec"
     end
+
+    puts "\nRunning Integration Tests".green
     integration_test_results = versions.map do |ruby_version|
+        puts "\n- Ruby  #{ruby_version}".green
         system "rvm #{ruby_version} do rake integration_test"
     end
-    puts "Results:"
+
+    puts "\nResults:\n".green
     results = spec_results.zip(integration_test_results)
     puts "+---------+-------+-------+"
     puts "| Version | Specs | Tests |"
     puts "+---------+-------+-------+"
     versions.zip(results).each do |(version, (spec_result, integration_test_result))|
-        puts "| #{version}     | #{ spec_result ? "pass" : "fail" }  | #{ integration_test_result ? "pass" : "fail" }  |"
+        v = version
+        s = spec_result ? "pass".green : "fail".red
+        i = integration_test_result ? "pass".green : "fail".red
+        puts "| #{v}     | #{s}  | #{i}  |"
     end
     puts "+---------+-------+-------+"
 end
