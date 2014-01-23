@@ -28,17 +28,17 @@ module PuppetLibrary::ModuleRepo
             it "defaults to HTTP, when protocol not specified" do
                 repo = Proxy.new("forge.puppetlabs.com", query_cache, download_cache, http_client) 
 
-                expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com/).and_return('{"puppetlabs/apache":[]}')
+                expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
 
-                repo.get_metadata("puppetlabs", "apache")
+                repo.get_module_metadata("puppetlabs", "apache")
             end
 
             it "copes with a trailing slash" do
                 repo = Proxy.new("forge.puppetlabs.com/", query_cache, download_cache, http_client) 
 
-                expect(http_client).to receive(:get).with(/http:\/\/forge.puppetlabs.com\/api/).and_return('{"puppetlabs/apache":[]}')
+                expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
 
-                repo.get_metadata("puppetlabs", "apache")
+                repo.get_module_metadata("puppetlabs", "apache")
             end
         end
 
@@ -134,37 +134,39 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
-        describe "#get_metadata" do
-            context "when the module doesn't exist" do
-                it "returns an empty array" do
+        describe "#get_module_metadata_with_dependencies" do
+            context "the module isn't found" do
+                it "raises an error" do
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
-                        and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
+                        with("http://puppetforge.example.com/api/v1/releases.json?module=nonexistant/nonexistant").
+                        and_raise(OpenURI::HTTPError.new("410 Gone", "Module not found"))
 
-                    metadata = repo.get_metadata("puppetlabs", "apache")
-                    expect(metadata).to be_empty
+                    expect {
+                        repo.get_module_metadata_with_dependencies("nonexistant", "nonexistant", nil)
+                    }.to raise_error PuppetLibrary::ModuleNotFound
                 end
             end
 
-            context "when versions of the module exist" do
-                it "returns an array of the versions" do
+            context "when the module is found" do
+                it "proxies the request directly" do
+                    response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
-                        and_return('{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
+                        with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
+                        and_return(response)
 
-                    metadata = repo.get_metadata("puppetlabs", "apache")
-                    expect(metadata.size).to eq 2
-                    expect(metadata.first).to eq({ "name" => "puppetlabs-apache", "author" => "puppetlabs", "version" => "1.0.0", "dependencies" => [{ "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.0" }, { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 2.0.0" }] })
-                    expect(metadata.last).to eq({ "name" => "puppetlabs-apache", "author" => "puppetlabs", "version" => "2.0.0", "dependencies" => [] })
+                    result = repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+
+                    expect(result).to eq JSON.parse(response)
                 end
 
-                it "caches requests" do
-                    expect(http_client).to receive(:get).
-                        once.with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
-                        and_return('{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
+                it "caches the result" do
+                    response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
+                    expect(http_client).to receive(:get).once.
+                        with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
+                        and_return(response)
 
-                    repo.get_metadata("puppetlabs", "apache")
-                    repo.get_metadata("puppetlabs", "apache")
+                    repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+                    repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
                 end
             end
         end

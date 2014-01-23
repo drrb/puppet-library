@@ -22,12 +22,11 @@ require 'puppet_library/http/cache/noop'
 require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
-    class Proxy < PuppetLibrary::Forge
+    class Proxy
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
                        download_cache = PuppetLibrary::Http::Cache::NoOp.new,
                        http_client = PuppetLibrary::Http::HttpClient.new)
-            super(self)
             @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @query_cache = query_cache
@@ -53,20 +52,12 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
-        def get_metadata(author, name)
-            module_versions = get_module_versions(author, name)
-            module_versions.map do |version_info|
-                {
-                    "name" => "#{author}-#{name}",
-                    "author" => author,
-                    "version" => version_info["version"],
-                    "dependencies" => version_info["dependencies"].map do |(dep_name, dep_spec)|
-                        { "name" => dep_name, "version_requirement" => dep_spec }
-                    end
-                }
+        def get_module_metadata_with_dependencies(author, name, version)
+            begin
+                look_up_releases(author, name, version)
+            rescue OpenURI::HTTPError
+                raise PuppetLibrary::ModuleNotFound
             end
-        rescue OpenURI::HTTPError => http_error
-            return []
         end
 
         private
@@ -82,8 +73,10 @@ module PuppetLibrary::ModuleRepo
             versions["#{author}/#{name}"]
         end
 
-        def look_up_releases(author, name)
-            response = get("/api/v1/releases.json?module=#{author}/#{name}")
+        def look_up_releases(author, name, version = nil)
+            version_query = version ? "&version=#{version}" : ""
+            url = "/api/v1/releases.json?module=#{author}/#{name}#{version_query}"
+            response = get(url)
             JSON.parse(response)
         end
 
