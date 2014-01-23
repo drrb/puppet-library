@@ -42,37 +42,59 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
-        describe "#get_module" do
-            context "when the module exists" do
-                it "downloads the module" do
+        describe "#get_module_buffer" do
+            context "module version not found" do
+                it "raises an error" do
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
-                        and_return('{"puppetlabs/apache":[{"file":"/system/releases/p/puppetlabs/puppetlabs-apache-1.2.3.tar.gz","version":"1.2.3","dependencies":[]}]}')
-                    expect(http_client).to receive(:download).
-                        with("http://puppetforge.example.com/system/releases/p/puppetlabs/puppetlabs-apache-1.2.3.tar.gz").
-                        and_return("module buffer")
+                        and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
-                    module_buffer = repo.get_module("puppetlabs", "apache", "1.2.3")
-                    expect(module_buffer).to eq "module buffer"
-                end
-
-                it "caches the download" do
-                    expect(http_client).to receive(:get).at_least(1).times.and_return('{"puppetlabs/apache":[{"version": "1", "file":"/module.tar.gz"}]}')
-                    expect(http_client).to receive(:download).once
-
-                    repo.get_module("puppetlabs", "apache", "1")
-                    repo.get_module("puppetlabs", "apache", "1")
+                    expect {
+                        repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    }.to raise_error PuppetLibrary::ModuleNotFound
                 end
             end
 
-            context "when the module doesn't exist" do
-                it "returns nil" do
+            context "when there is an error downloading the archive" do
+                it "raises an error" do
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
-                        and_return('{"puppetlabs/apache":[{"file":"/system/releases/p/puppetlabs/puppetlabs-apache-1.2.3.tar.gz","version":"1.2.3","dependencies":[]}]}')
+                        and_return('{"puppetlabs/apache":[{"version":"1.0.0","file":"/puppetlabs/apache.tgz","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
+                    expect(http_client).to receive(:download).
+                        with("http://puppetforge.example.com/puppetlabs/apache.tgz").
+                        and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
-                    module_buffer = repo.get_module("puppetlabs", "apache", "9.9.9")
-                    expect(module_buffer).to be_nil
+                    expect {
+                        repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    }.to raise_error PuppetLibrary::ModuleNotFound
+                end
+            end
+
+            context "when the module is found" do
+                before do
+                    allow(http_client).to receive(:get).
+                        with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache").
+                        and_return('{"puppetlabs/apache":[{"version":"1.0.0","file":"/puppetlabs/apache.tgz","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
+                end
+
+                it "returns a buffer containing the module archive" do
+                    file_buffer = "file buffer"
+                    expect(http_client).to receive(:download).
+                        with("http://puppetforge.example.com/puppetlabs/apache.tgz").
+                        and_return(file_buffer)
+
+                    result = repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    expect(result).to eq file_buffer
+                end
+
+                it "caches the download" do
+                    file_buffer = "file buffer"
+                    expect(http_client).to receive(:download).once.
+                        with("http://puppetforge.example.com/puppetlabs/apache.tgz").
+                        and_return(file_buffer)
+
+                    repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
                 end
             end
         end

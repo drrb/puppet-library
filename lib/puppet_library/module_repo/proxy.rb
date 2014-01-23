@@ -34,12 +34,13 @@ module PuppetLibrary::ModuleRepo
             @download_cache = download_cache
         end
 
-        def get_module(author, name, version)
-            version_info = get_module_version(author, name, version)
-            if version_info.nil?
-                nil
-            else
+        def get_module_buffer(author, name, version)
+            begin
+                version_info = get_module_version(author, name, version)
+                raise PuppetLibrary::ModuleNotFound if version_info.nil?
                 download_file(version_info["file"])
+            rescue OpenURI::HTTPError
+                raise PuppetLibrary::ModuleNotFound
             end
         end
 
