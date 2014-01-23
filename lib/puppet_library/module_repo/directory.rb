@@ -21,11 +21,8 @@ require 'puppet_library/forge'
 
 module PuppetLibrary::ModuleRepo
     class Directory < PuppetLibrary::Forge
-        def initialize
-            super(self)
-        end
-
         def initialize(module_dir)
+            super(self)
             @module_dir = module_dir
         end
 

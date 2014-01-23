@@ -23,14 +23,11 @@ require 'puppet_library/http/url'
 
 module PuppetLibrary::ModuleRepo
     class Proxy < PuppetLibrary::Forge
-        def initialize
-            super(self)
-        end
-
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
                        download_cache = PuppetLibrary::Http::Cache::NoOp.new,
                        http_client = PuppetLibrary::Http::HttpClient.new)
+            super(self)
             @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @query_cache = query_cache
