@@ -28,29 +28,26 @@ module PuppetLibrary::ModuleRepo
             return repo
         end
 
-        describe "#get_module" do
-            before do
-            end
-
+        describe "#get_module_buffer" do
             context "when the module is found in a subrepository" do
                 it "returns the module from the first subrepo it's found in" do
-                    expect(subrepo_one).to receive(:get_module).with("puppetlabs", "apache", "1.0.0").and_return("puppetlabs/apache module: 1.0.0")
-                    expect(subrepo_two).not_to receive(:get_module)
+                    expect(subrepo_one).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_return("puppetlabs/apache module: 1.0.0")
+                    expect(subrepo_two).not_to receive(:get_mo_bufferdule_buffer)
 
-                    mod = multi_repo.get_module("puppetlabs", "apache", "1.0.0") 
+                    mod = multi_repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
 
                     expect(mod).to eq "puppetlabs/apache module: 1.0.0"
                 end
             end
 
             context "when the module is not found in any subrepository" do
-                it "returns nil" do
-                    expect(subrepo_one).to receive(:get_module).with("puppetlabs", "nonexistant", "1.0.0").and_return(nil)
-                    expect(subrepo_two).to receive(:get_module).with("puppetlabs", "nonexistant", "1.0.0").and_return(nil)
+                it "raises an error" do
+                    expect(subrepo_one).to receive(:get_module_buffer).with("puppetlabs", "nonexistant", "1.0.0").and_raise(PuppetLibrary::ModuleNotFound)
+                    expect(subrepo_two).to receive(:get_module_buffer).with("puppetlabs", "nonexistant", "1.0.0").and_raise(PuppetLibrary::ModuleNotFound)
 
-                    mod = multi_repo.get_module("puppetlabs", "nonexistant", "1.0.0") 
-
-                    expect(mod).to be_nil
+                    expect {
+                        multi_repo.get_module_buffer("puppetlabs", "nonexistant", "1.0.0")
+                    }.to raise_exception(PuppetLibrary::ModuleNotFound)
                 end
             end
         end

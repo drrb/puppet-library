@@ -31,12 +31,15 @@ module PuppetLibrary::ModuleRepo
             repos << repo
         end
 
-        def get_module(author, name, version)
+        def get_module_buffer(author, name, version)
             repos.each do |repo|
-                mod = repo.get_module(author, name, version)
-                return mod unless mod.nil?
+                begin
+                    return repo.get_module_buffer(author, name, version)
+                rescue PuppetLibrary::ModuleNotFound
+                    # Try the next one
+                end
             end
-            return nil
+            raise PuppetLibrary::ModuleNotFound
         end
 
         def get_metadata(author, name)
