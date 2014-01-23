@@ -44,6 +44,15 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
+        def get_module_metadata(author, name)
+            begin
+                response = get("/#{author}/#{name}.json")
+                JSON.parse(response)
+            rescue OpenURI::HTTPError
+                raise PuppetLibrary::ModuleNotFound
+            end
+        end
+
         def get_metadata(author, name)
             module_versions = get_module_versions(author, name)
             module_versions.map do |version_info|

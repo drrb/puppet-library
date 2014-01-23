@@ -99,6 +99,41 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
+        describe "#get_module_metadata" do
+            context "when the module doesn't exist" do
+                it "raises an error" do
+                    expect(http_client).to receive(:get).
+                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
+
+                    expect {
+                        repo.get_module_metadata("puppetlabs", "apache")
+                    }.to raise_error(PuppetLibrary::ModuleNotFound)
+                end
+            end
+
+            context "when versions of the module exist" do
+                it "proxies the query directly" do
+                    response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
+                    expect(http_client).to receive(:get).
+                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        and_return(response)
+
+                    metadata = repo.get_module_metadata("puppetlabs", "apache")
+                    expect(metadata).to eq JSON.parse(response)
+                end
+
+                it "caches requests" do
+                    expect(http_client).to receive(:get).once.
+                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        and_return('{}')
+
+                    repo.get_module_metadata("puppetlabs", "apache")
+                    repo.get_module_metadata("puppetlabs", "apache")
+                end
+            end
+        end
+
         describe "#get_metadata" do
             context "when the module doesn't exist" do
                 it "returns an empty array" do
