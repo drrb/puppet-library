@@ -56,11 +56,21 @@ module PuppetLibrary::ModuleRepo
             end
         end
 
-        def get_metadata(author, name)
-            metadata_list = repos.inject([]) do |metadata_list, repo|
-                metadata_list + repo.get_metadata(author, name)
+        def get_module_metadata_with_dependencies(author, name, version)
+            metadata_list = []
+            repos.each do |repo|
+                begin
+                    metadata_list << repo.get_module_metadata_with_dependencies(author, name, version)
+                rescue PuppetLibrary::ModuleNotFound
+                    # Try the next one
+                end
             end
-            metadata_list.unique_by { |metadata| metadata["version"] }
+            raise PuppetLibrary::ModuleNotFound if metadata_list.empty?
+            metadata_list.deep_merge.tap do |metadata|
+                metadata.each do |module_name, releases|
+                    metadata[module_name] = releases.unique_by { |release| release["version"] }
+                end
+            end
         end
     end
 end
