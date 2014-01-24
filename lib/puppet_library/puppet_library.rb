@@ -53,12 +53,12 @@ module PuppetLibrary
                     options[:hostname] = hostname
                 end
 
-                options[:repositories] = []
+                options[:forges] = []
                 opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
-                    options[:repositories] << [Forge::Directory, module_dir]
+                    options[:forges] << [Forge::Directory, module_dir]
                 end
                 opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |url|
-                    options[:repositories] << [Forge::Proxy, url]
+                    options[:forges] << [Forge::Proxy, url]
                 end
             end
             begin
@@ -71,12 +71,12 @@ module PuppetLibrary
         end
 
         def build_server(options)
-            if options[:repositories].empty?
-                options[:repositories] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
+            if options[:forges].empty?
+                options[:forges] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
             end
 
             Server.set_up do |server|
-                options[:repositories].each do |(forge_type, config)|
+                options[:forges].each do |(forge_type, config)|
                     subforge = forge_type.new(config)
                     server.forge subforge
                 end
@@ -91,7 +91,7 @@ module PuppetLibrary
             @log.puts " |- Host: #{options[:hostname]}"
             @log.puts " |- Server: #{options[:server]}"
             @log.puts " `- Forges:"
-            options[:repositories].each do |(forge_type, config)|
+            options[:forges].each do |(forge_type, config)|
                 @log.puts "    - #{forge_type}: #{config}"
             end
         end

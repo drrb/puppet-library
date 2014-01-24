@@ -19,14 +19,14 @@ require 'spec_helper'
 
 module PuppetLibrary
     describe PuppetLibrary do
-        let(:module_repo) do
-            module_repo = double(Forge::Multi).as_null_object
-            allow(Forge::Multi).to receive(:new).and_return(module_repo)
-            return module_repo
+        let(:forge) do
+            forge = double(Forge::Multi).as_null_object
+            allow(Forge::Multi).to receive(:new).and_return(forge)
+            return forge
         end
         let(:server) do
             server = double(Server)
-            allow(Server).to receive(:new).with(module_repo).and_return(server)
+            allow(Server).to receive(:new).with(forge).and_return(server)
             return server
         end
         let(:log) { double('log').as_null_object }
@@ -86,12 +86,12 @@ module PuppetLibrary
             end
 
             context "when using --proxy option" do
-                it "adds a proxy module repository for each option specified" do
+                it "adds a proxy module forge for each option specified" do
                     proxy1 = double('proxy1')
                     proxy2 = double('proxy2')
                     expect(Forge::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
                     expect(Forge::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
-                    expect(module_repo).to receive(:add_forge).twice
+                    expect(forge).to receive(:add_forge).twice
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--proxy", "http://forge1.example.com", "--proxy", "http://forge2.example.com"])
@@ -99,13 +99,13 @@ module PuppetLibrary
             end
 
             context "when using --module-dir option" do
-                it "adds a module repository to the server for each module directory" do
-                    directory_repo_1 = double("directory_repo_1")
-                    directory_repo_2 = double("directory_repo_2")
-                    expect(Forge::Directory).to receive(:new).with("dir1").and_return(directory_repo_1)
-                    expect(Forge::Directory).to receive(:new).with("dir2").and_return(directory_repo_2)
-                    expect(module_repo).to receive(:add_forge).with(directory_repo_1)
-                    expect(module_repo).to receive(:add_forge).with(directory_repo_2)
+                it "adds a directory forge to the server for each module directory" do
+                    directory_forge_1 = double("directory_forge_1")
+                    directory_forge_2 = double("directory_forge_2")
+                    expect(Forge::Directory).to receive(:new).with("dir1").and_return(directory_forge_1)
+                    expect(Forge::Directory).to receive(:new).with("dir2").and_return(directory_forge_2)
+                    expect(forge).to receive(:add_forge).with(directory_forge_1)
+                    expect(forge).to receive(:add_forge).with(directory_forge_2)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--module-dir", "dir1", "--module-dir", "dir2"])
@@ -116,7 +116,7 @@ module PuppetLibrary
                 it "proxies the Puppet Forge" do
                     proxy = double("proxy")
                     expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
-                    expect(module_repo).to receive(:add_forge).with(proxy)
+                    expect(forge).to receive(:add_forge).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go([])

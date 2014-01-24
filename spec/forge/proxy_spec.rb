@@ -22,23 +22,23 @@ module PuppetLibrary::Forge
         let(:http_client) { double('http_client') }
         let(:query_cache) { PuppetLibrary::Http::Cache::InMemory.new }
         let(:download_cache) { PuppetLibrary::Http::Cache::InMemory.new }
-        let(:repo) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
+        let(:forge) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
         describe "url" do
             it "defaults to HTTP, when protocol not specified" do
-                repo = Proxy.new("forge.puppetlabs.com", query_cache, download_cache, http_client) 
+                forge = Proxy.new("forge.puppetlabs.com", query_cache, download_cache, http_client) 
 
                 expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
 
-                repo.get_module_metadata("puppetlabs", "apache")
+                forge.get_module_metadata("puppetlabs", "apache")
             end
 
             it "copes with a trailing slash" do
-                repo = Proxy.new("forge.puppetlabs.com/", query_cache, download_cache, http_client) 
+                forge = Proxy.new("forge.puppetlabs.com/", query_cache, download_cache, http_client) 
 
                 expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
 
-                repo.get_module_metadata("puppetlabs", "apache")
+                forge.get_module_metadata("puppetlabs", "apache")
             end
         end
 
@@ -50,7 +50,7 @@ module PuppetLibrary::Forge
                         and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
                     expect {
-                        repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                        forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
                     }.to raise_error ModuleNotFound
                 end
             end
@@ -65,7 +65,7 @@ module PuppetLibrary::Forge
                         and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
                     expect {
-                        repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                        forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
                     }.to raise_error ModuleNotFound
                 end
             end
@@ -83,7 +83,7 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/puppetlabs/apache.tgz").
                         and_return(file_buffer)
 
-                    result = repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    result = forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
                     expect(result).to eq file_buffer
                 end
 
@@ -93,8 +93,8 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/puppetlabs/apache.tgz").
                         and_return(file_buffer)
 
-                    repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
-                    repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
                 end
             end
         end
@@ -107,7 +107,7 @@ module PuppetLibrary::Forge
                         and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
                     expect {
-                        repo.get_module_metadata("puppetlabs", "apache")
+                        forge.get_module_metadata("puppetlabs", "apache")
                     }.to raise_error(ModuleNotFound)
                 end
             end
@@ -119,7 +119,7 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/puppetlabs/apache.json").
                         and_return(response)
 
-                    metadata = repo.get_module_metadata("puppetlabs", "apache")
+                    metadata = forge.get_module_metadata("puppetlabs", "apache")
                     expect(metadata).to eq JSON.parse(response)
                 end
 
@@ -128,8 +128,8 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/puppetlabs/apache.json").
                         and_return('{}')
 
-                    repo.get_module_metadata("puppetlabs", "apache")
-                    repo.get_module_metadata("puppetlabs", "apache")
+                    forge.get_module_metadata("puppetlabs", "apache")
+                    forge.get_module_metadata("puppetlabs", "apache")
                 end
             end
         end
@@ -142,7 +142,7 @@ module PuppetLibrary::Forge
                         and_raise(OpenURI::HTTPError.new("410 Gone", "Module not found"))
 
                     expect {
-                        repo.get_module_metadata_with_dependencies("nonexistant", "nonexistant", nil)
+                        forge.get_module_metadata_with_dependencies("nonexistant", "nonexistant", nil)
                     }.to raise_error ModuleNotFound
                 end
             end
@@ -154,7 +154,7 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
                         and_return(response)
 
-                    result = repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+                    result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
 
                     expect(result).to eq JSON.parse(response)
                 end
@@ -165,8 +165,8 @@ module PuppetLibrary::Forge
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
                         and_return(response)
 
-                    repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
-                    repo.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+                    forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
+                    forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
                 end
             end
         end
