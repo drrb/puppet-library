@@ -59,7 +59,7 @@ module PuppetLibrary::Forge
             return versions if version.nil?
 
             versions[full_name] = versions[full_name].select do |v|
-                v["version"].start_with?(version)
+                Gem::Dependency.new(name, version).match?(name, v["version"])
             end
 
             dependencies = versions[full_name].map do |v|
