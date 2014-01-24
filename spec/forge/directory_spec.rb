@@ -55,6 +55,32 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#get_all_metadata" do
+            context "when modules exist" do
+                before do
+                    add_module("puppetlabs", "apache", "1.0.0")
+                    add_module("puppetlabs", "apache", "2.0.0")
+                end
+
+                it "returns a the module archive as a file buffer" do
+                    metadata = module_repo.get_all_metadata
+
+                    v1 = metadata.find {|m| m["version"] == "1.0.0" }
+                    v2 = metadata.find {|m| m["version"] == "2.0.0" }
+                    expect(v1).not_to be_nil
+                    expect(v2).not_to be_nil
+                end
+            end
+
+            context "when no modules exist" do
+                it "returns an empty array" do
+                    result = module_repo.get_all_metadata
+
+                    expect(result).to be_empty
+                end
+            end
+        end
+
         describe "#get_metadata" do
             context "when the module directory is empty" do
                 it "returns an empty array" do

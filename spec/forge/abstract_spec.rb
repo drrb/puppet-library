@@ -44,6 +44,45 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#search_modules" do
+            before do
+                all_metadata = [{
+                    "name"=>"puppetlabs-apache",
+                    "version"=>"0.10.0",
+                    "source"=>"git://github.com/puppetlabs/puppetlabs-apache.git",
+                    "author"=>"puppetlabs",
+                    "license"=>"Apache 2.0",
+                    "summary"=>"Puppet module for Apache",
+                    "description"=>"Module for Apache configuration",
+                    "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache"
+                },{
+                    "name"=>"dodgybrothers-ntp",
+                    "version"=>"1.0.0",
+                    "source"=>"git://github.com/dodgybrothers/puppet-ntp.git",
+                    "author"=>"dodgybrothers",
+                    "license"=>"Apache 2.0",
+                    "summary"=>"Puppet module for NTP",
+                    "description"=>"Module for NTP configuration",
+                    "project_page"=>"https://github.com/dodgybrothers/puppet-ntp"
+                }]
+                expect(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
+            end
+
+            it "matches by name" do
+                search_results = forge.search_modules("apache")
+                expect(search_results).to eq [{
+                    "author"=>"puppetlabs",
+                    "full_name"=>"puppetlabs/apache",
+                    "name"=>"apache",
+                    "desc"=>"Puppet module for Apache",
+                    "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                    "releases"=>[{"version"=>"0.10.0"}],
+                    "version"=>"0.10.0",
+                    "tag_list"=>["puppetlabs", "apache"]
+                }]
+            end
+        end
+
         describe "#get_module_metadata" do
             context "when no modules found" do
                 it "raises an error" do

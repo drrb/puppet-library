@@ -42,6 +42,23 @@ module PuppetLibrary::Forge
             @repo = module_repo
         end
 
+        def search_modules(query)
+            @repo.get_all_metadata.select do |result|
+                result["name"].include? query
+            end.map do |result|
+                {
+                    "author" => result["author"],
+                    "full_name" => result["name"].sub(/-/, "/"),
+                    "name" => result["name"][/[^-]*$/],
+                    "desc" => result["summary"],
+                    "project_url" => result["project_page"],
+                    "releases" => [{ "version" => result["version"]}],
+                    "version" => result["version"],
+                    "tag_list" => [result["author"], result["name"][/[^-]*$/]]
+                }
+            end
+        end
+
         def get_module_metadata(author, name)
             modules = retrieve_metadata(author, name)
 
