@@ -59,6 +59,7 @@ module PuppetLibrary::Forge
 
                     result = multi_forge.search_modules("puppetlabs")
 
+                    result = result.sort_by {|r| r["full_name"]}
                     expect(result).to eq [apache, concat]
                 end
             end
