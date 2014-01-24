@@ -38,6 +38,83 @@ module PuppetLibrary::Forge
             return forge
         end
 
+        describe "#search_modules" do
+            context "when no modules match in any subforge" do
+                it "returns an empty array" do
+                    expect(subforge_one).to receive(:search_modules).with("apache").and_return([])
+                    expect(subforge_two).to receive(:search_modules).with("apache").and_return([])
+
+                    result = multi_forge.search_modules("apache")
+
+                    expect(result).to eq []
+                end
+            end
+
+            context "when modules match in subforges" do
+                it "returns an array with all of them" do
+                    apache = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "version" => "1"}
+                    concat = { "author" => "puppetlabs", "full_name" => "puppetlabs/concat", "version" => "1"}
+                    expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache])
+                    expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([concat])
+
+                    result = multi_forge.search_modules("puppetlabs")
+
+                    expect(result).to eq [apache, concat]
+                end
+            end
+
+            context "when modules match in subforges that overlap" do
+                it "favours the details of the ones in the first repository" do
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1"}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2"}
+                    expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
+                    expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
+
+                    result = multi_forge.search_modules("puppetlabs")
+
+                    expect(result.size).to eq 1
+                    expect(result.first["desc"]).to eq "one"
+                end
+
+                it "sets the version to the maximum version" do
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1"}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2"}
+                    expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
+                    expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
+
+                    result = multi_forge.search_modules("puppetlabs")
+
+                    expect(result.size).to eq 1
+                    expect(result.first["version"]).to eq "2"
+                end
+
+                it "combines the available tags" do
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1", "tag_list" => ["a", "b"]}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2", "tag_list" => ["a", "c"]}
+                    expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
+                    expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
+
+                    result = multi_forge.search_modules("puppetlabs")
+
+                    tags = result.first["tag_list"]
+                    expect(tags).to eq ["a", "b", "c"]
+                end
+
+                it "combines the available versions, in order" do
+                    apache_3 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "3", "releases" => [{"version" => "3"}]}
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1", "releases" => [{"version" => "1"}]}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2", "releases" => [{"version" => "2"}]}
+                    expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1, apache_3])
+                    expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
+
+                    result = multi_forge.search_modules("puppetlabs")
+
+                    tags = result.first["releases"]
+                    expect(tags).to eq [ {"version" => "3"}, {"version" => "2"}, {"version" => "1"} ]
+                end
+            end
+        end
+
         describe "#get_module_buffer" do
             context "when the module is found in a subforge" do
                 it "returns the module from the first subforge it's found in" do
