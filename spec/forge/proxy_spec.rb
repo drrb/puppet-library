@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 
-module PuppetLibrary::ModuleRepo
+module PuppetLibrary::Forge
     describe Proxy do
         let(:http_client) { double('http_client') }
         let(:query_cache) { PuppetLibrary::Http::Cache::InMemory.new }
@@ -51,7 +51,7 @@ module PuppetLibrary::ModuleRepo
 
                     expect {
                         repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
-                    }.to raise_error PuppetLibrary::ModuleNotFound
+                    }.to raise_error ModuleNotFound
                 end
             end
 
@@ -66,7 +66,7 @@ module PuppetLibrary::ModuleRepo
 
                     expect {
                         repo.get_module_buffer("puppetlabs", "apache", "1.0.0")
-                    }.to raise_error PuppetLibrary::ModuleNotFound
+                    }.to raise_error ModuleNotFound
                 end
             end
 
@@ -108,7 +108,7 @@ module PuppetLibrary::ModuleRepo
 
                     expect {
                         repo.get_module_metadata("puppetlabs", "apache")
-                    }.to raise_error(PuppetLibrary::ModuleNotFound)
+                    }.to raise_error(ModuleNotFound)
                 end
             end
 
@@ -143,7 +143,7 @@ module PuppetLibrary::ModuleRepo
 
                     expect {
                         repo.get_module_metadata_with_dependencies("nonexistant", "nonexistant", nil)
-                    }.to raise_error PuppetLibrary::ModuleNotFound
+                    }.to raise_error ModuleNotFound
                 end
             end
 

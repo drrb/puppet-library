@@ -20,8 +20,8 @@ require 'spec_helper'
 module PuppetLibrary
     describe PuppetLibrary do
         let(:module_repo) do
-            module_repo = double(ModuleRepo::Multi).as_null_object
-            allow(ModuleRepo::Multi).to receive(:new).and_return(module_repo)
+            module_repo = double(Forge::Multi).as_null_object
+            allow(Forge::Multi).to receive(:new).and_return(module_repo)
             return module_repo
         end
         let(:server) do
@@ -89,9 +89,9 @@ module PuppetLibrary
                 it "adds a proxy module repository for each option specified" do
                     proxy1 = double('proxy1')
                     proxy2 = double('proxy2')
-                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
-                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
-                    expect(module_repo).to receive(:add_repo).twice
+                    expect(Forge::Proxy).to receive(:new).with("http://forge1.example.com").and_return(proxy1)
+                    expect(Forge::Proxy).to receive(:new).with("http://forge2.example.com").and_return(proxy2)
+                    expect(module_repo).to receive(:add_forge).twice
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--proxy", "http://forge1.example.com", "--proxy", "http://forge2.example.com"])
@@ -102,10 +102,10 @@ module PuppetLibrary
                 it "adds a module repository to the server for each module directory" do
                     directory_repo_1 = double("directory_repo_1")
                     directory_repo_2 = double("directory_repo_2")
-                    expect(ModuleRepo::Directory).to receive(:new).with("dir1").and_return(directory_repo_1)
-                    expect(ModuleRepo::Directory).to receive(:new).with("dir2").and_return(directory_repo_2)
-                    expect(module_repo).to receive(:add_repo).with(directory_repo_1)
-                    expect(module_repo).to receive(:add_repo).with(directory_repo_2)
+                    expect(Forge::Directory).to receive(:new).with("dir1").and_return(directory_repo_1)
+                    expect(Forge::Directory).to receive(:new).with("dir2").and_return(directory_repo_2)
+                    expect(module_repo).to receive(:add_forge).with(directory_repo_1)
+                    expect(module_repo).to receive(:add_forge).with(directory_repo_2)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--module-dir", "dir1", "--module-dir", "dir2"])
@@ -115,8 +115,8 @@ module PuppetLibrary
             context "when no proxy URLs or module directories specified" do
                 it "proxies the Puppet Forge" do
                     proxy = double("proxy")
-                    expect(ModuleRepo::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
-                    expect(module_repo).to receive(:add_repo).with(proxy)
+                    expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
+                    expect(module_repo).to receive(:add_forge).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go([])
@@ -127,8 +127,8 @@ module PuppetLibrary
                 expect(log).to receive(:puts).with(/Port: default/)
                 expect(log).to receive(:puts).with(/Host: default/)
                 expect(log).to receive(:puts).with(/Server: default/)
-                expect(log).to receive(:puts).with(/Repositories:/)
-                expect(log).to receive(:puts).with(/- PuppetLibrary::ModuleRepo::Directory: \.\/modules/)
+                expect(log).to receive(:puts).with(/Forges:/)
+                expect(log).to receive(:puts).with(/- PuppetLibrary::Forge::Directory: \.\/modules/)
                 library.go(["--module-dir", "./modules"])
             end
         end

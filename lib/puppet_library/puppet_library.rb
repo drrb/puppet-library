@@ -16,9 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rack'
-require 'puppet_library/forge'
-require 'puppet_library/module_repo/directory'
-require 'puppet_library/module_repo/multi'
+require 'puppet_library/forge/directory'
+require 'puppet_library/forge/multi'
 
 module PuppetLibrary
     class PuppetLibrary
@@ -56,10 +55,10 @@ module PuppetLibrary
 
                 options[:repositories] = []
                 opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
-                    options[:repositories] << [ModuleRepo::Directory, module_dir]
+                    options[:repositories] << [Forge::Directory, module_dir]
                 end
                 opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |url|
-                    options[:repositories] << [ModuleRepo::Proxy, url]
+                    options[:repositories] << [Forge::Proxy, url]
                 end
             end
             begin
@@ -73,13 +72,13 @@ module PuppetLibrary
 
         def build_server(options)
             if options[:repositories].empty?
-                options[:repositories] << [ ModuleRepo::Proxy, "http://forge.puppetlabs.com" ]
+                options[:repositories] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
             end
 
             Server.set_up do |server|
-                options[:repositories].each do |(repo_type, config)|
-                    subrepo = repo_type.new(config)
-                    server.module_repo subrepo
+                options[:repositories].each do |(forge_type, config)|
+                    subforge = forge_type.new(config)
+                    server.forge subforge
                 end
             end
         end
@@ -91,9 +90,9 @@ module PuppetLibrary
             @log.puts " |- Port: #{options[:port]}"
             @log.puts " |- Host: #{options[:hostname]}"
             @log.puts " |- Server: #{options[:server]}"
-            @log.puts " `- Repositories:"
-            options[:repositories].each do |(repo_type, config)|
-                @log.puts "    - #{repo_type}: #{config}"
+            @log.puts " `- Forges:"
+            options[:repositories].each do |(forge_type, config)|
+                @log.puts "    - #{forge_type}: #{config}"
             end
         end
 

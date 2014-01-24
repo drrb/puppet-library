@@ -25,10 +25,10 @@ module PuppetLibrary
         let(:module_dir) { Tempfile.new("module_dir").path }
         let(:project_dir) { Tempfile.new("project_dir").path }
         let(:start_dir) { pwd }
-        let(:disk_repo) { ModuleRepo::Directory.new(module_dir) }
+        let(:disk_forge) { Forge::Directory.new(module_dir) }
         let(:disk_server) do
             Server.set_up do |server|
-                server.module_repo disk_repo
+                server.forge disk_forge
             end
         end
         let(:disk_rack_server) do
@@ -44,10 +44,10 @@ module PuppetLibrary
                 disk_rack_server.start
             end
         end
-        let(:proxy_repo) { ModuleRepo::Proxy.new("http://localhost:9000") }
+        let(:proxy_forge) { Forge::Proxy.new("http://localhost:9000") }
         let(:proxy_server) do
             Server.set_up do |server|
-                server.module_repo proxy_repo
+                server.forge proxy_forge
             end
         end
         let(:proxy_rack_server) do
@@ -69,9 +69,13 @@ module PuppetLibrary
             rm_rf project_dir
             mkdir_p module_dir
             mkdir_p project_dir
+            # Initialize to catch wiring errors
+            disk_rack_server
+            proxy_rack_server
+
+            # Start the servers
             disk_server_runner
             proxy_server_runner
-            sleep(2) # Wait for the servers to start
             start_dir
             cd project_dir
         end

@@ -17,25 +17,24 @@
 
 require 'sinatra/base'
 
-require 'puppet_library/module_metadata'
-require 'puppet_library/module_repo/multi'
+require 'puppet_library/forge/multi'
 
 module PuppetLibrary
     class Server < Sinatra::Base
         class Config
-            def initialize(module_repo)
-                @module_repo = module_repo
+            def initialize(forge)
+                @forge = forge
             end
 
-            def module_repo(repo)
-                @module_repo.add_repo repo
+            def forge(forge)
+                @forge.add_forge forge
             end
         end
 
         def self.set_up(&config_block)
-            module_repo = ModuleRepo::Multi.new
-            yield(Config.new(module_repo))
-            Server.new(module_repo)
+            forge = Forge::Multi.new
+            yield(Config.new(forge))
+            Server.new(forge)
         end
 
         def initialize(forge)
@@ -58,7 +57,7 @@ module PuppetLibrary
 
             begin
                 @forge.get_module_metadata(author, module_name).to_json
-            rescue ModuleNotFound
+            rescue Forge::ModuleNotFound
                 status 410
                 {"error" => "Could not find module \"#{module_name}\""}.to_json
             end
@@ -69,7 +68,7 @@ module PuppetLibrary
             version = params[:version]
             begin
                 @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
-            rescue ModuleNotFound
+            rescue Forge::ModuleNotFound
                 status 410
                 {"error" => "Module #{author}/#{module_name} not found"}.to_json
             end
@@ -86,7 +85,7 @@ module PuppetLibrary
                 @forge.get_module_buffer(author, name, version).tap do
                     attachment "#{author}-#{name}-#{version}.tar.gz"
                 end
-            rescue ModuleNotFound
+            rescue Forge::ModuleNotFound
                 status 404
             end
         end

@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/forge'
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
 require 'puppet_library/http/url'
 
-module PuppetLibrary::ModuleRepo
+module PuppetLibrary::Forge
     class Proxy
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
@@ -36,10 +35,10 @@ module PuppetLibrary::ModuleRepo
         def get_module_buffer(author, name, version)
             begin
                 version_info = get_module_version(author, name, version)
-                raise PuppetLibrary::ModuleNotFound if version_info.nil?
+                raise ModuleNotFound if version_info.nil?
                 download_file(version_info["file"])
             rescue OpenURI::HTTPError
-                raise PuppetLibrary::ModuleNotFound
+                raise ModuleNotFound
             end
         end
 
@@ -48,7 +47,7 @@ module PuppetLibrary::ModuleRepo
                 response = get("/#{author}/#{name}.json")
                 JSON.parse(response)
             rescue OpenURI::HTTPError
-                raise PuppetLibrary::ModuleNotFound
+                raise ModuleNotFound
             end
         end
 
@@ -56,7 +55,7 @@ module PuppetLibrary::ModuleRepo
             begin
                 look_up_releases(author, name, version)
             rescue OpenURI::HTTPError
-                raise PuppetLibrary::ModuleNotFound
+                raise ModuleNotFound
             end
         end
 
@@ -97,3 +96,4 @@ module PuppetLibrary::ModuleRepo
         end
     end
 end
+

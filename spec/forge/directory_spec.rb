@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-module PuppetLibrary::ModuleRepo
+module PuppetLibrary::Forge
     describe Directory do
         include ModuleSpecHelper
         include FileUtils

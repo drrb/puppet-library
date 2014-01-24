@@ -17,10 +17,10 @@
 require 'json'
 require 'rubygems/package'
 require 'zlib'
-require 'puppet_library/forge'
+require 'puppet_library/forge/abstract'
 
-module PuppetLibrary::ModuleRepo
-    class Directory < PuppetLibrary::Forge
+module PuppetLibrary::Forge
+    class Directory < PuppetLibrary::Forge::Abstract
         def initialize(module_dir)
             super(self)
             @module_dir = module_dir

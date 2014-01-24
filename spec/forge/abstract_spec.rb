@@ -17,9 +17,9 @@
 
 require 'spec_helper'
 
-module PuppetLibrary
-    describe Forge do
-        let(:forge) { Forge.new(module_repo) }
+module PuppetLibrary::Forge
+    describe Abstract do
+        let(:forge) { Abstract.new(module_repo) }
         let(:module_repo) { double('module_repo') }
 
         describe "#get_module_buffer" do

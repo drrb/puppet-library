@@ -15,38 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'puppet_library/forge'
-
-module PuppetLibrary::ModuleRepo
+module PuppetLibrary::Forge
     class Multi
-        def repos
-            @repos ||= []
-        end
-
-        def add_repo(repo)
-            repos << repo
+        def add_forge(forge)
+            forges << forge
         end
 
         def get_module_buffer(author, name, version)
-            repos.each do |repo|
+            forges.each do |forge|
                 begin
-                    return repo.get_module_buffer(author, name, version)
-                rescue PuppetLibrary::ModuleNotFound
+                    return forge.get_module_buffer(author, name, version)
+                rescue ModuleNotFound
                     # Try the next one
                 end
             end
-            raise PuppetLibrary::ModuleNotFound
+            raise ModuleNotFound
         end
 
         def get_module_metadata(author, name)
-            metadata_list = repos.inject([]) do |metadata_list, repo|
+            metadata_list = forges.inject([]) do |metadata_list, forge|
                 begin
-                    metadata_list << repo.get_module_metadata(author, name)
-                rescue PuppetLibrary::ModuleNotFound
+                    metadata_list << forge.get_module_metadata(author, name)
+                rescue ModuleNotFound
                     metadata_list
                 end
             end
-            raise PuppetLibrary::ModuleNotFound if metadata_list.empty?
+            raise ModuleNotFound if metadata_list.empty?
             metadata_list.deep_merge.tap do |metadata|
                 metadata["releases"] = metadata["releases"].unique_by { |release| release["version"] }
             end
@@ -54,19 +48,24 @@ module PuppetLibrary::ModuleRepo
 
         def get_module_metadata_with_dependencies(author, name, version)
             metadata_list = []
-            repos.each do |repo|
+            forges.each do |forge|
                 begin
-                    metadata_list << repo.get_module_metadata_with_dependencies(author, name, version)
-                rescue PuppetLibrary::ModuleNotFound
+                    metadata_list << forge.get_module_metadata_with_dependencies(author, name, version)
+                rescue ModuleNotFound
                     # Try the next one
                 end
             end
-            raise PuppetLibrary::ModuleNotFound if metadata_list.empty?
+            raise ModuleNotFound if metadata_list.empty?
             metadata_list.deep_merge.tap do |metadata|
                 metadata.each do |module_name, releases|
                     metadata[module_name] = releases.unique_by { |release| release["version"] }
                 end
             end
+        end
+
+        private
+        def forges
+            @forges ||= []
         end
     end
 end

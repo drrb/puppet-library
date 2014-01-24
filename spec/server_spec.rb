@@ -68,7 +68,7 @@ module PuppetLibrary
 
             context "when the module is not on the server" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_raise(ModuleNotFound)
+                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_raise(Forge::ModuleNotFound)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -100,7 +100,7 @@ module PuppetLibrary
 
             context "when no modules found" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(ModuleNotFound)
+                    expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(Forge::ModuleNotFound)
 
                     get "/nonexistant/nonexistant.json"
 
@@ -148,7 +148,7 @@ module PuppetLibrary
 
             context "when the module can't be found" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("nonexistant", "nonexistant", nil).and_raise(ModuleNotFound)
+                    expect(forge).to receive(:get_module_metadata_with_dependencies).with("nonexistant", "nonexistant", nil).and_raise(Forge::ModuleNotFound)
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 
