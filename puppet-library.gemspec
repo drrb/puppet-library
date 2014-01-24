@@ -49,4 +49,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "simplecov"
+
+  # Guard has dependencies that don't work with Ruby < 1.9
+  unless RUBY_VERSION.start_with? "1.8"
+      spec.add_development_dependency "guard"
+      spec.add_development_dependency "guard-rspec"
+      spec.add_development_dependency "terminal-notifier-guard"
+  end
 end
