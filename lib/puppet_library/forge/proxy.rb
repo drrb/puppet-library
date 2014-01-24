@@ -32,6 +32,11 @@ module PuppetLibrary::Forge
             @download_cache = download_cache
         end
 
+        def search_modules(query)
+            results = get("/modules.json?q=#{query}")
+            JSON.parse results
+        end
+
         def get_module_buffer(author, name, version)
             begin
                 version_info = get_module_version(author, name, version)

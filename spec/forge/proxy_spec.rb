@@ -42,6 +42,28 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#search_modules" do
+            it "forwards the request directly" do
+                search_results = '["a","b","c"]'
+                expect(http_client).to receive(:get).
+                    with("http://puppetforge.example.com/modules.json?q=apache").
+                    and_return(search_results)
+
+                result = forge.search_modules("apache")
+                expect(result).to eq JSON.parse(search_results)
+            end
+
+            it "caches the results" do
+                search_results = '["a","b","c"]'
+                expect(http_client).to receive(:get).once.
+                    with("http://puppetforge.example.com/modules.json?q=apache").
+                    and_return(search_results)
+
+                forge.search_modules("apache")
+                forge.search_modules("apache")
+            end
+        end
+
         describe "#get_module_buffer" do
             context "module version not found" do
                 it "raises an error" do
@@ -113,7 +135,7 @@ module PuppetLibrary::Forge
             end
 
             context "when versions of the module exist" do
-                it "proxies the query directly" do
+                it "forwards the query directly" do
                     response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/puppetlabs/apache.json").
@@ -148,7 +170,7 @@ module PuppetLibrary::Forge
             end
 
             context "when the module is found" do
-                it "proxies the request directly" do
+                it "forwards the request directly" do
                     response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
