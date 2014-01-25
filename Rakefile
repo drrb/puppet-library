@@ -29,7 +29,7 @@ class String
     end
 end
 
-if RUBY_VERSION.start_with? "1.8"
+if RUBY_VERSION =~ /^(1\.8|2\.1)/
     # The integration test doesn't work on Ruby 1.8.
     DEFAULT_TEST_TASK = :spec
 else
