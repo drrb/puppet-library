@@ -29,9 +29,9 @@ class String
     end
 end
 
-def ruby_version_supports_integration_test?
+def ruby_version_supports_integration_test?(version = RUBY_VERSION)
     # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
-    ! /^(1\.8|2\.1)/.match(RUBY_VERSION)
+    ! /^(1\.8|2\.1)/.match(version)
 end
 
 if ruby_version_supports_integration_test?
@@ -90,7 +90,7 @@ task :verify do
             fail "Specs failed with Ruby #{version}"
         end
 
-        if ruby_version_supports_integration_test?
+        if ruby_version_supports_integration_test?(version)
             unless integration_test_result
                 fail "Integration tests failed with Ruby #{version}"
             end
