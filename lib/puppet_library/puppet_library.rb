@@ -41,23 +41,34 @@ module PuppetLibrary
             option_parser = OptionParser.new do |opts|
                 opts.banner = "Usage: #{File.basename $0} [options]"
 
-                opts.on("-p", "--port [PORT]", "Port to listen on (defaults to whatever Rack wants to use)") do |port|
+                opts.on("-p", "--port PORT", "Port to listen on (defaults to whatever Rack wants to use)") do |port|
                     options[:port] = port
                 end
 
-                opts.on("-s", "--server [SERVER]", "Server to use (defaults to whatever Rack wants to use)") do |server|
+                opts.on("-s", "--server SERVER", "Server to use (defaults to whatever Rack wants to use)") do |server|
                     options[:server] = server
                 end
 
-                opts.on("-b", "--bind-host [HOSTNAME]", "Host name to bind to (defaults to whatever Rack wants to use)") do |hostname|
+                opts.on("-b", "--bind-host HOSTNAME", "Host name to bind to (defaults to whatever Rack wants to use)") do |hostname|
                     options[:hostname] = hostname
                 end
 
+                options[:daemonize] = false
+                opts.on("--daemonize", "Run the server in the background") do
+                    options[:daemonize] = true
+                end
+
+                options[:pidfile] = nil
+                opts.on("--pidfile FILE", "Write a pidfile to this location after starting (implies --daemonize)") do |pidfile|
+                    options[:daemonize] = true
+                    options[:pidfile] = File.expand_path pidfile
+                end
+
                 options[:forges] = []
-                opts.on("-m", "--module-dir [DIR]", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
+                opts.on("-m", "--module-dir DIR", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
                     options[:forges] << [Forge::Directory, module_dir]
                 end
-                opts.on("-x", "--proxy [URL]", "Remote forge to proxy (can be specified multiple times)") do |url|
+                opts.on("-x", "--proxy URL", "Remote forge to proxy (can be specified multiple times)") do |url|
                     options[:forges] << [Forge::Proxy, url]
                 end
             end
@@ -86,9 +97,11 @@ module PuppetLibrary
         def announce_server_start(options)
             options = options.clone
             options.default = "default"
-            @log.puts "Starting Puppet Library server:"
+            action = options[:daemonize] ? "Daemonizing" : "Starting"
+            @log.puts "#{action} Puppet Library server:"
             @log.puts " |- Port: #{options[:port]}"
             @log.puts " |- Host: #{options[:hostname]}"
+            @log.puts " |- Pidfile: #{options[:pidfile]}" if options[:pidfile]
             @log.puts " |- Server: #{options[:server]}"
             @log.puts " `- Forges:"
             options[:forges].each do |(forge_type, config)|
@@ -101,7 +114,9 @@ module PuppetLibrary
                 :app => server,
                 :Host => options[:hostname],
                 :Port => options[:port],
-                :server => options[:server]
+                :server => options[:server],
+                :daemonize => options[:daemonize],
+                :pid => options[:pidfile]
             )
         end
     end

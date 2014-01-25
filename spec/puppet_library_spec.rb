@@ -31,7 +31,8 @@ module PuppetLibrary
         end
         let(:log) { double('log').as_null_object }
         let(:library) { PuppetLibrary.new(log) }
-        let(:default_options) {{ :app => server, :Host => nil, :Port => nil, :server => nil }}
+        let(:default_options) {{ :app => server, :Host => nil, :Port => nil, :server => nil, :daemonize => false, :pid => nil }}
+
         before do
             allow(Rack::Server).to receive(:start)
         end
@@ -82,6 +83,25 @@ module PuppetLibrary
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Host => "localhost"))
 
                     library.go(["--bind-host", "localhost"])
+                end
+            end
+
+            context "when using --daemonize option" do
+                it "daemonizes the server" do
+                    expect(Rack::Server).to receive(:start).with(default_options_with(:daemonize => true))
+                    expect(log).to receive(:puts).with(/Daemonizing/)
+
+                    library.go(["--daemonize"])
+                end
+            end
+
+            context "when using --pidfile option" do
+                it "daemonizes and writes a pidfile to the specified location" do
+                    expect(Rack::Server).to receive(:start).with(default_options_with(:daemonize => true, :pid => "/var/run/puppet-library.pid"))
+                    expect(log).to receive(:puts).with(/Daemonizing/)
+                    expect(log).to receive(:puts).with(/Pidfile: \/var\/run\/puppet-library.pid/)
+
+                    library.go(["--pidfile", "/var/run/puppet-library.pid"])
                 end
             end
 

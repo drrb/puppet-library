@@ -32,4 +32,7 @@
   changes:
       - Added module search
       - Improved performance of proxy
+- tag: v0.4.0
+  changes:
+      - Added option to daemonize server (with optional pidfile)
 
