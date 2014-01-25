@@ -28,4 +28,8 @@
   changes:
       - Support more specific module version queries using 'version' parameter
       - Fixed bug on older versions of RubyGems
+- tag: v0.3.0
+  changes:
+      - Added module search
+      - Improved performance of proxy
 

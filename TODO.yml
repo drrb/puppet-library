@@ -1,5 +1,4 @@
 features:
-    - Support module search
     - Use config from a config file
     - Allow proxy to cache downloaded modules/API calls on disk
     - |
