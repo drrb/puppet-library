@@ -65,7 +65,7 @@ module PuppetLibrary::Forge
                     "description"=>"Module for NTP configuration",
                     "project_page"=>"https://github.com/dodgybrothers/puppet-ntp"
                 }]
-                expect(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
+                allow(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
             end
 
             it "matches by name" do
@@ -80,6 +80,84 @@ module PuppetLibrary::Forge
                     "version"=>"0.10.0",
                     "tag_list"=>["puppetlabs", "apache"]
                 }]
+            end
+
+            it "matches by author" do
+                search_results = forge.search_modules("dodgybrothers")
+                expect(search_results).to eq [{
+                    "author"=>"dodgybrothers",
+                    "full_name"=>"dodgybrothers/ntp",
+                    "name"=>"ntp",
+                    "desc"=>"Puppet module for NTP",
+                    "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                    "releases"=>[{"version"=>"1.0.0"}],
+                    "version"=>"1.0.0",
+                    "tag_list"=>["dodgybrothers", "ntp"]
+                }]
+            end
+
+            context "when multiple versions of a module exist" do
+                it "retuns merges the metadata, favoring the most recent one" do
+                    all_metadata = [{
+                        "name"=>"puppetlabs-apache",
+                        "version"=>"0.10.0",
+                        "source"=>"git://github.com/puppetlabs/puppetlabs-apache.git",
+                        "author"=>"puppetlabs",
+                        "license"=>"Apache 2.0",
+                        "summary"=>"Puppet module for Apache",
+                        "description"=>"Module for Apache configuration",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache"
+                    },{
+                        "name"=>"puppetlabs-apache",
+                        "version"=>"1.0.0",
+                        "source"=>"git://github.com/puppetlabs/puppetlabs-apache-new.git",
+                        "author"=>"puppetlabs",
+                        "license"=>"GPL",
+                        "summary"=>"New Puppet module for Apache",
+                        "description"=>"New module for Apache configuration",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache-new"
+                    }]
+                    expect(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
+
+                    search_results = forge.search_modules("apache")
+                    expect(search_results).to eq [{
+                        "author"=>"puppetlabs",
+                        "full_name"=>"puppetlabs/apache",
+                        "name"=>"apache",
+                        "desc"=>"New Puppet module for Apache",
+                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
+                        "releases"=>[{"version"=>"1.0.0"},{"version"=>"0.10.0"}],
+                        "version"=>"1.0.0",
+                        "tag_list"=>["puppetlabs", "apache"]
+                    }]
+                end
+            end
+
+            context "with no query" do
+                it "retuns all metadata" do
+                    search_results = forge.search_modules(nil)
+
+                    search_results = search_results.sort_by {|r| r["name"]}
+                    expect(search_results).to eq [{
+                        "author"=>"puppetlabs",
+                        "full_name"=>"puppetlabs/apache",
+                        "name"=>"apache",
+                        "desc"=>"Puppet module for Apache",
+                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                        "releases"=>[{"version"=>"0.10.0"}],
+                        "version"=>"0.10.0",
+                        "tag_list"=>["puppetlabs", "apache"]
+                    },{
+                        "author"=>"dodgybrothers",
+                        "full_name"=>"dodgybrothers/ntp",
+                        "name"=>"ntp",
+                        "desc"=>"Puppet module for NTP",
+                        "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                        "releases"=>[{"version"=>"1.0.0"}],
+                        "version"=>"1.0.0",
+                        "tag_list"=>["dodgybrothers", "ntp"]
+                    }]
+                end
             end
         end
 

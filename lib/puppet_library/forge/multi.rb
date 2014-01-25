@@ -15,14 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class Array
-    def version_sort_on
-        sort_by do |element|
-            version = yield(element)
-            Gem::Version.new(version)
-        end
-    end
-end
+require 'puppet_library/forge/search_result'
 
 module PuppetLibrary::Forge
     class Multi
@@ -35,13 +28,7 @@ module PuppetLibrary::Forge
                 forge.search_modules(query)
             end.flatten
 
-            results_by_module = all_results.group_by do |result|
-                result["full_name"]
-            end
-
-            results_by_module.values.map do |module_results|
-                combine_search_results(module_results)
-            end.flatten
+            SearchResult.merge_by_full_name(all_results)
         end
 
         def get_module_buffer(author, name, version)
@@ -89,26 +76,6 @@ module PuppetLibrary::Forge
         private
         def forges
             @forges ||= []
-        end
-
-        def combine_search_results(search_results)
-            highest_version, tags, releases = search_results.inject([nil, [], []]) do |(highest_version, tags, releases), result|
-                [
-                    max_version(highest_version, result["version"]),
-                    tags + (result["tag_list"] || []),
-                    releases + (result["releases"] || [])
-                ]
-            end
-
-            combined_result = search_results.first.tap do |result|
-                result["version"] = highest_version
-                result["tag_list"] = tags.uniq
-                result["releases"] = releases.uniq.version_sort_on {|r| r["version"]}.reverse
-            end
-        end
-
-        def max_version(left, right)
-            [Gem::Version.new(left), Gem::Version.new(right)].max.version
         end
     end
 end

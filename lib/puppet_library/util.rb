@@ -30,6 +30,31 @@ class Array
             !is_duplicate
         end
     end
+
+    def version_sort_by
+        sort_by do |element|
+            version = yield(element)
+            Gem::Version.new(version)
+        end
+    end
+
+    def deep_merge
+        inject({}) do |merged, map|
+            merged.deep_merge(map)
+        end
+    end
+end
+
+class Hash
+    def deep_merge(other)
+        merge(other) do |key, old_val, new_val|
+            if old_val.instance_of? Array
+                old_val + new_val
+            else
+                new_val
+            end
+        end
+    end
 end
 
 class Gem::Package::TarReader

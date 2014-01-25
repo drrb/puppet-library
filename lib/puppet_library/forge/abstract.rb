@@ -15,25 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class Array
-    def deep_merge
-        inject({}) do |merged, map|
-            merged.deep_merge(map)
-        end
-    end
-end
-
-class Hash
-    def deep_merge(other)
-        merge(other) do |key, old_val, new_val|
-            if old_val.instance_of? Array
-                old_val + new_val
-            else
-                new_val
-            end
-        end
-    end
-end
+require 'puppet_library/forge/search_result'
+require 'puppet_library/util'
 
 module PuppetLibrary::Forge
 
@@ -43,20 +26,17 @@ module PuppetLibrary::Forge
         end
 
         def search_modules(query)
-            @repo.get_all_metadata.select do |result|
-                result["name"].include? query
-            end.map do |result|
-                {
-                    "author" => result["author"],
-                    "full_name" => result["name"].sub(/-/, "/"),
-                    "name" => result["name"][/[^-]*$/],
-                    "desc" => result["summary"],
-                    "project_url" => result["project_page"],
-                    "releases" => [{ "version" => result["version"]}],
-                    "version" => result["version"],
-                    "tag_list" => [result["author"], result["name"][/[^-]*$/]]
-                }
+            search = Search.new(query)
+
+            search_results = retrieve_all_metadata.select do |result|
+                search.matches? result
+            end.sort_by do |result|
+                result.version
+            end.reverse.map do |result|
+                result.to_search_result
             end
+
+            SearchResult.merge_by_full_name(search_results)
         end
 
         def get_module_metadata(author, name)
@@ -107,6 +87,23 @@ module PuppetLibrary::Forge
         def retrieve_metadata(author, module_name)
             @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
         end
+
+        def retrieve_all_metadata
+            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata)}
+        end
+    end
+
+    class Search
+        def initialize(query)
+            @query = query
+        end
+
+        def matches?(metadata)
+            return true if @query.nil?
+            return true if metadata.name.include? @query
+            return true if metadata.author.include? @query
+            return false
+        end
     end
 
     class ModuleMetadata
@@ -134,8 +131,16 @@ module PuppetLibrary::Forge
             @metadata["dependencies"]
         end
 
+        def summary
+            @metadata["summary"]
+        end
+
         def description
             @metadata["description"]
+        end
+
+        def project_page
+            @metadata["project_page"]
         end
 
         def dependency_names
@@ -159,6 +164,19 @@ module PuppetLibrary::Forge
                 "dependencies" => dependencies.map do |dependency|
                     [ dependency["name"], dependency["version_requirement"] ]
                 end
+            }
+        end
+
+        def to_search_result
+            {
+                "author" => author,
+                "full_name" => full_name,
+                "name" => name,
+                "desc" => summary,
+                "project_url" => project_page,
+                "releases" => [{ "version" => version}],
+                "version" => version,
+                "tag_list" => [author, name]
             }
         end
     end

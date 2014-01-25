@@ -65,7 +65,7 @@ module PuppetLibrary::Forge
             end
 
             context "when modules match in subforges that overlap" do
-                it "favours the details of the ones in the first repository" do
+                it "favors the details of the ones in the first repository" do
                     apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1"}
                     apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2"}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
@@ -259,7 +259,7 @@ module PuppetLibrary::Forge
             end
 
             context "when the same version of a module is found in multiple forges" do
-                it "favours the one it finds first" do
+                it "favors the one it finds first" do
                     base_metadata = {
                         "puppetlabs/apache" => [ ],
                         "puppetlabs/stdlib" => [
