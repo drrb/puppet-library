@@ -29,11 +29,15 @@ class String
     end
 end
 
-if /^(1\.8|2\.1)/.match RUBY_VERSION
+def ruby_version_supports_integration_test?
     # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
-    DEFAULT_TEST_TASK = :spec
-else
+    ! /^(1\.8|2\.1)/.match(RUBY_VERSION)
+end
+
+if ruby_version_supports_integration_test?
     DEFAULT_TEST_TASK = :test
+else
+    DEFAULT_TEST_TASK = :spec
 end
 
 Coveralls::RakeTask.new
@@ -80,6 +84,18 @@ task :verify do
         puts "| #{v}     | #{s}  | #{i}  |"
     end
     puts "+---------+-------+-------+"
+
+    versions.zip(results).each do |(version, (spec_result, integration_test_result))|
+        unless spec_result
+            fail "Specs failed with Ruby #{version}"
+        end
+
+        if ruby_version_supports_integration_test?
+            unless integration_test_result
+                fail "Integration tests failed with Ruby #{version}"
+            end
+        end
+    end
 end
 
 desc "Check all files for license headers"
