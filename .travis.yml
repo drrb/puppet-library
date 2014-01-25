@@ -26,6 +26,6 @@ rvm:
 env:
   - RUBYGEMS_VERSION=2.1.11
   - RUBYGEMS_VERSION=1.8.24
-matrix:
-    allow_failures:
-      - rvm: 2.1.0
+#matrix:
+#    allow_failures:
+#      - rvm: 2.1.0

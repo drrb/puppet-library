@@ -29,8 +29,8 @@ class String
     end
 end
 
-if RUBY_VERSION =~ /^(1\.8|2\.1)/
-    # The integration test doesn't work on Ruby 1.8.
+if /^(1\.8|2\.1)/.match RUBY_VERSION
+    # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
     DEFAULT_TEST_TASK = :spec
 else
     DEFAULT_TEST_TASK = :test
