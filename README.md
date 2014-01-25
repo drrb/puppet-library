@@ -74,6 +74,21 @@ See all options
 
     $ puppet-library --help
 
+## Back-Ends
+
+Puppet Library contains built-in support for:
+ - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
+ - proxying a remote forge (or forges)
+ - serving modules from a combination of the above
+
+## Compatibility with other tools
+
+Puppet Library currently supports:
+- search with Puppet (`puppet module search apache`)
+- dependency resolution and installation with Puppet (`puppet module install puppetlabs/apache`)
+- dependency resolution and installation with [librarian-puppet](http://librarian-puppet.com)
+- installation with [r10k](https://github.com/adrienthebo/r10k)
+
 ## Contributing
 
 1. Fork it
