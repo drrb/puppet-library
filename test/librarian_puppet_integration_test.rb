@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'spec_helper'
+require 'open-uri'
 
 module PuppetLibrary
     describe "librarian-puppet integration test" do
@@ -92,7 +93,7 @@ module PuppetLibrary
             end
         end
 
-        it "downloads the modules" do
+        it "queries, downloads and searches through a proxy to a directory" do
             add_module("puppetlabs", "apache", "1.0.0") do |metadata|
                 metadata["dependencies"] << { "name" => "puppetlabs/concat", "version_requirement" => ">= 2.0.0" }
                 metadata["dependencies"] << { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 3.0.0" }
@@ -105,11 +106,21 @@ module PuppetLibrary
                 mod 'puppetlabs/apache'
             EOF
 
+            # Install modules through the proxy
             system "librarian-puppet install" or fail "call to puppet-library failed"
             expect(File.directory? "modules").to be true
             expect(File.directory? "modules/apache").to be true
             expect(File.directory? "modules/concat").to be true
             expect(File.directory? "modules/stdlib").to be true
+
+            # Search through the proxy
+            search_results = JSON.parse(open("http://localhost:9001/modules.json").read)
+            found_modules = Hash[search_results.map do |result|
+                [ result["full_name"], result["version"] ]
+            end]
+            expect(found_modules["puppetlabs/apache"]).to eq "1.0.0"
+            expect(found_modules["puppetlabs/concat"]).to eq "2.0.0"
+            expect(found_modules["puppetlabs/stdlib"]).to eq "3.0.0"
         end
     end
 end
