@@ -62,6 +62,16 @@ module PuppetLibrary::Forge
                 forge.search_modules("apache")
                 forge.search_modules("apache")
             end
+
+            context "when the query is nil" do
+                it "doesn't forward it as a request parameter" do
+                    expect(http_client).to receive(:get).
+                        with("http://puppetforge.example.com/modules.json").
+                        and_return("[]")
+
+                    forge.search_modules(nil)
+                end
+            end
         end
 
         describe "#get_module_buffer" do

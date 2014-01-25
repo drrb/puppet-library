@@ -33,7 +33,8 @@ module PuppetLibrary::Forge
         end
 
         def search_modules(query)
-            results = get("/modules.json?q=#{query}")
+            query_parameter = query.nil? ? "" : "?q=#{query}"
+            results = get("/modules.json#{query_parameter}")
             JSON.parse results
         end
 
