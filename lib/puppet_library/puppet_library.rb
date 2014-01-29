@@ -65,7 +65,7 @@ module PuppetLibrary
                 end
 
                 options[:forges] = []
-                opts.on("-m", "--module-dir DIR", "Directory containing the modules (can be specified multiple times. Defaults to './modules')") do |module_dir|
+                opts.on("-m", "--module-dir DIR", "Directory containing the modules (can be specified multiple times)") do |module_dir|
                     options[:forges] << [Forge::Directory, module_dir]
                 end
                 opts.on("-x", "--proxy URL", "Remote forge to proxy (can be specified multiple times)") do |url|
