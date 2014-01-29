@@ -46,6 +46,29 @@ module PuppetLibrary
             enable :logging
         end
 
+        get "/" do
+            modules = @forge.search_modules(nil)
+
+            modules = modules.group_by {|m| m["full_name"]}
+            page = <<-EOF
+            <h1>Available Modules</h1>
+            <ul>
+            <% modules.each do |full_name, versions| %>
+                <li>
+                    <b><%= full_name %></b>
+                    <ul>
+                        <% versions.each do |m| %>
+                            <li> <%= m["version"] %>
+                        <% end %>
+                    </ul>
+                </li>
+            <% end %>
+            </ul>
+            EOF
+
+            erb page, { :locals => { "modules" => modules } }
+        end
+
         get "/modules.json" do
             search_term = params[:q]
             @forge.search_modules(search_term).to_json
