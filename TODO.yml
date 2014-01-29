@@ -6,7 +6,6 @@ features:
         will need to embed the server or use a config file for more control)
     - Validate repo dirs (make sure they're readable)
     - Allow failover between module repositories
-    - Document usage with Passenger
     - Web UI
     - Authentication
 

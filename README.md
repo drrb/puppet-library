@@ -89,6 +89,42 @@ Puppet Library currently supports:
 - dependency resolution and installation with [librarian-puppet](http://librarian-puppet.com)
 - installation with [r10k](https://github.com/adrienthebo/r10k)
 
+## Running with Phusion Passenger
+
+To run Puppet Library with [Phusion Passenger](https://www.phusionpassenger.com):
+
+```sh
+# Create a Passenger-compatible directory structure
+mkdir -p /webapps/puppet-library/{public,tmp}
+
+# Create a Rack config file to point Puppet Library to your modules
+cat > /webapps/puppet-library/config.ru <<EOF
+require "rubygems"
+require "puppet_library"
+
+server = PuppetLibrary::Server.set_up do |library|
+    # Serve our private modules
+    library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
+    # Download all other moduls from the Puppet Forge
+    library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
+end
+
+run server
+EOF
+
+# Create an Apache virtual host pointing at Puppet Library
+cat > /etc/httpd/conf.d/puppetlibrary.conf <<EOF
+<VirtualHost *:80>
+    ServerName privateforge.example.com
+    DocumentRoot /webapps/puppet-library/public
+    <Directory /webapps/puppet-library/public>
+        Allow from all
+        Options -MultiViews
+    </Directory>
+</VirtualHost>
+EOF
+```
+
 ## Contributing
 
 1. Fork it
