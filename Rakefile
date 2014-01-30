@@ -17,6 +17,7 @@
 
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
+require 'cucumber/rake/task'
 require 'coveralls/rake/task'
 
 class String
@@ -44,6 +45,8 @@ Coveralls::RakeTask.new
 
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec)
+
+Cucumber::Rake::Task.new(:features)
 
 desc "Run the integration tests"
 RSpec::Core::RakeTask.new(:integration_test) do |rspec|

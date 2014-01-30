@@ -41,7 +41,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "haml"
 
   spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "capybara"
   spec.add_development_dependency "coveralls"
+  spec.add_development_dependency "cucumber"
   spec.add_development_dependency "gitsu"
   spec.add_development_dependency "librarian-puppet"
   spec.add_development_dependency "mime-types", "< 2"
