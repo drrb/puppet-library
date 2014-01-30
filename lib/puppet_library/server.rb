@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'sinatra/base'
+require 'haml'
 
 require 'puppet_library/forge/multi'
 
@@ -44,29 +45,14 @@ module PuppetLibrary
 
         configure do
             enable :logging
+            set :haml, :format => :html5
+            set :root, File.expand_path("app", File.dirname(__FILE__))
         end
 
         get "/" do
             modules = @forge.search_modules(nil)
 
-            modules = modules.group_by {|m| m["full_name"]}
-            page = <<-EOF
-            <h1>Available Modules</h1>
-            <ul>
-            <% modules.each do |full_name, versions| %>
-                <li>
-                    <b><%= full_name %></b>
-                    <ul>
-                        <% versions.each do |m| %>
-                            <li> <%= m["version"] %>
-                        <% end %>
-                    </ul>
-                </li>
-            <% end %>
-            </ul>
-            EOF
-
-            erb page, { :locals => { "modules" => modules } }
+            haml :index, { :locals => { "modules" => modules } }
         end
 
         get "/modules.json" do

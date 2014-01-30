@@ -46,8 +46,10 @@ module PuppetLibrary
 
                 get "/"
 
-                expect(last_response.body).to include "Available Modules"
+                expect(last_response.body).to include "Modules"
                 expect(last_response.body).to include "puppetlabs/apache"
+                expect(last_response.body).to include "0.0.1"
+                expect(last_response.body).to include "0.0.2"
             end
         end
 
