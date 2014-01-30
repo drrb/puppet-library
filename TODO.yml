@@ -1,3 +1,5 @@
+bugs:
+    - Using captialised Author name to create full module name
 features:
     - Use config from a config file
     - Allow proxy to cache downloaded modules/API calls on disk
@@ -6,7 +8,7 @@ features:
         will need to embed the server or use a config file for more control)
     - Validate repo dirs (make sure they're readable)
     - Allow failover between module repositories
-    - Web UI
+    - Web UI: asynchronous
     - Authentication
 
 dubious_features:
