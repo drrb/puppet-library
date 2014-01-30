@@ -89,6 +89,12 @@ Puppet Library currently supports:
 - dependency resolution and installation with [librarian-puppet](http://librarian-puppet.com)
 - installation with [r10k](https://github.com/adrienthebo/r10k)
 
+Puppet Library is tested against Ruby versions:
+- 1.8.7
+- 1.9.3
+- 2.0.0
+- 2.1.0
+
 ## Running with Phusion Passenger
 
 To run Puppet Library with [Phusion Passenger](https://www.phusionpassenger.com):
