@@ -17,8 +17,13 @@
 
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
-require 'cucumber/rake/task'
 require 'coveralls/rake/task'
+
+SUPPORTED_VERSIONS = %w[1.8 1.9 2.0 2.1]
+# The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
+INTEGRATION_TEST_INCOMPATIBLE_VERSIONS = %w[1.8 2.1]
+# Capybara needs Nokogiri, which needs 1.9+
+ACCEPTANCE_TEST_INCOMPATIBLE_VERSIONS = %w[1.8]
 
 class String
     def green
@@ -28,17 +33,22 @@ class String
     def red
         "\e[31m#{self}\e[0m"
     end
+
+    def yellow
+        "\e[33m#{self}\e[0m"
+    end
 end
 
 def ruby_version_supports_integration_test?(version = RUBY_VERSION)
-    # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
-    ! /^(1\.8|2\.1)/.match(version)
+    ! INTEGRATION_TEST_INCOMPATIBLE_VERSIONS.find do |bad_version|
+        version.start_with? bad_version
+    end
 end
 
-if ruby_version_supports_integration_test?
-    DEFAULT_TEST_TASK = :test
-else
-    DEFAULT_TEST_TASK = :spec
+def ruby_version_supports_acceptance_tests?(version = RUBY_VERSION)
+    ! ACCEPTANCE_TEST_INCOMPATIBLE_VERSIONS.find do |bad_version|
+        version.start_with? bad_version
+    end
 end
 
 Coveralls::RakeTask.new
@@ -46,19 +56,34 @@ Coveralls::RakeTask.new
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec)
 
-Cucumber::Rake::Task.new(:features)
-
-desc "Run the integration tests"
-RSpec::Core::RakeTask.new(:integration_test) do |rspec|
-    rspec.pattern = "test/**/*_integration_test.rb"
+if ruby_version_supports_acceptance_tests?
+    require 'cucumber/rake/task'
+    Cucumber::Rake::Task.new(:features)
+else
+    task :features do
+        puts "Skipping acceptance tests because this version of Ruby doesn't support them"
+    end
 end
 
-desc "Run all the tests"
-RSpec::Core::RakeTask.new(:test) do |rspec|
-    rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
+if ruby_version_supports_integration_test?
+    desc "Run all the tests"
+    RSpec::Core::RakeTask.new(:test) do |rspec|
+        rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
+    end
+    task :test => :features
+
+    desc "Run the integration tests"
+    RSpec::Core::RakeTask.new(:integration_test) do |rspec|
+        rspec.pattern = "test/**/*_integration_test.rb"
+    end
+else
+    task :integration_test do
+        puts "Skipping integration tests because this version of Ruby doesn't support them"
+    end
+    task :test => [:features, :spec]
 end
 
-task :default => [DEFAULT_TEST_TASK, 'coveralls:push']
+task :default => [:test, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
@@ -75,18 +100,34 @@ task :verify do
         system "rvm #{ruby_version} do rake integration_test"
     end
 
+    puts "\nRunning Acceptance Tests".green
+    acceptance_test_results = versions.map do |ruby_version|
+        puts "\n- Ruby  #{ruby_version}".green
+        system "rvm #{ruby_version} do rake features"
+    end
+
     puts "\nResults:\n".green
-    results = spec_results.zip(integration_test_results)
-    puts "+---------+-------+-------+"
-    puts "| Version | Specs | Tests |"
-    puts "+---------+-------+-------+"
-    versions.zip(results).each do |(version, (spec_result, integration_test_result))|
+    results = [ spec_results, integration_test_results, acceptance_test_results ].transpose
+    puts "+---------+-------+-------+-------+"
+    puts "| Version | Specs |  ITs  |  ATs  |"
+    puts "+---------+-------+-------+-------+"
+    versions.zip(results).each do |(version, (spec_result, integration_test_result, acceptance_test_result))|
         v = version
         s = spec_result ? "pass".green : "fail".red
-        i = integration_test_result ? "pass".green : "fail".red
-        puts "| #{v}     | #{s}  | #{i}  |"
+        if ruby_version_supports_integration_test? version
+            i = integration_test_result ? "pass".green : "fail".red
+        else
+            i = "skip".yellow
+        end
+
+        if ruby_version_supports_acceptance_tests? version
+            a = acceptance_test_result ? "pass".green : "fail".red
+        else
+            a = "skip".yellow
+        end
+        puts "| #{v}     | #{s}  | #{i}  | #{a}  |"
     end
-    puts "+---------+-------+-------+"
+    puts "+---------+-------+-------+-------+"
 
     versions.zip(results).each do |(version, (spec_result, integration_test_result))|
         unless spec_result
