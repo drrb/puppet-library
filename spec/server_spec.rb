@@ -103,6 +103,41 @@ module PuppetLibrary
             end
         end
 
+        describe "GET /<author>/<module>" do
+            it "displays module metadata" do
+                metadata = {
+                    "author" => "puppetlabs",
+                    "full_name" => "puppetlabs/apache",
+                    "name" => "apache",
+                    "desc" => "Puppet module for Apache",
+                    "releases" => [
+                        { "version" => "0.10.0" },
+                        { "version" => "0.9.0" },
+                    ]
+                }
+                expect(forge).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(metadata)
+
+                get "/puppetlabs/apache"
+
+                expect(last_response.body).to include "Author: puppetlabs"
+                expect(last_response.body).to include "Name: apache"
+                expect(last_response.body).to include "0.10.0"
+                expect(last_response.body).to include "0.9.0"
+                expect(last_response).to be_ok
+            end
+
+            context "when no modules found" do
+                it "returns an error" do
+                    expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(Forge::ModuleNotFound)
+
+                    get "/nonexistant/nonexistant"
+
+                    expect(last_response.body).to include 'Module "nonexistant/nonexistant" not found'
+                    expect(last_response.status).to eq(404)
+                end
+            end
+        end
+
         describe "GET /<author>/<module>.json" do
             it "gets module metadata for all versions" do
                 metadata = {

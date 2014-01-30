@@ -54,7 +54,15 @@ When /^I visit the module list page$/ do
     visit "/"
 end
 
+When /^I visit the module page for "(.*?)"$/ do |module_name|
+    visit "/#{module_name}"
+end
+
 Then /^I should see "(.*?)"$/ do |text|
+    expect(page).to have_content text
+end
+
+Then /^I should see '(.*?)'$/ do |text|
     expect(page).to have_content text
 end
 

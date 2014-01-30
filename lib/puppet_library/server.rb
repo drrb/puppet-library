@@ -98,5 +98,18 @@ module PuppetLibrary
                 status 404
             end
         end
+
+        get "/:author/:module" do
+            author = params[:author]
+            module_name = params[:module]
+
+            begin
+                metadata = @forge.get_module_metadata(author, module_name)
+                haml :module, { :locals => { "metadata" => metadata } }
+            rescue Forge::ModuleNotFound
+                status 404
+                haml :module_not_found, { :locals => { "author" => author, "name" => module_name } }
+            end
+        end
     end
 end

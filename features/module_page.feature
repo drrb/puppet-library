@@ -15,17 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Feature: Module list page
+Feature: Module page
     As a user
     I want to see a list of available modules
     So that I can quickly tell what's on the server
 
-    Scenario: Visit the module list page
-        When I visit the module list page
-        Then I should see "Modules"
-
-    Scenario: See module versions
+    Scenario: Visit the module page
         Given the "puppetlabs/apache" module is available at version "1.0.0"
         And the "puppetlabs/apache" module is available at version "1.1.0"
-        When I visit the module list page
-        Then I should see module "puppetlabs/apache" with versions 1.0.0 and 1.1.0
+        When I visit the module page for "puppetlabs/apache"
+        Then I should see "Author: puppetlabs"
+        Then I should see "Name: apache"
+        And I should see "1.0.0"
+        And I should see "1.1.0"
+
+    Scenario: Visit a nonexistant module page
+        When I visit the module page for "nonexistant/nonexistant"
+        Then I should see 'Module "nonexistant/nonexistant" not found'
