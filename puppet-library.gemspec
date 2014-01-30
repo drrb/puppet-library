@@ -60,6 +60,7 @@ Gem::Specification.new do |spec|
 
       # Capybara needs Nokogiri, which needs 1.9+
       spec.add_development_dependency "capybara"
+      spec.add_development_dependency "nokogiri" # Rubygems 1.8 fails to resolve this on Ruby 2.0.0
       spec.add_development_dependency "cucumber"
   end
 end

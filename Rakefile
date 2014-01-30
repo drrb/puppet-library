@@ -70,8 +70,7 @@ if ruby_version_supports_integration_test?
     RSpec::Core::RakeTask.new(:test) do |rspec|
         rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
     end
-    #TODO: this fails on Ruby 2.0, Gems 1.8
-    #task :test => :features
+    task :test => :features
 
     desc "Run the integration tests"
     RSpec::Core::RakeTask.new(:integration_test) do |rspec|
@@ -81,9 +80,7 @@ else
     task :integration_test do
         puts "Skipping integration tests because this version of Ruby doesn't support them"
     end
-    #TODO: this fails on Ruby 2.0, Gems 1.8
-    #task :test => [:features, :spec]
-    task :test => :spec
+    task :test => [:features, :spec]
 end
 
 task :default => [:test, 'coveralls:push']
