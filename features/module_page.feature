@@ -28,6 +28,7 @@ Feature: Module page
         Then I should see "Name: apache"
         And I should see "1.0.0"
         And I should see "1.1.0"
+        And I should see "puppetlabs/apache module, version 1.1.0"
 
     Scenario: Visit a nonexistant module page
         When I visit the module page for "nonexistant/nonexistant"

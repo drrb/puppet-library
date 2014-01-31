@@ -34,6 +34,7 @@ module ModuleSpecHelper
                     content = {
                         "name" => full_name,
                         "version" => version,
+                        "description" => "#{author}/#{name} module, version #{version}",
                         "dependencies" => []
                     }
                     yield(content) if block_given?
