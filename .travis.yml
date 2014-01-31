@@ -25,7 +25,8 @@ rvm:
   - 2.1.0
 env:
   - RUBYGEMS_VERSION=2.1.11
-  - RUBYGEMS_VERSION=1.8.24
+  #- RUBYGEMS_VERSION=1.8.5 # What Ubuntu 12.4 has
+  - RUBYGEMS_VERSION=1.8.28 # Earlier versions of Rubygems 1.8.x, when used with Ruby 2.0 fail to install nokogiri properly (Seen on R 2.0.0 / RG 1.8.24)
 #matrix:
 #    allow_failures:
 #      - rvm: 2.1.0
