@@ -18,6 +18,9 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'coveralls/rake/task'
+require 'json'
+require 'yaml'
+require 'net/http'
 
 SUPPORTED_VERSIONS = %w[1.8 1.9 2.0 2.1]
 # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
@@ -172,4 +175,88 @@ task "push-release" => ["check-license", :verify] do
     system(%q[sed -i '' -E 's/VERSION = ".*"/VERSION = "] + new_version + %q["/' lib/puppet_library/version.rb]) or fail "Couldn't update version"
     PuppetLibrary::VERSION.replace new_version
     system "git commit lib/puppet_library/version.rb --message='[release] Incremented version number'" or fail "Couldn't commit new version number"
+end
+
+desc "Register release with Github"
+task "register-release", [:version] do |task, args|
+    github = Github.new
+
+    version = args[:version]
+    unless version =~ /\d+\.\d+\.\d+/
+        raise "Bad version: '#{version}'"
+    end
+    unless system("git tag | grep v#{version} > /dev/null")
+        raise "Couldn't find tag 'v#{version}'"
+    end
+
+    tag = "v#{version}"
+    changelog = YAML.load_file("CHANGELOG.yml")
+    release_notes = changelog.find {|release| release["tag"] == tag}
+    changes = release_notes ? release_notes["changes"] : []
+    description = changes.map { |change| "- #{change}" }.join("\n")
+    data = {
+        "tag_name" => tag,
+        "target_commitish" => "master",
+        "name" => "Version #{version}",
+        "body" => description,
+        "draft" => false,
+        "prerelease" => false
+    }
+    release = github.get("/repos/drrb/puppet-library/releases").find {|release| release["tag_name"] == tag}
+    if release
+        puts "Release #{tag} exists. Updating it..."
+        github.patch("/repos/drrb/puppet-library/releases/#{release['id']}", data)
+    else
+        puts "Creating release #{tag}..."
+        github.post("/repos/drrb/puppet-library/releases", data)
+    end
+    puts "Done"
+end
+
+class Github
+    def initialize
+        @base_url = "https://api.github.com"
+        api_key_file = File.expand_path("~/.github/release.apikey")
+        raise "Put your github credentials in ~/.github/release.apikey as 'username:key'" unless File.exist? api_key_file
+        @username, @key = File.read(api_key_file).strip.split ":"
+    end
+
+    def post(path, data, &block)
+        puts "POST #{path}"
+        request = Net::HTTP::Post.new(path)
+        request.body = data.to_json
+        send request
+    end
+
+    def patch(path, data, &block)
+        puts "PATCH #{path}"
+        request = Net::HTTP::Patch.new(path)
+        request.body = data.to_json
+        response = send(request, &block)
+    end
+
+    def get(path, &block)
+        puts "GET #{path}"
+        request = Net::HTTP::Get.new(path)
+        send request
+    end
+
+    def send(request)
+        request.add_field('Content-Type', 'application/json')
+        request.basic_auth @username, @key
+
+        uri = URI.parse(@base_url)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        response = http.request(request)
+        puts response.code
+        if block_given?
+            yield(response)
+        else
+            unless response.code =~ /^2../
+                raise "Request returned non-success:\n#{response.body}"
+            end
+            JSON.parse(response.body)
+        end
+    end
 end
