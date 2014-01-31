@@ -34,5 +34,7 @@
       - Improved performance of proxy
 - tag: v0.4.0
   changes:
+      - Added '--version' option to CLI
       - Added option to daemonize server (with optional pidfile)
+      - Added web UI to browse modules
 

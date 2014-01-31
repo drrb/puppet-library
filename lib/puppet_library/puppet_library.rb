@@ -18,6 +18,7 @@
 require 'rack'
 require 'puppet_library/forge/directory'
 require 'puppet_library/forge/multi'
+require 'puppet_library/version'
 
 module PuppetLibrary
     class PuppetLibrary
