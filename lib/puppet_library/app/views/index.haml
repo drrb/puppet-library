@@ -19,7 +19,8 @@
 %ul
   - modules.each do |mod|
     %li
-      %b= mod["full_name"]
+      %b
+        %a{:href => mod["full_name"]}= mod["full_name"]
       %ul
         - mod["releases"].each do |release|
           %li= release["version"]

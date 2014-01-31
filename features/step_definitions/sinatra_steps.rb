@@ -58,6 +58,14 @@ When /^I visit the module page for "(.*?)"$/ do |module_name|
     visit "/#{module_name}"
 end
 
+When /^I click on "(.*?)"$/ do |link_text|
+    click_link link_text
+end
+
+Then /^I should be on the module page for "(.*?)"$/ do |module_name|
+    expect(URI.parse(current_url).path).to eq "/#{module_name}"
+end
+
 Then /^I should see "(.*?)"$/ do |text|
     expect(page).to have_content text
 end

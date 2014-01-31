@@ -29,3 +29,10 @@ Feature: Module list page
         And the "puppetlabs/apache" module is available at version "1.1.0"
         When I visit the module list page
         Then I should see module "puppetlabs/apache" with versions 1.0.0 and 1.1.0
+
+    Scenario: Follow link to module page
+        Given the "puppetlabs/apache" module is available at version "1.0.0"
+        And the "puppetlabs/apache" module is available at version "1.1.0"
+        When I visit the module list page
+        And I click on "puppetlabs/apache"
+        Then I should be on the module page for "puppetlabs/apache"
