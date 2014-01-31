@@ -178,12 +178,12 @@ module PuppetLibrary::Forge
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
                         "description" => "Apache module",
-                        "version" => "1.0.0"
+                        "version" => "1.1.0"
                     }, {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
-                        "version" => "1.1.0"
+                        "description" => "Old Apache module",
+                        "version" => "1.0.0"
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
 

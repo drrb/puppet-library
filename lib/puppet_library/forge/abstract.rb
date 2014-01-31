@@ -44,6 +44,7 @@ module PuppetLibrary::Forge
 
             raise ModuleNotFound if modules.empty?
 
+            modules = modules.version_sort_by { |m| m.version }
             module_infos = modules.map { |m| m.to_info }
             module_infos.deep_merge
         end
