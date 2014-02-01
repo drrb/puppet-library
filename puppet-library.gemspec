@@ -46,7 +46,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "librarian-puppet"
   spec.add_development_dependency "mime-types", "< 2"
   spec.add_development_dependency "pry"
-  spec.add_development_dependency "puppet"
+  spec.add_development_dependency "puppet", "~> 3.3.0"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
