@@ -1,6 +1,6 @@
 # Puppet Library
 
-A private server for your Puppet modules. Compatible with [librarian-puppet](http://librarian-puppet.com).
+A private Puppet Forge. Compatible with [librarian-puppet](http://librarian-puppet.com).
 
 [![Build Status](https://travis-ci.org/drrb/puppet-library.png?branch=master)](https://travis-ci.org/drrb/puppet-library)
 [![Coverage Status](https://coveralls.io/repos/drrb/puppet-library/badge.png)](https://coveralls.io/r/drrb/puppet-library)
