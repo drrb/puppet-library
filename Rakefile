@@ -169,22 +169,25 @@ task "push-release" => ["check-license", :verify] do
     puts "Releasing #{PuppetLibrary::VERSION}"
     Rake::Task[:release].invoke
 
-    puts "Registering release notes for #{PuppetLibrary::VERSION}"
-    Rake::Task["register-release[#{PuppetLibrary::VERSION}]"].invoke
+    upload_release_notes(PuppetLibrary::VERSION)
 
-    major, minor, patch = PuppetLibrary::VERSION.split(".").map {|n| n.to_i}
-    new_version = "#{major}.#{minor + 1}.0"
-    puts "Updating version number to #{new_version}"
-    system(%q[sed -i '' -E 's/VERSION = ".*"/VERSION = "] + new_version + %q["/' lib/puppet_library/version.rb]) or fail "Couldn't update version"
-    PuppetLibrary::VERSION.replace new_version
-    system "git commit lib/puppet_library/version.rb --message='[release] Incremented version number'" or fail "Couldn't commit new version number"
+    increment_version
+end
+
+desc "Increment version number and commit it"
+task "increment-version" do
+    increment_version
 end
 
 desc "Register release with Github"
 task "register-release", [:version] do |task, args|
+    upload_release_notes(args[:version])
+end
+
+def upload_release_notes(version)
+    puts "Registering release notes for #{PuppetLibrary::VERSION}"
     github = Github.new
 
-    version = args[:version]
     unless version =~ /\d+\.\d+\.\d+/
         raise "Bad version: '#{version}'"
     end
@@ -214,6 +217,15 @@ task "register-release", [:version] do |task, args|
         github.post("/repos/drrb/puppet-library/releases", data)
     end
     puts "Done"
+end
+
+def increment_version
+    major, minor, patch = PuppetLibrary::VERSION.split(".").map {|n| n.to_i}
+    new_version = "#{major}.#{minor + 1}.0"
+    puts "Updating version number to #{new_version}"
+    system(%q[sed -i '' -E 's/VERSION = ".*"/VERSION = "] + new_version + %q["/' lib/puppet_library/version.rb]) or fail "Couldn't update version"
+    PuppetLibrary::VERSION.replace new_version
+    system "git commit lib/puppet_library/version.rb --message='[release] Incremented version number'" or fail "Couldn't commit new version number"
 end
 
 class Github
