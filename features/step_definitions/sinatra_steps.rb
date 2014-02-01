@@ -62,12 +62,23 @@ When /^I click on "(.*?)"$/ do |link_text|
     click_link link_text
 end
 
+When /^I search for "(.*?)"$/  do |term|
+    within("form#module-search") do
+        fill_in 'search', :with => term
+        click_button "Search"
+    end
+end
+
 Then /^I should be on the module page for "(.*?)"$/ do |module_name|
     expect(URI.parse(current_url).path).to eq "/#{module_name}"
 end
 
 Then /^I should see "(.*?)"$/ do |text|
     expect(page).to have_content text
+end
+
+Then /^I should not see "(.*?)"$/ do |text|
+    expect(page).not_to have_content text
 end
 
 Then /^I should see '(.*?)'$/ do |text|

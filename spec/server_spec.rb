@@ -51,6 +51,31 @@ module PuppetLibrary
                 expect(last_response.body).to include "0.0.1"
                 expect(last_response.body).to include "0.0.2"
             end
+
+            context "when a search term is provided" do
+                it "lists matching modules" do
+                    modules = [
+                        {
+                            "author" => "puppetlabs",
+                            "name" => "apache",
+                            "tag_list" => ["apache", "httpd"],
+                            "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
+                            "full_name" => "puppetlabs/apache",
+                            "version" => "0.0.2",
+                            "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
+                            "desc" => "Puppet module for Apache"
+                        }
+                    ]
+                    expect(forge).to receive(:search_modules).with("apache").and_return(modules)
+
+                    get "/?search=apache"
+
+                    expect(last_response.body).to include "Modules"
+                    expect(last_response.body).to include "puppetlabs/apache"
+                    expect(last_response.body).to include "0.0.1"
+                    expect(last_response.body).to include "0.0.2"
+                end
+            end
         end
 
         describe "GET /modules.json" do

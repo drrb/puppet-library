@@ -50,7 +50,8 @@ module PuppetLibrary
         end
 
         get "/" do
-            modules = @forge.search_modules(nil)
+            query = params[:search]
+            modules = @forge.search_modules(query)
 
             haml :index, { :locals => { "modules" => modules } }
         end
