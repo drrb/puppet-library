@@ -100,6 +100,9 @@ Puppet Library is tested against Ruby versions:
 To run Puppet Library with [Phusion Passenger](https://www.phusionpassenger.com):
 
 ```sh
+# Install Puppet Library
+sudo gem install puppet-library
+
 # Create a Passenger-compatible directory structure
 mkdir -p /webapps/puppet-library/{public,tmp}
 
