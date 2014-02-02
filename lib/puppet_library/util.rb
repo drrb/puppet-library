@@ -31,10 +31,20 @@ class Array
         end
     end
 
+    def version_sort
+        version_sort_by { |e| e }
+    end
+
     def version_sort_by
         sort_by do |element|
             version = yield(element)
-            Gem::Version.new(version)
+            begin
+                Gem::Version.new(version)
+            rescue ArgumentError => e
+                if version =~ /^\d+(\.\d+)*/
+                    Gem::Version.new(version[/^\d+(\.\d+)*/])
+                end
+            end
         end
     end
 

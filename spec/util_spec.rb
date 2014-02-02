@@ -29,5 +29,16 @@ describe 'util' do
                 expect(family.unique_by {|p| p["name"]}).to eq [son, mom]
             end
         end
+
+        describe "#version_sort" do
+            it "sorts according to version numbers" do
+                expect(["2.0.0", "1.10.0", "1.2.0"].version_sort).to eq ["1.2.0", "1.10.0", "2.0.0"]
+            end
+
+            it "copes with odd versions" do
+                # this is supported in most Rubygems versions, but gives 'ArgumentError: Malformed version number string 1.10.0-rc1" in Rubygems 2.0.3
+                expect(["1.10.0", "1.10.0-rc1", "1.2.0"].version_sort).to eq ["1.2.0", "1.10.0-rc1", "1.10.0"]
+            end
+        end
     end
 end
