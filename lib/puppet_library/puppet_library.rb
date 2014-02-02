@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rack'
+require 'yaml'
 require 'puppet_library/forge/directory'
 require 'puppet_library/forge/multi'
 require 'puppet_library/version'
@@ -42,6 +43,10 @@ module PuppetLibrary
             option_parser = OptionParser.new do |opts|
                 opts.banner = "Usage: #{File.basename $0} [options]"
 
+                opts.on("-c", "--config-file FILE", "Config file to read config values from") do |config_file|
+                    options[:config_file] = config_file
+                end
+
                 opts.on("-p", "--port PORT", "Port to listen on (defaults to whatever Rack wants to use)") do |port|
                     options[:port] = port
                 end
@@ -54,12 +59,10 @@ module PuppetLibrary
                     options[:hostname] = hostname
                 end
 
-                options[:daemonize] = false
                 opts.on("--daemonize", "Run the server in the background") do
                     options[:daemonize] = true
                 end
 
-                options[:pidfile] = nil
                 opts.on("--pidfile FILE", "Write a pidfile to this location after starting (implies --daemonize)") do |pidfile|
                     options[:daemonize] = true
                     options[:pidfile] = File.expand_path pidfile
@@ -83,9 +86,11 @@ module PuppetLibrary
         end
 
         def build_server(options)
-            if options[:forges].empty?
-                options[:forges] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
+            if options[:config_file]
+                load_config(options)
             end
+
+            load_defaults(options)
 
             Server.set_up do |server|
                 options[:forges].each do |(forge_type, config)|
@@ -119,6 +124,32 @@ module PuppetLibrary
                 :daemonize => options[:daemonize],
                 :pid => options[:pidfile]
             )
+        end
+
+        def load_config(options)
+            config = read_yaml_file(options[:config_file])
+            options[:daemonize] = config["daemonize"]
+            options[:port] = config["port"]
+            options[:pidfile] = config["pidfile"]
+            options[:server] = config["server"]
+
+            forges_config = config["forges"] || []
+            configured_forges = forges_config.map do |forge|
+                [ Forge.const_get(forge.keys.first), forge.values.first ]
+            end
+            options[:forges] = configured_forges + options[:forges]
+        end
+
+        def load_defaults(options)
+            options[:daemonize] ||= false
+            options[:pidfile] ||= nil
+            if options[:forges].empty?
+                options[:forges] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
+            end
+        end
+
+        def read_yaml_file(path)
+            YAML.load_file(File.expand_path(path)) || {}
         end
     end
 

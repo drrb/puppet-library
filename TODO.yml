@@ -1,5 +1,4 @@
 features:
-    - Use config from a config file
     - Allow proxy to cache downloaded modules/API calls on disk
     - |
         Accept --cache-dir option to specify a parent cache directory (people
@@ -8,6 +7,9 @@ features:
     - Allow failover between module repositories
     - Web UI: asynchronous
     - Authentication
+    - Look in /etc/puppet-library.yml for config by default
+    - Named subforges:
+        - per-subforge queries
 
 dubious_features:
     - Make proxy cache TTL configurable

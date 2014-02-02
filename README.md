@@ -95,7 +95,28 @@ Puppet Library is tested against Ruby versions:
 - 2.0.0
 - 2.1.0
 
-## Running with Phusion Passenger
+## Config file (EXPERIMENTAL)
+
+Instead of specifying command-line options, you can configure Puppet Library with a configuration file.
+To use a configuration file, point to it on the command line:
+
+```sh
+puppet-library --config-file my-puppet-library-config.yml
+```
+
+A configuration file looks like this:
+
+```yaml
+port: 4567
+server: thin
+daemonize: true
+pidfile: /var/run/puppetlibrary.pid
+forges:
+    - Directory: /var/lib/modules
+    - Proxy: http://forge.puppetlabs.com
+```
+
+## Running with Phusion Passenger (EXPERIMENTAL)
 
 To run Puppet Library with [Phusion Passenger](https://www.phusionpassenger.com):
 
@@ -111,6 +132,7 @@ cat > /webapps/puppet-library/config.ru <<EOF
 require "rubygems"
 require "puppet_library"
 
+# NB: this config API is not yet stable, and may change without notice
 server = PuppetLibrary::Server.set_up do |library|
     # Serve our private modules
     library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
