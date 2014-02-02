@@ -22,11 +22,11 @@ require 'json'
 require 'yaml'
 require 'net/http'
 
-SUPPORTED_VERSIONS = %w[1.8 1.9 2.0 2.1]
+SUPPORTED_RUBY_VERSIONS = %w[1.8 1.9 2.0 2.1 system]
 # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
-INTEGRATION_TEST_INCOMPATIBLE_VERSIONS = %w[1.8 2.1]
+INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8 2.1]
 # Capybara needs Nokogiri, which needs 1.9+
-ACCEPTANCE_TEST_INCOMPATIBLE_VERSIONS = %w[1.8]
+ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8 system]
 
 class String
     def green
@@ -43,13 +43,13 @@ class String
 end
 
 def ruby_version_supports_integration_test?(version = RUBY_VERSION)
-    ! INTEGRATION_TEST_INCOMPATIBLE_VERSIONS.find do |bad_version|
+    ! INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS.find do |bad_version|
         version.start_with? bad_version
     end
 end
 
 def ruby_version_supports_acceptance_tests?(version = RUBY_VERSION)
-    ! ACCEPTANCE_TEST_INCOMPATIBLE_VERSIONS.find do |bad_version|
+    ! ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS.find do |bad_version|
         version.start_with? bad_version
     end
 end
@@ -90,7 +90,7 @@ task :default => [:test, 'coveralls:push']
 
 desc "Check it works on all local rubies"
 task :verify do
-    versions = %w[1.8 1.9 2.0 2.1]
+    versions = SUPPORTED_RUBY_VERSIONS
     puts "\nRunning Specs".green
     spec_results = versions.map do |ruby_version|
         puts "\n- Ruby #{ruby_version}".green
@@ -115,7 +115,7 @@ task :verify do
     puts "| Version | Specs |  ITs  |  ATs  |"
     puts "+---------+-------+-------+-------+"
     versions.zip(results).each do |(version, (spec_result, integration_test_result, acceptance_test_result))|
-        v = version
+        v = version.ljust(7)
         s = spec_result ? "pass".green : "fail".red
         if ruby_version_supports_integration_test? version
             i = integration_test_result ? "pass".green : "fail".red
@@ -128,7 +128,7 @@ task :verify do
         else
             a = "skip".yellow
         end
-        puts "| #{v}     | #{s}  | #{i}  | #{a}  |"
+        puts "| #{v} | #{s}  | #{i}  | #{a}  |"
     end
     puts "+---------+-------+-------+-------+"
 
