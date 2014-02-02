@@ -1,5 +1,3 @@
-bugs:
-    - Using captialised Author name to create full module name
 features:
     - Use config from a config file
     - Allow proxy to cache downloaded modules/API calls on disk
