@@ -1,17 +1,20 @@
 features:
-    - Allow proxy to cache downloaded modules/API calls on disk
-    - |
-        Accept --cache-dir option to specify a parent cache directory (people
-        will need to embed the server or use a config file for more control)
+    - disk cache:
+        - Allow proxy to cache downloaded modules/API calls on disk
+        - |
+            Accept --cache-dir option to specify a parent cache directory (people
+            will need to embed the server or use a config file for more control)
     - Validate repo dirs (make sure they're readable)
     - Allow failover between module repositories
-    - Web UI: asynchronous
-    - Authentication
+    - Web UI: asynchronous (index page loads too slowly)
     - Look in /etc/puppet-library.yml for config by default
     - Named subforges:
         - per-subforge queries
+        - upload modules (web form and API)
+        - browse proxy cache
+        - clear proxy cache (web form and API)
+        - delete modules from disk (web form)
+    - Authentication
 
 dubious_features:
     - Make proxy cache TTL configurable
-    - REST API to clear proxy cache
-    - REST API to upload modules
