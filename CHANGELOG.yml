@@ -44,3 +44,4 @@
   changes:
       - Add config API for running with Passenger
       - Load configuration from a config file
+      - Fixed version number bug that made the app crash with some Rubygems versions
