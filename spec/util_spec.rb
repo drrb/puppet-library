@@ -36,8 +36,7 @@ describe 'util' do
             end
 
             it "copes with odd versions" do
-                # this is supported in most Rubygems versions, but gives 'ArgumentError: Malformed version number string 1.10.0-rc1" in Rubygems 2.0.3
-                expect(["1.10.0", "1.10.0-rc1", "1.2.0"].version_sort).to eq ["1.2.0", "1.10.0-rc1", "1.10.0"]
+                expect(["1.10.0-badprerelease", "1.3", "1.10.0", "xxx", "1.10.0.rc1", "1.2.0"].version_sort).to eq ["xxx", "1.2.0", "1.3", "1.10.0-badprerelease", "1.10.0.rc1", "1.10.0"]
             end
         end
     end

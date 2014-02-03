@@ -17,6 +17,22 @@
 
 require 'rubygems/package'
 
+module Gem
+    def Version.new(version)
+        begin
+            super(version.to_s.gsub("-",".pre."))
+        rescue ArgumentError => e
+            # If it starts with numbers, use those
+            if version =~ /^\d+(\.\d+)*/
+                super(version[/^\d+(\.\d+)*/])
+            # Somebody's really made a mess of this version number
+            else
+                super("0")
+            end
+        end
+    end
+end
+
 class Array
     # Like 'uniq' with a block, but also works on Ruby < 1.9
     def unique_by
@@ -38,13 +54,7 @@ class Array
     def version_sort_by
         sort_by do |element|
             version = yield(element)
-            begin
-                Gem::Version.new(version)
-            rescue ArgumentError => e
-                if version =~ /^\d+(\.\d+)*/
-                    Gem::Version.new(version[/^\d+(\.\d+)*/])
-                end
-            end
+            Gem::Version.new(version)
         end
     end
 
