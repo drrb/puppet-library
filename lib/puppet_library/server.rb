@@ -68,15 +68,13 @@ module PuppetLibrary
             begin
                 @forge.get_module_metadata(author, module_name).to_json
             rescue Forge::ModuleNotFound
-                status 410
-                {"error" => "Could not find module \"#{module_name}\""}.to_json
+                halt 410, {"error" => "Could not find module \"#{module_name}\""}.to_json
             end
         end
 
         get "/api/v1/releases.json" do
             unless params[:module]
-                status 400
-                return {"error" => "The number of version constraints in the query does not match the number of module names"}.to_json
+                halt 400, {"error" => "The number of version constraints in the query does not match the number of module names"}.to_json
             end
 
             author, module_name = params[:module].split "/"
@@ -97,11 +95,12 @@ module PuppetLibrary
             content_type "application/octet-stream"
 
             begin
-                @forge.get_module_buffer(author, name, version).tap do
+                buffer = @forge.get_module_buffer(author, name, version).tap do
                     attachment "#{author}-#{name}-#{version}.tar.gz"
                 end
+                [ 200, { "Content-Length" => buffer.size.to_s }, buffer ]
             rescue Forge::ModuleNotFound
-                status 404
+                halt 404
             end
         end
 
