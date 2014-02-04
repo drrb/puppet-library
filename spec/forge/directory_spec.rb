@@ -19,15 +19,9 @@ require 'spec_helper'
 module PuppetLibrary::Forge
     describe Directory do
         include ModuleSpecHelper
-        include FileUtils
 
-        let(:module_dir) { Tempfile.new("module_dir").path }
+        let(:module_dir) { Tempdir.create("module_dir") }
         let(:module_repo) { Directory.new(module_dir) }
-
-        before do
-            rm_rf module_dir
-            mkdir_p module_dir
-        end
 
         after do
             rm_rf module_dir

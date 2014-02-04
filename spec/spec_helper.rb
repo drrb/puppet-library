@@ -21,3 +21,21 @@ require 'module_spec_helper'
 require 'pry'
 require 'rack'
 require 'tempfile'
+require 'fileutils'
+
+include FileUtils
+
+class Tempdir
+    attr_reader :path
+
+    def self.create(name)
+        Tempdir.new(name).path
+    end
+
+    def initialize(name)
+        file = Tempfile.new(name)
+        @path = file.path
+        file.unlink
+        FileUtils.mkdir @path
+    end
+end

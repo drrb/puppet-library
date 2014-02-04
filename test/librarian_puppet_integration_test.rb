@@ -21,10 +21,9 @@ require 'open-uri'
 module PuppetLibrary
     describe "librarian-puppet integration test" do
         include ModuleSpecHelper
-        include FileUtils
 
-        let(:module_dir) { Tempfile.new("module_dir").path }
-        let(:project_dir) { Tempfile.new("project_dir").path }
+        let(:module_dir) { Tempdir.create("module_dir") }
+        let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
         let(:disk_forge) { Forge::Directory.new(module_dir) }
         let(:disk_server) do
@@ -66,10 +65,6 @@ module PuppetLibrary
         end
 
         before do
-            rm_rf module_dir
-            rm_rf project_dir
-            mkdir_p module_dir
-            mkdir_p project_dir
             # Initialize to catch wiring errors
             disk_rack_server
             proxy_rack_server
