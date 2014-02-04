@@ -34,7 +34,7 @@ module PuppetLibrary::Http::Cache
             context "the second time it's called" do
                 it "returns the cached value" do
                     cache.get("greeting") { "hello" }
-                    greeting = cache.get("greeting") { "hi" }
+                    greeting = cache.get("greeting") { raise "shouldn't be called" }
 
                     expect(greeting).to eq "hello"
                 end
