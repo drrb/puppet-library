@@ -4,7 +4,6 @@ features:
         - |
             Accept --cache-dir option to specify a parent cache directory (people
             will need to embed the server or use a config file for more control)
-    - Allow failover between module repositories
     - Web UI: asynchronous (index page loads too slowly)
     - Look in /etc/puppet-library.yml for config by default
     - Named subforges:
@@ -17,3 +16,4 @@ features:
 
 dubious_features:
     - Make proxy cache TTL configurable
+    - Allow failover between module repositories
