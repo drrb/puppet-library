@@ -196,6 +196,15 @@ module PuppetLibrary
         end
 
         describe "GET /api/v1/releases.json" do
+            context "when module parameter not specified" do
+                it "returns an error" do
+                    get "/api/v1/releases.json"
+
+                    expect(last_response.body).to eq('{"error":"The number of version constraints in the query does not match the number of module names"}')
+                    expect(last_response.status).to eq(400)
+                end
+            end
+
             it "gets metadata for module and dependencies" do
                 metadata = {
                     "puppetlabs/apache" => [

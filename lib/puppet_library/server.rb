@@ -74,6 +74,11 @@ module PuppetLibrary
         end
 
         get "/api/v1/releases.json" do
+            unless params[:module]
+                status 400
+                return {"error" => "The number of version constraints in the query does not match the number of module names"}.to_json
+            end
+
             author, module_name = params[:module].split "/"
             version = params[:version]
             begin
