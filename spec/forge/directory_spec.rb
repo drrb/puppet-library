@@ -33,6 +33,32 @@ module PuppetLibrary::Forge
             rm_rf module_dir
         end
 
+        describe "#initialize" do
+            context "when the module directory doesn't exist" do
+                before do
+                    rm_rf module_dir
+                end
+
+                it "raises an error" do
+                    expect {
+                        Directory.new(module_dir)
+                    }.to raise_error /Module directory .* doesn't exist/
+                end
+            end
+
+            context "when the module directory isn't readable" do
+                before do
+                    chmod 0400, module_dir
+                end
+
+                it "raises an error" do
+                    expect {
+                        Directory.new(module_dir)
+                    }.to raise_error /Module directory .* isn't readable/
+                end
+            end
+        end
+
         describe "#get_module" do
             context "when the module archive exists" do
                 before do

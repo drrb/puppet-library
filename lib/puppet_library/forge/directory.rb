@@ -23,6 +23,8 @@ module PuppetLibrary::Forge
     class Directory < PuppetLibrary::Forge::Abstract
         def initialize(module_dir)
             super(self)
+            raise "Module directory '#{module_dir}' doesn't exist" unless File.directory? module_dir
+            raise "Module directory '#{module_dir}' isn't readable" unless File.executable? module_dir
             @module_dir = module_dir
         end
 

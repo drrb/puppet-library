@@ -172,8 +172,8 @@ module PuppetLibrary
                 expect(log).to receive(:puts).with(/Host: default/)
                 expect(log).to receive(:puts).with(/Server: default/)
                 expect(log).to receive(:puts).with(/Forges:/)
-                expect(log).to receive(:puts).with(/- PuppetLibrary::Forge::Directory: \.\/modules/)
-                library.go(["--module-dir", "./modules"])
+                expect(log).to receive(:puts).with(/- PuppetLibrary::Forge::Proxy: http:\/\/forge.example.com/)
+                library.go(["--proxy", "http://forge.example.com"])
             end
         end
     end
