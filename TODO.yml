@@ -1,6 +1,6 @@
 features:
     - disk cache:
-        - Allow proxy to cache downloaded modules/API calls on disk
+        - use disk cache to respond to queries if remote API calls fail
         - |
             Accept --cache-dir option to specify a parent cache directory (people
             will need to embed the server or use a config file for more control)
