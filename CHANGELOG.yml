@@ -42,9 +42,10 @@
       - Added module search field to web UI
 - tag: v0.6.0
   changes:
-      - Add config API for running with Passenger
+      - Added config API for running with Passenger
       - Load configuration from a config file
       - Fixed version number bug that made the app crash with some Rubygems versions
 - tag: v0.7.0
   changes:
-      - Add new proxy forge that caches downloaded modules to disk
+      - Added new proxy forge that caches downloaded modules on disk
+      - Added `--cache-basedir` CLI option to make proxies cache download modules on disk
