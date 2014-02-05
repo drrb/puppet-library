@@ -18,12 +18,14 @@
 require 'spec_helper'
 require 'open-uri'
 
+
 module PuppetLibrary
     describe "librarian-puppet integration test" do
         include ModuleSpecHelper
 
         let(:module_dir) { Tempdir.create("module_dir") }
         let(:project_dir) { Tempdir.create("project_dir") }
+        let(:cache_dir) { Tempdir.create("cache_dir") }
         let(:start_dir) { pwd }
         let(:disk_forge) { Forge::Directory.new(module_dir) }
         let(:disk_server) do
@@ -44,7 +46,7 @@ module PuppetLibrary
                 disk_rack_server.start
             end
         end
-        let(:proxy_forge) { Forge::Proxy.new("http://localhost:9000") }
+        let(:proxy_forge) { Forge::Cache.new("http://localhost:9000", cache_dir) }
         let(:proxy_server) do
             Server.set_up do |server|
                 server.forge proxy_forge
@@ -79,7 +81,20 @@ module PuppetLibrary
         after do
             rm_rf module_dir
             rm_rf project_dir
+            rm_rf cache_dir
             cd start_dir
+        end
+
+        RSpec::Matchers.define :be_cached do
+            match do |mod_file|
+                File.exist?(File.join(cache_dir, mod_file))
+            end
+        end
+
+        RSpec::Matchers.define :be_installed do
+            match do |mod_name|
+                File.directory?(File.join(project_dir, "modules",  mod_name))
+            end
         end
 
         def write_puppetfile(content)
@@ -103,10 +118,13 @@ module PuppetLibrary
 
             # Install modules through the proxy
             system "librarian-puppet install" or fail "call to puppet-library failed"
-            expect(File.directory? "modules").to be true
-            expect(File.directory? "modules/apache").to be true
-            expect(File.directory? "modules/concat").to be true
-            expect(File.directory? "modules/stdlib").to be true
+            expect("apache").to be_installed
+            expect("concat").to be_installed
+            expect("stdlib").to be_installed
+
+            expect("puppetlabs-apache-1.0.0.tar.gz").to be_cached
+            expect("puppetlabs-concat-2.0.0.tar.gz").to be_cached
+            expect("puppetlabs-stdlib-3.0.0.tar.gz").to be_cached
 
             # Search through the proxy
             search_results = JSON.parse(open("http://localhost:9001/modules.json").read)
