@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Forge
-    class ModuleNotFound < Exception
-    end
+require 'puppet_library/forge/proxy'
+require 'puppet_library/http/http_client'
 
-    require 'puppet_library/forge/abstract'
-    require 'puppet_library/forge/cache'
-    require 'puppet_library/forge/directory'
-    require 'puppet_library/forge/multi'
-    require 'puppet_library/forge/proxy'
-    require 'puppet_library/forge/search_result'
+module PuppetLibrary::Forge
+    class Cache < Proxy
+        def initialize(url, cache_dir, http_client = PuppetLibrary::Http::HttpClient.new)
+            super(url, PuppetLibrary::Http::Cache::InMemory.new, PuppetLibrary::Http::Cache::Disk.new(cache_dir), http_client)
+        end
+    end
 end

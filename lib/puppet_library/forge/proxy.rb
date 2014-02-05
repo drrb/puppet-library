@@ -42,7 +42,7 @@ module PuppetLibrary::Forge
             begin
                 version_info = get_module_version(author, name, version)
                 raise ModuleNotFound if version_info.nil?
-                download_file(version_info["file"])
+                download_module(author, name, version, version_info["file"])
             rescue OpenURI::HTTPError
                 raise ModuleNotFound
             end
@@ -85,8 +85,8 @@ module PuppetLibrary::Forge
             JSON.parse(response)
         end
 
-        def download_file(file)
-            @download_cache.get(file) do
+        def download_module(author, name, version, file)
+            @download_cache.get("#{author}-#{name}-#{version}.tar.gz") do
                 @http_client.download(url(file))
             end
         end
