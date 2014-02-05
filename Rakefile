@@ -185,7 +185,7 @@ task "register-release", [:version] do |task, args|
 end
 
 def upload_release_notes(version)
-    puts "Registering release notes for #{PuppetLibrary::VERSION}"
+    puts "Registering release notes for #{version}"
     github = Github.new
 
     unless version =~ /\d+\.\d+\.\d+/
