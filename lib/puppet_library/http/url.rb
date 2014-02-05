@@ -15,10 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'uri'
+
 module PuppetLibrary::Http
     class Url
         def self.normalize(uri_string)
-            unless uri_string =~ /^https?/
+            begin
+                url = URI.parse(uri_string)
+            rescue URI::InvalidURIError => e
+                raise PuppetLibrary::ExpectedError, "Invalid URL '#{uri_string}': #{e.message}"
+            end
+            if url.scheme
+                raise PuppetLibrary::ExpectedError, "Invalid URL '#{uri_string}': unsupported protocol '#{url.scheme}'" unless url.scheme =~ /^https?$/
+            else
                 uri_string = "http://#{uri_string}"
             end
             uri_string.sub /\/$/, ""

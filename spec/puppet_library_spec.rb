@@ -142,6 +142,17 @@ module PuppetLibrary
                 end
             end
 
+            context "when using --cache-basedir option" do
+                it "uses the specified directory to hold cache directories for all proxies" do
+                    proxy1 = double('proxy')
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy1)
+                    expect(forge).to receive(:add_forge).with(proxy1)
+                    expect(Rack::Server).to receive(:start).with(default_options)
+
+                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/modules"])
+                end
+            end
+
             context "when using --module-dir option" do
                 it "adds a directory forge to the server for each module directory" do
                     directory_forge_1 = double("directory_forge_1")

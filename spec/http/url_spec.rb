@@ -34,6 +34,22 @@ module PuppetLibrary::Http
                 result = Url.normalize "http://localhost/"
                 expect(result).to eq "http://localhost"
             end
+
+            context "when the URL has an invalid scheme" do
+                it "raises an error" do
+                    expect {
+                        Url.normalize "ftp://example.com"
+                    }.to raise_exception /Invalid URL/
+                end
+            end
+
+            context "when the URL is invalid" do
+                it "raises an error" do
+                    expect {
+                        Url.normalize "a b"
+                    }.to raise_exception /Invalid URL/
+                end
+            end
         end
     end
 end

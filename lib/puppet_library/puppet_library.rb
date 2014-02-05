@@ -75,6 +75,10 @@ module PuppetLibrary
                 opts.on("-x", "--proxy URL", "Remote forge to proxy (can be specified multiple times)") do |url|
                     options[:forges] << [Forge::Proxy, url]
                 end
+
+                opts.on("--cache-basedir DIR", "Cache all proxies' downloaded modules under this directory") do |cache_basedir|
+                    options[:cache_basedir] = cache_basedir
+                end
             end
             begin
                 option_parser.parse(args)
@@ -94,7 +98,11 @@ module PuppetLibrary
 
             Server.set_up do |server|
                 options[:forges].each do |(forge_type, config)|
-                    subforge = forge_type.new(config)
+                    if forge_type == Forge::Proxy && options[:cache_basedir]
+                        forge_type = Forge::Cache
+                        config = [ config, File.join(options[:cache_basedir], url_hostname(config)) ]
+                    end
+                    subforge = forge_type.new(*config)
                     server.forge subforge
                 end
             end
@@ -150,6 +158,10 @@ module PuppetLibrary
 
         def read_yaml_file(path)
             YAML.load_file(File.expand_path(path)) || {}
+        end
+
+        def url_hostname(url)
+            URI.parse(Http::Url.normalize(url)).host
         end
     end
 
