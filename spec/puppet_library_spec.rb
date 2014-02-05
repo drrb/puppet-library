@@ -140,6 +140,22 @@ module PuppetLibrary
 
                     library.go(["--proxy", "http://forge1.example.com", "--proxy", "http://forge2.example.com"])
                 end
+
+                context "when no protocol is specified" do
+                    it "defaults to HTTP" do
+                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com")
+
+                        library.go(["--proxy", "forge.example.com"])
+                    end
+                end
+
+                context "when the URL contains a trailing slash" do
+                    it "removes the slash" do
+                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com")
+
+                        library.go(["--proxy", "http://forge.example.com/"])
+                    end
+                end
             end
 
             context "when using --cache-basedir option" do
@@ -150,6 +166,12 @@ module PuppetLibrary
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/modules"])
+                end
+
+                it "expands the path specified" do
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com")
+
+                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/../var/modules"])
                 end
             end
 

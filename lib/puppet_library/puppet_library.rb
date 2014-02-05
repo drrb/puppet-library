@@ -73,7 +73,7 @@ module PuppetLibrary
                     options[:forges] << [Forge::Directory, module_dir]
                 end
                 opts.on("-x", "--proxy URL", "Remote forge to proxy (can be specified multiple times)") do |url|
-                    options[:forges] << [Forge::Proxy, url]
+                    options[:forges] << [Forge::Proxy, sanitize_url(url)]
                 end
 
                 opts.on("--cache-basedir DIR", "Cache all proxies' downloaded modules under this directory") do |cache_basedir|
@@ -91,17 +91,14 @@ module PuppetLibrary
 
         def build_server(options)
             if options[:config_file]
-                load_config(options)
+                load_config!(options)
             end
 
-            load_defaults(options)
+            load_defaults!(options)
+            process_options!(options)
 
             Server.set_up do |server|
                 options[:forges].each do |(forge_type, config)|
-                    if forge_type == Forge::Proxy && options[:cache_basedir]
-                        forge_type = Forge::Cache
-                        config = [ config, File.join(options[:cache_basedir], url_hostname(config)) ]
-                    end
                     subforge = forge_type.new(*config)
                     server.forge subforge
                 end
@@ -134,7 +131,7 @@ module PuppetLibrary
             )
         end
 
-        def load_config(options)
+        def load_config!(options)
             config = read_yaml_file(options[:config_file])
             options[:daemonize] = config["daemonize"]
             options[:port] = config["port"]
@@ -148,7 +145,7 @@ module PuppetLibrary
             options[:forges] = configured_forges + options[:forges]
         end
 
-        def load_defaults(options)
+        def load_defaults!(options)
             options[:daemonize] ||= false
             options[:pidfile] ||= nil
             if options[:forges].empty?
@@ -156,8 +153,29 @@ module PuppetLibrary
             end
         end
 
+        def process_options!(options)
+            options[:forges].map! do |(forge_type, config)|
+                if forge_type == Forge::Proxy
+                end
+                if forge_type == Forge::Proxy && options[:cache_basedir]
+                    cache_dir = File.join(options[:cache_basedir], url_hostname(config))
+                    [ Forge::Cache, [ config, sanitize_path(cache_dir) ] ]
+                else
+                    [ forge_type, config ]
+                end
+            end
+        end
+
         def read_yaml_file(path)
             YAML.load_file(File.expand_path(path)) || {}
+        end
+
+        def sanitize_url(url)
+            Http::Url.normalize(url)
+        end
+
+        def sanitize_path(path)
+            File.expand_path path
         end
 
         def url_hostname(url)

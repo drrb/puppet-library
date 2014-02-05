@@ -24,24 +24,6 @@ module PuppetLibrary::Forge
         let(:download_cache) { PuppetLibrary::Http::Cache::InMemory.new }
         let(:forge) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
-        describe "url" do
-            it "defaults to HTTP, when protocol not specified" do
-                forge = Proxy.new("forge.puppetlabs.com", query_cache, download_cache, http_client) 
-
-                expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
-
-                forge.get_module_metadata("puppetlabs", "apache")
-            end
-
-            it "copes with a trailing slash" do
-                forge = Proxy.new("forge.puppetlabs.com/", query_cache, download_cache, http_client) 
-
-                expect(http_client).to receive(:get).with("http:\/\/forge.puppetlabs.com/puppetlabs/apache.json").and_return('{"puppetlabs/apache":[]}')
-
-                forge.get_module_metadata("puppetlabs", "apache")
-            end
-        end
-
         describe "#search_modules" do
             it "forwards the request directly" do
                 search_results = '["a","b","c"]'

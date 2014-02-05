@@ -18,7 +18,6 @@
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
-require 'puppet_library/http/url'
 
 module PuppetLibrary::Forge
     class Proxy
@@ -26,7 +25,7 @@ module PuppetLibrary::Forge
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
                        download_cache = PuppetLibrary::Http::Cache::NoOp.new,
                        http_client = PuppetLibrary::Http::HttpClient.new)
-            @url = PuppetLibrary::Http::Url.normalize(url)
+            @url = url
             @http_client = http_client
             @query_cache = query_cache
             @download_cache = download_cache

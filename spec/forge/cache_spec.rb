@@ -21,7 +21,7 @@ module PuppetLibrary::Forge
     describe Cache do
         let(:cache_dir) { Tempdir.create("module-cache") }
         let(:http_client) { double(PuppetLibrary::Http::HttpClient) }
-        let(:forge) { Cache.new("forge.example.com", cache_dir, http_client) }
+        let(:forge) { Cache.new("http://forge.example.com", cache_dir, http_client) }
 
         it "is a proxy" do
             expect(forge).to be_a Proxy
