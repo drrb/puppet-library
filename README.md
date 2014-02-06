@@ -14,6 +14,7 @@ Puppet Library serves Puppet modules in the same format as [the Puppet Forge](ht
 Plugins can be created to serve modules from arbitrary sources. Puppet Library contains built-in support for:
  - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
  - proxying a remote forge (or forges)
+ - caching proxied forges to disk
 
 ## Installation
 
