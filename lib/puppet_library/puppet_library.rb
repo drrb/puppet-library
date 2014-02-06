@@ -42,6 +42,7 @@ module PuppetLibrary
             options = {}
             option_parser = OptionParser.new do |opts|
                 opts.banner = "Usage: #{File.basename $0} [options]"
+                opts.version = VERSION
 
                 opts.on("-c", "--config-file FILE", "Config file to read config values from") do |config_file|
                     options[:config_file] = config_file
