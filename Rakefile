@@ -54,6 +54,13 @@ def ruby_version_supports_acceptance_tests?(version = RUBY_VERSION)
     end
 end
 
+def offline?
+    Net::HTTP.get_response(URI.parse("http://forge.puppetlabs.com"))
+    return false
+rescue
+    return true
+end
+
 Coveralls::RakeTask.new
 
 desc "Run the specs"
@@ -78,6 +85,7 @@ if ruby_version_supports_integration_test?
     desc "Run the integration tests"
     RSpec::Core::RakeTask.new(:integration_test) do |rspec|
         rspec.pattern = "test/**/*_integration_test.rb"
+        rspec.rspec_opts = "--tag ~online" if offline?
     end
 else
     task :integration_test do

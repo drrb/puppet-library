@@ -58,7 +58,9 @@ module PuppetLibrary::Forge
 
         def get_module_metadata_with_dependencies(author, name, version)
             begin
-                look_up_releases(author, name, version)
+                look_up_releases(author, name, version) do |full_name, release_info|
+                    release_info["file"] = module_path_for(full_name, release_info["version"])
+                end
             rescue OpenURI::HTTPError
                 raise ModuleNotFound
             end
@@ -77,11 +79,27 @@ module PuppetLibrary::Forge
             versions["#{author}/#{name}"]
         end
 
-        def look_up_releases(author, name, version = nil)
+        def look_up_releases(author, name, version = nil, &block)
             version_query = version ? "&version=#{version}" : ""
             url = "/api/v1/releases.json?module=#{author}/#{name}#{version_query}"
-            response = get(url)
-            JSON.parse(response)
+            response_text = get(url)
+            response = JSON.parse(response_text)
+            process_releases_response(response, &block)
+        end
+
+        def process_releases_response(response)
+            if block_given?
+                response.each do |full_name, release_infos|
+                    release_infos.each do |release_info|
+                        yield(full_name, release_info)
+                    end
+                end
+            end
+            return response
+        end
+
+        def module_path_for(full_name, version)
+            "/modules/#{full_name.sub("/", "-")}-#{version}.tar.gz"
         end
 
         def download_module(author, name, version, file)

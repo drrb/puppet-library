@@ -162,15 +162,16 @@ module PuppetLibrary::Forge
             end
 
             context "when the module is found" do
-                it "forwards the request directly" do
-                    response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
+                it "forwards the request directly, but adjusts the module download locations" do
+                    original_response = '{"puppetlabs/apache":[{"version":"1.0.0","file":"/puppetlabs/apache/1.0.0.tar.gz","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","file":"/puppetlabs/apache/2.0.0.tar.gz","dependencies":[]}]}'
+                    doctored_response = '{"puppetlabs/apache":[{"version":"1.0.0","file":"/modules/puppetlabs-apache-1.0.0.tar.gz","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","file":"/modules/puppetlabs-apache-2.0.0.tar.gz","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
                         with("http://puppetforge.example.com/api/v1/releases.json?module=puppetlabs/apache&version=1.0.0").
-                        and_return(response)
+                        and_return(original_response)
 
                     result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
 
-                    expect(result).to eq JSON.parse(response)
+                    expect(result).to eq JSON.parse(doctored_response)
                 end
 
                 it "caches the result" do

@@ -49,3 +49,4 @@
   changes:
       - Added new proxy forge that caches downloaded modules on disk
       - Added `--cache-basedir` CLI option to make proxies cache download modules on disk
+      - Fixed issue with forge proxying (#1)
