@@ -1,10 +1,7 @@
 features:
-    - disk cache:
-        - use disk cache to respond to queries if remote API calls fail
-        - |
-            Accept --cache-dir option to specify a parent cache directory (people
-            will need to embed the server or use a config file for more control)
-    - Web UI: asynchronous (index page loads too slowly)
+    - Web UI:
+        - asynchronous (index page loads too slowly)
+    - Proxy a git repository
     - Named subforges:
         - per-subforge queries
         - upload modules (web form and API)
