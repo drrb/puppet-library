@@ -66,6 +66,10 @@ Serve modules from a remote forge as a proxy
 
     $ puppet-library --proxy http://forge.puppetlabs.com
 
+Proxy a remote forge, caching downloaded modules on disk
+
+    $ puppet-library --proxy http://forge.puppetlabs.com --cache-basedir
+
 Serve modules on a specific port
 
     $ puppet-library --port 8888
