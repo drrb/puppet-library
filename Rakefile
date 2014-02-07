@@ -24,7 +24,7 @@ require 'net/http'
 
 SUPPORTED_RUBY_VERSIONS = %w[1.8 1.9 2.0 2.1 system]
 # The integration test doesn't work on Ruby 1.8, and Puppet doesn't work on 2.1
-INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8 2.1]
+INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[2.1]
 # Capybara needs Nokogiri, which needs 1.9+
 ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8 system]
 
@@ -85,7 +85,12 @@ if ruby_version_supports_integration_test?
     desc "Run the integration tests"
     RSpec::Core::RakeTask.new(:integration_test) do |rspec|
         rspec.pattern = "test/**/*_integration_test.rb"
-        rspec.rspec_opts = "--tag ~online" if offline?
+        tags = []
+        tags << "~online" if offline?
+        tags << "~no_1_8" if RUBY_VERSION.start_with? "1.8"
+        unless tags.empty?
+            rspec.rspec_opts = tags.map { |tag| "--tag #{tag}" }.join(" ")
+        end
     end
 else
     task :integration_test do
@@ -102,19 +107,19 @@ task :verify do
     puts "\nRunning Specs".green
     spec_results = versions.map do |ruby_version|
         puts "\n- Ruby #{ruby_version}".green
-        system "rvm #{ruby_version} do rake spec"
+        system "rvm #{ruby_version} do bundle exec rake spec"
     end
 
     puts "\nRunning Integration Tests".green
     integration_test_results = versions.map do |ruby_version|
         puts "\n- Ruby  #{ruby_version}".green
-        system "rvm #{ruby_version} do rake integration_test"
+        system "rvm #{ruby_version} do bundle exec rake integration_test"
     end
 
     puts "\nRunning Acceptance Tests".green
     acceptance_test_results = versions.map do |ruby_version|
         puts "\n- Ruby  #{ruby_version}".green
-        system "rvm #{ruby_version} do rake features"
+        system "rvm #{ruby_version} do bundle exec rake features"
     end
 
     puts "\nResults:\n".green
