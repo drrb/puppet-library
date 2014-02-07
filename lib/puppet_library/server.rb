@@ -98,7 +98,8 @@ module PuppetLibrary
                 buffer = @forge.get_module_buffer(author, name, version).tap do
                     attachment "#{author}-#{name}-#{version}.tar.gz"
                 end
-                [ 200, { "Content-Length" => buffer.size.to_s }, buffer ]
+                buffer_size = buffer.respond_to?(:size) ? buffer.size : buffer.bytes.to_a.size
+                [ 200, { "Content-Length" => buffer_size.to_s }, buffer ]
             rescue Forge::ModuleNotFound
                 halt 404
             end
