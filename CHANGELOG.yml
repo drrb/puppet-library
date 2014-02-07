@@ -50,3 +50,6 @@
       - Added new proxy forge that caches downloaded modules on disk
       - Added `--cache-basedir` CLI option to make proxies cache downloaded modules on disk
       - Fixed issue with forge proxying (#1)
+- tag: v0.8.0
+  changes:
+      - Fixed issue with directory-based forges on Ruby 1.8 (#3)
