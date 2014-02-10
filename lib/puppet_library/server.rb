@@ -82,8 +82,7 @@ module PuppetLibrary
             begin
                 @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
             rescue Forge::ModuleNotFound
-                status 410
-                {"error" => "Module #{author}/#{module_name} not found"}.to_json
+                halt 410, {"error" => "Module #{author}/#{module_name} not found"}.to_json
             end
         end
 
@@ -98,12 +97,7 @@ module PuppetLibrary
                 buffer = @forge.get_module_buffer(author, name, version).tap do
                     attachment "#{author}-#{name}-#{version}.tar.gz"
                 end
-                if buffer.respond_to?(:size)
-                    headers = { "Content-Length" => buffer.size.to_s }
-                else
-                    headers = {}
-                end
-                [ 200, headers, buffer ]
+                download buffer
             rescue Forge::ModuleNotFound
                 halt 404
             end
@@ -117,9 +111,18 @@ module PuppetLibrary
                 metadata = @forge.get_module_metadata(author, module_name)
                 haml :module, { :locals => { "metadata" => metadata } }
             rescue Forge::ModuleNotFound
-                status 404
-                haml :module_not_found, { :locals => { "author" => author, "name" => module_name } }
+                halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
             end
+        end
+
+        private
+        def download(buffer)
+            if buffer.respond_to?(:size)
+                headers = { "Content-Length" => buffer.size.to_s }
+            else
+                headers = {}
+            end
+            [ 200, headers, buffer ]
         end
     end
 end
