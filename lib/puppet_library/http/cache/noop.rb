@@ -18,11 +18,9 @@
 require 'puppet_library/http/cache/in_memory'
 
 module PuppetLibrary::Http::Cache
-    class NoOp < PuppetLibrary::Http::Cache::InMemory
-        def save(key, entry)
-        end
-
-        def retrieve(key)
+    class NoOp
+        def get(path)
+            yield
         end
     end
 end
