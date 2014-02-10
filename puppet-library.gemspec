@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.version       = PuppetLibrary::VERSION
   spec.authors       = ["drrb"]
   spec.email         = ["drrrrrrrrrrrb@gmail.com"]
-  spec.description   = "A Puppet module server"
+  spec.description   = "A private Puppet forge"
   spec.summary       = <<-EOF
     Puppet Library is a private Puppet module server that's compatible with librarian-puppet.
   EOF
