@@ -2,6 +2,8 @@ features:
     - Web UI:
         - asynchronous (index page loads too slowly)
     - Proxy a git repository
+    - Proxy module source
+    - Proxy modules in a directory
     - Named subforges:
         - per-subforge queries
         - upload modules (web form and API)
