@@ -52,4 +52,5 @@
       - Fixed issue with forge proxying (#1)
 - tag: v0.8.0
   changes:
+      - Fixed issue with downloads (#2)
       - Fixed issue with directory-based forges on Ruby 1.8 (#3)
