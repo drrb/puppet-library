@@ -11,6 +11,7 @@ features:
         - clear proxy cache (web form and API)
         - delete modules from disk (web form)
     - Authentication
+    - Make imports work properly from pry, and other projects
 
 dubious_features:
     - Make proxy cache TTL configurable
