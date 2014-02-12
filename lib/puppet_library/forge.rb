@@ -25,4 +25,5 @@ module PuppetLibrary::Forge
     require 'puppet_library/forge/multi'
     require 'puppet_library/forge/proxy'
     require 'puppet_library/forge/search_result'
+    require 'puppet_library/forge/source'
 end
