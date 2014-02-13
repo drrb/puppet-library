@@ -12,6 +12,8 @@ features:
         - delete modules from disk (web form)
     - Authentication
     - Make imports work properly from pry, and other projects
+tests:
+    - Add downloading of modules to integration tests
 
 dubious_features:
     - Make proxy cache TTL configurable
