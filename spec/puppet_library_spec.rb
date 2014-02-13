@@ -189,6 +189,20 @@ module PuppetLibrary
                 end
             end
 
+            context "when using --source-dir option" do
+                it "adds a source forge to the server for each source directory" do
+                    source_forge_1 = double("source_forge_1")
+                    source_forge_2 = double("source_forge_2")
+                    expect(Forge::Source).to receive(:new).with("dir1").and_return(source_forge_1)
+                    expect(Forge::Source).to receive(:new).with("dir2").and_return(source_forge_2)
+                    expect(forge).to receive(:add_forge).with(source_forge_1)
+                    expect(forge).to receive(:add_forge).with(source_forge_2)
+                    expect(Rack::Server).to receive(:start).with(default_options)
+
+                    library.go(["--source-dir", "dir1", "--source-dir", "dir2"])
+                end
+            end
+
             context "when no proxy URLs or module directories specified" do
                 it "proxies the Puppet Forge" do
                     proxy = double("proxy")

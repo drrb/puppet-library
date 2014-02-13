@@ -19,6 +19,8 @@ require 'rack'
 require 'yaml'
 require 'puppet_library/forge/directory'
 require 'puppet_library/forge/multi'
+require 'puppet_library/forge/proxy'
+require 'puppet_library/forge/source'
 require 'puppet_library/version'
 
 module PuppetLibrary
@@ -70,11 +72,14 @@ module PuppetLibrary
                 end
 
                 options[:forges] = []
-                opts.on("-m", "--module-dir DIR", "Directory containing the modules (can be specified multiple times)") do |module_dir|
+                opts.on("-m", "--module-dir DIR", "Directory containing packaged modules (can be specified multiple times)") do |module_dir|
                     options[:forges] << [Forge::Directory, module_dir]
                 end
                 opts.on("-x", "--proxy URL", "Remote forge to proxy (can be specified multiple times)") do |url|
                     options[:forges] << [Forge::Proxy, sanitize_url(url)]
+                end
+                opts.on("--source-dir DIR", "Directory containing a module's source (can be specified multiple times)") do |module_dir|
+                    options[:forges] << [Forge::Source, module_dir]
                 end
 
                 opts.on("--cache-basedir DIR", "Cache all proxies' downloaded modules under this directory") do |cache_basedir|

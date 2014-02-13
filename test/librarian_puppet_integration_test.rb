@@ -93,13 +93,13 @@ module PuppetLibrary
                 mod 'puppetlabs/apache'
             EOF
 
-            # Install modules through the proxy
+            # Install modules
             system "librarian-puppet install" or fail "call to puppet-library failed"
             expect("apache").to be_installed
             expect("concat").to be_installed
             expect("stdlib").to be_installed
 
-            # Search through the proxy
+            # Search
             search_results = JSON.parse(open("http://localhost:9004/modules.json").read)
             found_modules = Hash[search_results.map do |result|
                 [ result["full_name"], result["version"] ]
@@ -107,6 +107,74 @@ module PuppetLibrary
             expect(found_modules["puppetlabs/apache"]).to eq "1.0.0"
             expect(found_modules["puppetlabs/concat"]).to eq "2.0.0"
             expect(found_modules["puppetlabs/stdlib"]).to eq "3.0.0"
+        end
+    end
+
+    describe "source forge" do
+        include ModuleSpecHelper
+
+        let(:module_dir) { Tempdir.create("module_dir") }
+        let(:project_dir) { Tempdir.create("project_dir") }
+        let(:start_dir) { pwd }
+        let(:source_forge) { Forge::Source.new(module_dir) }
+        let(:source_server) do
+            Server.set_up do |server|
+                server.forge source_forge
+            end
+        end
+        let(:source_rack_server) do
+            Rack::Server.new(
+                :app => source_server,
+                :Host => "localhost",
+                :Port => 9005,
+                :server => "webrick"
+            )
+        end
+        let(:source_server_runner) do
+            Thread.new do
+                source_rack_server.start
+            end
+        end
+
+        before do
+            # Initialize to catch wiring errors
+            source_rack_server
+
+            # Start the servers
+            source_server_runner
+            start_dir
+            cd project_dir
+        end
+
+        after do
+            rm_rf module_dir
+            rm_rf project_dir
+            cd start_dir
+        end
+
+        it "queries, downloads and searches from a directory" do
+            add_file "Modulefile", <<-EOF
+            name 'puppetlabs-ficticious'
+            version '0.2.0'
+            author 'puppetlabs'
+            description 'Fake module'
+            EOF
+
+            write_puppetfile <<-EOF
+                forge 'http://localhost:9005'
+                mod 'puppetlabs/ficticious'
+            EOF
+
+            # Install modules
+            system "librarian-puppet install" or fail "call to puppet-library failed"
+            expect("ficticious").to be_installed
+
+            # Search
+            search_results = JSON.parse(open("http://localhost:9005/modules.json").read)
+            found_modules = Hash[search_results.map do |result|
+                [ result["full_name"], result["version"] ]
+            end]
+            expect(found_modules["puppetlabs/ficticious"]).to eq "0.2.0"
         end
     end
 

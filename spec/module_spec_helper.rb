@@ -62,4 +62,10 @@ module ModuleSpecHelper
         writer = ModuleWriter.new(module_dir)
         writer.write_module(author, name, version, &block)
     end
+
+    def add_file(file, content)
+        File.open(File.join(module_dir, file), "w") do |f|
+            f.write content
+        end
+    end
 end
