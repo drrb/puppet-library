@@ -45,6 +45,8 @@ module PuppetLibrary::Forge
 
         before do
             set_module("puppetlabs", "apache", "1.0.0")
+            add_module_dependency("puppetlabs", "stdlib", ">= 2.4.0")
+            add_module_dependency("puppetlabs", "concat", ">= 1.0.1")
         end
 
         after do
@@ -57,6 +59,15 @@ module PuppetLibrary::Forge
                 name '#{author}-#{name}'
                 version '#{version}'
                 author '#{author}'
+                description '#{author} #{name} module, version #{version}'
+                EOF
+            end
+        end
+
+        def add_module_dependency(author, name, spec)
+            File.open(File.join(module_dir, "Modulefile"), "a") do |modulefile|
+                modulefile.puts <<-EOF
+                dependency "#{author}/#{name}", "#{spec}"
                 EOF
             end
         end
@@ -87,19 +98,50 @@ module PuppetLibrary::Forge
             end
         end
 
-        describe "#get_module_buffer" do
+        describe "#get_module" do
             context "when the requested module doesn't match the source module" do
                 it "returns nil" do
-                    expect(forge.get_module_buffer("puppetlabs", "apache", "0.9.0")).to be_nil
+                    expect(forge.get_module("puppetlabs", "apache", "0.9.0")).to be_nil
+                    expect(forge.get_module("puppetlabs", "stdlib", "1.0.0")).to be_nil
                 end
             end
 
             context "when the source module is requested" do
                 it "returns a buffer of the packaged module" do
-                    buffer = forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
+                    buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
 
                     expect(buffer).to be_tgz_with(/Modulefile/, /apache/)
                 end
+            end
+        end
+
+        describe "#get_metadata" do
+            context "when the requested module doesn't match the source module" do
+                it "returns an empty list" do
+                    expect(forge.get_metadata("puppetlabs", "somethingelse")).to be_empty
+                end
+            end
+
+            context "when the requested module is the source module" do
+                it "returns an empty list" do
+                    metadata = forge.get_metadata("puppetlabs", "apache").first
+
+                    expect(metadata["name"]).to eq "puppetlabs-apache"
+                    expect(metadata["version"]).to eq "1.0.0"
+                    expect(metadata["author"]).to eq "puppetlabs"
+                    expect(metadata["description"]).to eq "puppetlabs apache module, version 1.0.0"
+                    expect(metadata["dependencies"]).to eq [
+                        { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                        { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.1" }
+                    ]
+                end
+            end
+        end
+
+        describe "#get_all_metadata" do
+            it "calls #get_metadata with the appropriate author and name" do
+                expect(forge).to receive(:get_metadata).with("puppetlabs", "apache").and_return("metadata")
+                expect(forge.get_all_metadata).to eq "metadata"
             end
         end
     end

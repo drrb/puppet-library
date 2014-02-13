@@ -15,18 +15,87 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module PuppetLibrary::Forge
-    class Source
+    class Source < PuppetLibrary::Forge::Abstract
         def initialize(module_dir)
+            super(self)
+            module_dir = File.expand_path(module_dir)
             raise "Module directory '#{module_dir}' doesn't exist" unless File.directory? module_dir
             raise "Module directory '#{module_dir}' isn't readable" unless File.executable? module_dir
             @module_dir = module_dir
         end
 
-        def get_module_buffer(author, name, version)
-            module_file = File.join(@module_dir, "Modulefile")
-            return nil unless File.read(module_file).include? version
+        def get_module(author, name, version)
+            return nil unless this_module?(author, name, version)
             Archiver.new.archive(@module_dir, "#{author}-#{name}-#{version}")
         end
+
+        def get_metadata(author, module_name)
+            return [] unless this_module?(author, module_name)
+            modulefile = read_modulefile
+            [ {
+                "name" => modulefile.get_name,
+                "version" => modulefile.get_version,
+                "author" => modulefile.get_author,
+                "description" => modulefile.get_description,
+                "dependencies" => modulefile.get_dependencies
+            } ]
+        end
+
+        def get_all_metadata
+            modulefile = read_modulefile
+            get_metadata(modulefile.get_author, modulefile.get_simple_name)
+        end
+
+        private
+        def this_module?(author, module_name, version = nil)
+            modulefile = read_modulefile
+            return false unless modulefile.get_name == "#{author}-#{module_name}"
+            unless version.nil?
+                return false unless modulefile.get_version == version
+            end
+            return true
+        end
+
+        def read_modulefile
+            #TODO: cache this?
+            modulefile = ModulefileDsl.new
+            modulefile.instance_eval(File.read(module_file))
+            modulefile
+        end
+
+        def module_file
+            File.join(@module_dir, "Modulefile")
+        end
+    end
+end
+
+class ModulefileDsl
+    %w[name version author description].each do |property|
+        class_eval <<-EOF
+            def #{property}(value)
+                @#{property} = value
+            end
+
+            def get_#{property}
+                @#{property}
+            end
+        EOF
+    end
+
+    def dependency(name, spec)
+        get_dependencies.push("name" => name, "version_requirement" => spec)
+    end
+
+    def get_dependencies
+        @dependencies ||= []
+    end
+
+    def get_simple_name
+        @name.split("-").last
+    end
+
+    def method_missing(name, *args, &block)
+        puts "Method called: #{name}(#{args.join", "})"
     end
 end
 
