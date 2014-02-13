@@ -18,11 +18,9 @@
 require 'rubygems'
 require 'puppet_library'
 
-module PuppetLibrary
-    server = Server.set_up do |library|
-        library.forge Forge::Proxy.new("http://forge.puppetlabs.com")
-        library.forge Forge::Directory.new("/var/lib/modules")
-    end
-
-    run server
+server = PuppetLibrary::Server.set_up do |library|
+    library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
+    library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
 end
+
+run server
