@@ -15,6 +15,7 @@ Plugins can be created to serve modules from arbitrary sources. Puppet Library c
  - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
  - proxying a remote forge (or forges)
  - caching proxied forges to disk
+ - serving modules from source on disk
 
 ## Installation
 
@@ -71,6 +72,10 @@ Proxy a remote forge, caching downloaded modules on disk
 
     $ puppet-library --proxy http://forge.puppetlabs.com --cache-basedir
 
+Serve a module from source
+
+    $ puppet-library --source-dir ~/code/puppetlabs-apache
+
 Serve modules on a specific port
 
     $ puppet-library --port 8888
@@ -84,6 +89,7 @@ See all options
 Puppet Library contains built-in support for:
  - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
  - proxying a remote forge (or forges)
+ - serving modules from source on disk
  - serving modules from a combination of the above
 
 ## Compatibility with other tools
@@ -118,6 +124,8 @@ daemonize: true
 pidfile: /var/run/puppetlibrary.pid
 forges:
     - Directory: /var/lib/modules
+    - Directory: /var/lib/other-modules
+    - Source: /var/code/puppetlabs-apache
     - Proxy: http://forge.puppetlabs.com
 ```
 

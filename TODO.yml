@@ -2,8 +2,6 @@ features:
     - Web UI:
         - asynchronous (index page loads too slowly)
     - Proxy a git repository
-    - Proxy module source
-    - Proxy modules in a directory
     - Named subforges:
         - per-subforge queries
         - upload modules (web form and API)
@@ -16,6 +14,7 @@ tests:
     - Add downloading of modules to integration tests
 
 dubious_features:
+    - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)
     - Make proxy cache TTL configurable
     - Allow failover between module repositories
     - Look in /etc/puppet-library.yml for config by default
