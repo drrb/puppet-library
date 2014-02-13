@@ -79,12 +79,12 @@ module PuppetLibrary::Forge
             versions["#{author}/#{name}"]
         end
 
-        def look_up_releases(author, name, version = nil, &block)
+        def look_up_releases(author, name, version = nil, &optional_processor)
             version_query = version ? "&version=#{version}" : ""
             url = "/api/v1/releases.json?module=#{author}/#{name}#{version_query}"
             response_text = get(url)
             response = JSON.parse(response_text)
-            process_releases_response(response, &block)
+            process_releases_response(response, &optional_processor)
         end
 
         def process_releases_response(response)

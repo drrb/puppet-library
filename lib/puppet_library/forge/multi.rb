@@ -19,12 +19,16 @@ require 'puppet_library/forge/search_result'
 
 module PuppetLibrary::Forge
     class Multi
+        def initialize
+            @forges = []
+        end
+
         def add_forge(forge)
-            forges << forge
+            @forges << forge
         end
 
         def search_modules(query)
-            all_results = forges.map do |forge|
+            all_results = @forges.map do |forge|
                 forge.search_modules(query)
             end.flatten
 
@@ -32,7 +36,7 @@ module PuppetLibrary::Forge
         end
 
         def get_module_buffer(author, name, version)
-            forges.each do |forge|
+            @forges.each do |forge|
                 begin
                     return forge.get_module_buffer(author, name, version)
                 rescue ModuleNotFound
@@ -43,7 +47,7 @@ module PuppetLibrary::Forge
         end
 
         def get_module_metadata(author, name)
-            metadata_list = forges.inject([]) do |metadata_list, forge|
+            metadata_list = @forges.inject([]) do |metadata_list, forge|
                 begin
                     metadata_list << forge.get_module_metadata(author, name)
                 rescue ModuleNotFound
@@ -58,7 +62,7 @@ module PuppetLibrary::Forge
 
         def get_module_metadata_with_dependencies(author, name, version)
             metadata_list = []
-            forges.each do |forge|
+            @forges.each do |forge|
                 begin
                     metadata_list << forge.get_module_metadata_with_dependencies(author, name, version)
                 rescue ModuleNotFound
@@ -71,11 +75,6 @@ module PuppetLibrary::Forge
                     metadata[module_name] = releases.unique_by { |release| release["version"] }
                 end
             end
-        end
-
-        private
-        def forges
-            @forges ||= []
         end
     end
 end
