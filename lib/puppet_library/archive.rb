@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Puppet Library
 # Copyright (C) 2014 drrb
 #
@@ -15,13 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary
-    require 'puppet_library/archive'
-    require 'puppet_library/forge'
-    require 'puppet_library/http'
-    require 'puppet_library/puppet_library'
-    require 'puppet_library/puppet_module'
-    require 'puppet_library/server'
-    require 'puppet_library/util'
-    require 'puppet_library/version'
+module PuppetLibrary::Archive
+    require 'puppet_library/archive/archiver'
+    require 'puppet_library/archive/archive_reader'
 end

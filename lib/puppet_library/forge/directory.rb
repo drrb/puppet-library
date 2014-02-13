@@ -15,9 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
-require 'rubygems/package'
-require 'zlib'
 require 'puppet_library/forge/abstract'
+require 'puppet_library/archive/archive_reader'
 
 module PuppetLibrary::Forge
     class Directory < PuppetLibrary::Forge::Abstract
@@ -40,10 +39,9 @@ module PuppetLibrary::Forge
 
         def get_metadata(author = "*", module_name = "")
             Dir["#{@module_dir}/#{author}-#{module_name}*"].map do |module_path|
-                tar = Gem::Package::TarReader.new(Zlib::GzipReader.open(module_path))
-                tar.rewind
-                metadata_file = tar.find {|e| e.full_name =~ /[^\/]+\/metadata\.json/}
-                JSON.parse(metadata_file.read)
+                archive = PuppetLibrary::Archive::ArchiveReader.new(module_path)
+                metadata_file = archive.read_entry {|e| e.full_name =~ /[^\/]+\/metadata\.json/}
+                JSON.parse(metadata_file)
             end
         end
 

@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Puppet Library
 # Copyright (C) 2014 drrb
 #
@@ -15,13 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary
-    require 'puppet_library/archive'
-    require 'puppet_library/forge'
-    require 'puppet_library/http'
-    require 'puppet_library/puppet_library'
-    require 'puppet_library/puppet_module'
-    require 'puppet_library/server'
-    require 'puppet_library/util'
-    require 'puppet_library/version'
+require 'rubygems/package'
+require 'zlib'
+
+module PuppetLibrary::Archive
+    class ArchiveReader
+        def initialize(path)
+            @path = path
+        end
+
+        def read_entry(&block)
+            tar = Gem::Package::TarReader.new(Zlib::GzipReader.open(@path))
+            tar.rewind
+            entry = tar.find(&block)
+            entry.read
+        end
+    end
 end
