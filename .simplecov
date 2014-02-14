@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # Puppet Library
-# Copyright (C) 2013 drrb
+# Copyright (C) 2014 drrb
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,5 +17,6 @@
 
 SimpleCov.start do
     add_filter "/spec/"
+    add_filter "/test/"
     add_filter "/features/"
 end
