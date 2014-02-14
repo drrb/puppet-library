@@ -54,3 +54,6 @@
   changes:
       - Fixed issue with downloads (#2)
       - Fixed issue with directory-based forges on Ruby 1.8 (#3)
+- tag: v0.9.0
+  changes:
+      - Added new source forge that serves modules from directories on disk
