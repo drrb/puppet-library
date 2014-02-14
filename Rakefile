@@ -26,7 +26,7 @@ SUPPORTED_RUBY_VERSIONS = %w[1.8 1.9 2.0 2.1 system]
 # Puppet doesn't work on 2.1
 INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[2.1]
 # Capybara needs Nokogiri, which needs 1.9+
-ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8 system]
+ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8]
 
 class String
     def green
