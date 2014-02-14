@@ -22,7 +22,7 @@ module PuppetLibrary::PuppetModule
             end
         end
 
-        %w[name version author description].each do |property|
+        %w[name version author source summary description project_page license].each do |property|
             class_eval <<-EOF
                 def #{property}(value)
                     @#{property} = value
@@ -47,7 +47,7 @@ module PuppetLibrary::PuppetModule
         end
 
         def method_missing(name, *args, &block)
-            puts "Method called: #{name}(#{args.join", "})"
+            Modulefile.log "Unsupported config parsed from Modulefile: #{name}(#{args.join", "})"
         end
 
         def to_metadata
@@ -58,6 +58,11 @@ module PuppetLibrary::PuppetModule
                 "description" => get_description,
                 "dependencies" => get_dependencies
             }
+        end
+
+        private
+        def self.log(message)
+            puts message
         end
     end
 end
