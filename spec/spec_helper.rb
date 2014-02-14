@@ -56,7 +56,7 @@ class Tgz
                 e.full_name == entry_name
             end
         end
-        raise "No entry matching #{entry_regex} found" if entry.nil?
+        raise "No entry matching #{entry_name} found" if entry.nil?
         entry.read
     end
 end
