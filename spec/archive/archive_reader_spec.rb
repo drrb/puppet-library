@@ -29,6 +29,7 @@ module PuppetLibrary::Archive
                 zip.add_file("arrive.txt", 0644) { |entry| entry.write "say hello" }
                 zip.add_file("later/depart.txt", 0644) { |entry| entry.write "say bye" }
             end
+            archive
         end
 
         def write_tar_gzip!(file_name)
