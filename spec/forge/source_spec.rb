@@ -16,45 +16,24 @@
 
 require 'spec_helper'
 
-class Tgz
-    def initialize(buffer)
-        @buffer = buffer
-    end
-
-    def read(entry_regex)
-        @buffer.rewind
-        tar = Gem::Package::TarReader.new(Zlib::GzipReader.wrap(@buffer))
-        tar.rewind
-        entry = tar.find {|e| e.full_name =~ entry_regex}
-        raise "No entry matching #{entry_regex} found" if entry.nil?
-        entry.read
-    end
-end
-
-RSpec::Matchers.define :be_tgz_with do |expected_file_regex, expected_content_regex|
-    match do |buffer|
-        file_content = Tgz.new(buffer).read expected_file_regex
-        file_content =~ expected_content_regex
-    end
-end
-
 module PuppetLibrary::Forge
     describe Source do
         let(:module_dir) { Tempdir.create("module_dir") }
+        let(:modulefile_path) { File.join(module_dir, "Modulefile") }
         let(:forge) { Source.new(module_dir) }
 
         before do
-            set_module("puppetlabs", "apache", "1.0.0")
-            add_module_dependency("puppetlabs", "stdlib", ">= 2.4.0")
-            add_module_dependency("puppetlabs", "concat", ">= 1.0.1")
+            set_module! "puppetlabs", "apache", "1.0.0"
+            add_module_dependency! "puppetlabs", "stdlib", ">= 2.4.0"
+            add_module_dependency! "puppetlabs", "concat", ">= 1.0.1"
         end
 
         after do
             rm_rf module_dir
         end
 
-        def set_module(author, name, version)
-            File.open(File.join(module_dir, "Modulefile"), "w") do |modulefile|
+        def set_module!(author, name, version)
+            File.open(modulefile_path, "w") do |modulefile|
                 modulefile.puts <<-EOF
                 name '#{author}-#{name}'
                 version '#{version}'
@@ -64,8 +43,8 @@ module PuppetLibrary::Forge
             end
         end
 
-        def add_module_dependency(author, name, spec)
-            File.open(File.join(module_dir, "Modulefile"), "a") do |modulefile|
+        def add_module_dependency!(author, name, spec)
+            File.open(modulefile_path, "a") do |modulefile|
                 modulefile.puts <<-EOF
                 dependency "#{author}/#{name}", "#{spec}"
                 EOF

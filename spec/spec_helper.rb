@@ -39,3 +39,35 @@ class Tempdir
         FileUtils.mkdir @path
     end
 end
+
+class Tgz
+    def initialize(buffer)
+        @buffer = buffer
+    end
+
+    def read(entry_name)
+        @buffer.rewind
+        tar = Gem::Package::TarReader.new(Zlib::GzipReader.wrap(@buffer))
+        tar.rewind
+        entry = tar.find do |e|
+            if Regexp === entry_name
+                e.full_name =~ entry_name
+            else
+                e.full_name == entry_name
+            end
+        end
+        raise "No entry matching #{entry_regex} found" if entry.nil?
+        entry.read
+    end
+end
+
+RSpec::Matchers.define :be_tgz_with do |expected_file_name, expected_content|
+    match do |buffer|
+        file_content = Tgz.new(buffer).read expected_file_name
+        if Regexp === expected_content
+            file_content =~ expected_content
+        else
+            file_content == expected_content
+        end
+    end
+end
