@@ -16,6 +16,7 @@
 
 require 'puppet_library/archive/archiver'
 require 'puppet_library/puppet_module/modulefile'
+require 'json'
 
 module PuppetLibrary::Forge
     class Source < PuppetLibrary::Forge::Abstract
@@ -31,6 +32,7 @@ module PuppetLibrary::Forge
 
         def get_module(author, name, version)
             return nil unless this_module?(author, name, version)
+            write_metadata_file
             PuppetLibrary::Archive::Archiver.archive_dir(@module_dir, "#{author}-#{name}-#{version}")
         end
 
@@ -44,6 +46,12 @@ module PuppetLibrary::Forge
         end
 
         private
+        def write_metadata_file
+            File.open(File.join(@module_dir, "metadata.json"), "w") do |file|
+                file.write modulefile.to_metadata.to_json
+            end
+        end
+
         def this_module?(author, module_name, version = nil)
             same_module = modulefile.get_name == "#{author}-#{module_name}"
             if version.nil?
