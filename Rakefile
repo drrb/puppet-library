@@ -185,6 +185,7 @@ task "push-release" => ["check-license", :verify] do
     upload_release_notes(PuppetLibrary::VERSION)
 
     increment_version
+    git_push
 end
 
 desc "Increment version number and commit it"
@@ -230,6 +231,10 @@ def upload_release_notes(version)
         github.post("/repos/drrb/puppet-library/releases", data)
     end
     puts "Done"
+end
+
+def git_push
+    system "git push" or fail "Couldn't push release"
 end
 
 def increment_version
