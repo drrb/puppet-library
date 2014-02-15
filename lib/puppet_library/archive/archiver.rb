@@ -20,8 +20,8 @@ require 'zlib'
 module PuppetLibrary::Archive
     # Adapted from https://gist.github.com/sinisterchipmunk/1335041
     module Archiver
-        def self.archive_dir(dir, basedir)
-            gzip(tar(dir, basedir))
+        def self.archive_dir(dir, basedir, &block)
+            gzip(tar(dir, basedir, &block))
         end
 
         private
@@ -38,13 +38,14 @@ module PuppetLibrary::Archive
             StringIO.new zip_buffer.string
         end
 
-        def self.tar(path, basedir)
+        def self.tar(path, basedir, &block)
             tarfile = StringIO.new("")
             Gem::Package::TarWriter.new(tarfile) do |tar|
                 walk_directory(path) do |file|
                     entry_name = file.sub /^#{Regexp::escape path}\/?/, "#{basedir}/"
                     TarEntry.from(file).add_to!(tar, entry_name)
                 end
+                yield(RebasedTar.new(tar, basedir)) if block_given?
             end
             tarfile.rewind
             tarfile
@@ -53,6 +54,17 @@ module PuppetLibrary::Archive
         def self.walk_directory(basedir)
             Dir[File.join(basedir, "**/*")].each do |file|
                 yield(file)
+            end
+        end
+
+        class RebasedTar
+            def initialize(tar, basedir)
+                @tar, @basedir = tar, basedir
+            end
+
+            def add_file(name, mode, &block)
+                entry_name = name.sub /^\/?/, "#{@basedir}/"
+                @tar.add_file(entry_name, mode, &block)
             end
         end
 

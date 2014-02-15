@@ -32,8 +32,11 @@ module PuppetLibrary::Forge
 
         def get_module(author, name, version)
             return nil unless this_module?(author, name, version)
-            write_metadata_file
-            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir, "#{author}-#{name}-#{version}")
+            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir, "#{author}-#{name}-#{version}") do |archive|
+                archive.add_file("metadata.json", 0644) do |entry|
+                    entry.write modulefile.to_metadata
+                end
+            end
         end
 
         def get_metadata(author, module_name)
@@ -46,12 +49,6 @@ module PuppetLibrary::Forge
         end
 
         private
-        def write_metadata_file
-            File.open(File.join(@module_dir, "metadata.json"), "w") do |file|
-                file.write modulefile.to_metadata.to_json
-            end
-        end
-
         def this_module?(author, module_name, version = nil)
             same_module = modulefile.get_name == "#{author}-#{module_name}"
             if version.nil?

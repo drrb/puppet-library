@@ -29,14 +29,36 @@ module PuppetLibrary::Archive
                 end
             end
 
-            it "tars and gzips a directory and its contents" do
+            before do
                 write_file! "arrive.txt", "say hello"
                 write_file! "later/depart.txt", "say bye"
+            end
 
+            it "tars and gzips a directory and its contents" do
                 buffer = Archiver.archive_dir(dir, "todo")
 
                 expect(buffer).to be_tgz_with "todo/arrive.txt", "say hello"
                 expect(buffer).to be_tgz_with "todo/later/depart.txt", "say bye"
+            end
+
+            it "allows you to inject files from a block" do
+                buffer = Archiver.archive_dir(dir, "todo") do |archive|
+                    archive.add_file("later/return.txt", 0644) do |entry|
+                       entry.write "say hi again"
+                    end
+                end
+
+                expect(buffer).to be_tgz_with "todo/later/return.txt", "say hi again"
+            end
+
+            it "fixes leading slash for adding files" do
+                buffer = Archiver.archive_dir(dir, "todo") do |archive|
+                    archive.add_file("/later/return.txt", 0644) do |entry|
+                       entry.write "say hi again"
+                    end
+                end
+
+                expect(buffer).to be_tgz_with "todo/later/return.txt", "say hi again"
             end
         end
     end
