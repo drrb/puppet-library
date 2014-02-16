@@ -17,9 +17,14 @@
 
 require 'puppet_library/forge/proxy'
 require 'puppet_library/http/http_client'
-
 module PuppetLibrary::Forge
+
+    # A forge that proxies a remote forge. All module archives downloaded from the
+    # remote forged are cached to disk.
     class Cache < Proxy
+
+        # * <tt>:url</tt> - The URL of the remote forge.
+        # * <tt>:cache_dir</tt> - The directory in which to cache the downloaded artifacts.
         def initialize(url, cache_dir, http_client = PuppetLibrary::Http::HttpClient.new)
             super(url, PuppetLibrary::Http::Cache::InMemory.new, PuppetLibrary::Http::Cache::Disk.new(cache_dir), http_client)
         end

@@ -20,6 +20,10 @@ require 'puppet_library/util'
 
 module PuppetLibrary::Forge
 
+    # An abstract forge implementation that makes it easier to create new forge
+    # types.
+    #
+    # See PuppetLibrary::Forge::Directory for an example
     class Abstract
         def initialize(module_repo)
             @repo = module_repo

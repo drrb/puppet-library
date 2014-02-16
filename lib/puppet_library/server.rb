@@ -21,6 +21,19 @@ require 'haml'
 require 'puppet_library/forge/multi'
 
 module PuppetLibrary
+    # The Puppet Library server
+    #
+    # A Rack application that can be configured as follows:
+    #
+    #    server = PuppetLibrary::Server.set_up do |library|
+    #        # Look for my modules locally
+    #        library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
+    #
+    #        # Get everything else from the Puppet Forge
+    #        library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
+    #    end
+    #
+    #    run server
     class Server < Sinatra::Base
         class Config
             def initialize(forge)

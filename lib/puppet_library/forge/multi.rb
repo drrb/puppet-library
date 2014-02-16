@@ -18,11 +18,29 @@
 require 'puppet_library/forge/search_result'
 
 module PuppetLibrary::Forge
+
+    # A forge that delegates to multiple other forges.
+    #
+    # For queries, all subforges are queried. The results are merged, giving
+    # preference to earlier ones. That is, if the same version of a module is
+    # found in two different subforges, the one contained in the earlier
+    # subforge is kept in the query results.
+    #
+    # For downloads, subforges are queried sequentially. The first module found
+    # is returned.
+    #
+    # <b>Usage:</b>
+    #
+    #     # A forge that serves modules from disk, and proxies a remote forge
+    #     multi_forge = Multi.new
+    #     multi_forge.add_forge(Directory.new("/var/modules"))
+    #     multi_forge.add_forge(Proxy.new("http://forge.puppetlabs.com"))
     class Multi
         def initialize
             @forges = []
         end
 
+        # Add another forge to delegate to.
         def add_forge(forge)
             @forges << forge
         end

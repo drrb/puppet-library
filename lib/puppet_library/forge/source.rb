@@ -19,8 +19,16 @@ require 'puppet_library/puppet_module/modulefile'
 require 'json'
 
 module PuppetLibrary::Forge
+
+    # A forge that serves a module from its source on disk.
+    # Metadata (+metadata.json+) is generated on the fly.
+    #
+    # <b>Note:</b>
+    # The module directory must have a +Modulefile+.
     class Source < PuppetLibrary::Forge::Abstract
         CACHE_TTL_MILLIS = 500
+
+        # * <tt>:module_dir</tt> - The directory containing the module's source.
         def initialize(module_dir)
             super(self)
             module_dir = File.expand_path(module_dir)

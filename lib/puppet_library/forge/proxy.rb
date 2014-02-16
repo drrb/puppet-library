@@ -20,12 +20,16 @@ require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
 
 module PuppetLibrary::Forge
+
+    # A forge that proxies a remote forge.
     class Proxy
+
+        # * <tt>:url</tt> - The URL of the remote forge.
         def initialize(url,
                        query_cache = PuppetLibrary::Http::Cache::InMemory.new,
                        download_cache = PuppetLibrary::Http::Cache::NoOp.new,
                        http_client = PuppetLibrary::Http::HttpClient.new)
-            @url = url
+            @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @query_cache = query_cache
             @download_cache = download_cache

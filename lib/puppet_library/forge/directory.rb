@@ -19,7 +19,17 @@ require 'puppet_library/forge/abstract'
 require 'puppet_library/archive/archive_reader'
 
 module PuppetLibrary::Forge
+
+    # A forge that serves modules from a directory on disk.
+    #
+    # <b>Note:</b>
+    # * The modules must be packaged in +.tar.gz+ format
+    # * The modules must be named in the format <tt>author-modulename-version.tar.gz</tt>
+    # * The modules must contain a +metadata.json+ file
+    # That is, the format must be the same as what is produced by <tt>puppet module build</tt>
     class Directory < PuppetLibrary::Forge::Abstract
+
+        # * <tt>:module_dir</tt> - The directory containing the packaged modules.
         def initialize(module_dir)
             super(self)
             raise "Module directory '#{module_dir}' doesn't exist" unless File.directory? module_dir
