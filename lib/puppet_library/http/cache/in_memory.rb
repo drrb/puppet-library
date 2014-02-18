@@ -15,58 +15,60 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Http::Cache
-    class InMemory
-        ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
-        def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
-            @reaper = Reaper.new(millis_to_live)
-        end
-
-        def get(key)
-            entry = retrieve(key)
-            if entry
-                return entry.value unless @reaper.wants_to_kill? entry
+module PuppetLibrary::Http
+    module Cache
+        class InMemory
+            ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
+            def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
+                @reaper = Reaper.new(millis_to_live)
             end
 
-            value = yield
-            save(key, Entry.new(value))
-            return value
-        end
+            def get(key)
+                entry = retrieve(key)
+                if entry
+                    return entry.value unless @reaper.wants_to_kill? entry
+                end
 
-        def retrieve(key)
-            cache[key]
-        end
-
-        def save(key, entry)
-            cache[key] = entry
-        end
-
-        private
-        def cache
-            @cache ||= {}
-        end
-
-        class Entry
-            attr_accessor :value
-
-            def initialize(value)
-                @birth = Time.now
-                @value = value
+                value = yield
+                save(key, Entry.new(value))
+                return value
             end
 
-            def age_millis
-                age_seconds = Time.now - @birth
-                age_seconds * 1000
-            end
-        end
-
-        class Reaper
-            def initialize(millis_to_live)
-                @millis_to_live = millis_to_live
+            def retrieve(key)
+                cache[key]
             end
 
-            def wants_to_kill?(entry)
-                entry.age_millis > @millis_to_live
+            def save(key, entry)
+                cache[key] = entry
+            end
+
+            private
+            def cache
+                @cache ||= {}
+            end
+
+            class Entry
+                attr_accessor :value
+
+                def initialize(value)
+                    @birth = Time.now
+                    @value = value
+                end
+
+                def age_millis
+                    age_seconds = Time.now - @birth
+                    age_seconds * 1000
+                end
+            end
+
+            class Reaper
+                def initialize(millis_to_live)
+                    @millis_to_live = millis_to_live
+                end
+
+                def wants_to_kill?(entry)
+                    entry.age_millis > @millis_to_live
+                end
             end
         end
     end

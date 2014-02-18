@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'puppet_library/archive/archiver'
+require 'puppet_library/forge/abstract'
 require 'puppet_library/puppet_module/modulefile'
 require 'json'
 

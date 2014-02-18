@@ -15,39 +15,41 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Http::Cache
-    class Disk
-        def initialize(directory)
-            @directory = directory
-        end
-
-        def get(path)
-            unless include? path
-                buffer = yield
-                save(path, buffer)
+module PuppetLibrary::Http
+    module Cache
+        class Disk
+            def initialize(directory)
+                @directory = directory
             end
-            retrieve(path)
-        end
 
-        private
-        def include?(path)
-            File.exist? entry_path(path)
-        end
-
-        def save(path, buffer)
-            file_path = entry_path(path)
-            FileUtils.mkdir_p File.dirname(file_path)
-            File.open(file_path, "w") do |file|
-                file.write buffer.read
+            def get(path)
+                unless include? path
+                    buffer = yield
+                    save(path, buffer)
+                end
+                retrieve(path)
             end
-        end
 
-        def retrieve(path)
-            File.open(entry_path(path))
-        end
+            private
+            def include?(path)
+                File.exist? entry_path(path)
+            end
 
-        def entry_path(path)
-            File.join(@directory, path)
+            def save(path, buffer)
+                file_path = entry_path(path)
+                FileUtils.mkdir_p File.dirname(file_path)
+                File.open(file_path, "w") do |file|
+                    file.write buffer.read
+                end
+            end
+
+            def retrieve(path)
+                File.open(entry_path(path))
+            end
+
+            def entry_path(path)
+                File.join(@directory, path)
+            end
         end
     end
 end

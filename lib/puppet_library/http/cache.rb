@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Http::Cache
-    require 'puppet_library/http/cache/disk'
-    require 'puppet_library/http/cache/in_memory'
-    require 'puppet_library/http/cache/noop'
+module PuppetLibrary::Http
+    module Cache
+        require 'puppet_library/http/cache/disk'
+        require 'puppet_library/http/cache/in_memory'
+        require 'puppet_library/http/cache/noop'
+    end
 end

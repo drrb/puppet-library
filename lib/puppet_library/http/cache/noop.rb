@@ -17,10 +17,12 @@
 
 require 'puppet_library/http/cache/in_memory'
 
-module PuppetLibrary::Http::Cache
-    class NoOp
-        def get(path)
-            yield
+module PuppetLibrary::Http
+    module Cache
+        class NoOp
+            def get(path)
+                yield
+            end
         end
     end
 end
