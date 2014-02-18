@@ -102,7 +102,7 @@ end
 task :default => [:test, 'coveralls:push']
 
 desc "Check it works on all local rubies"
-task :verify do
+task :verify => 'test-imports' do
     versions = SUPPORTED_RUBY_VERSIONS
     puts "\nRunning Specs".green
     spec_results = versions.map do |ruby_version|
@@ -200,6 +200,8 @@ end
 
 desc "Import files individually to make sure they can be imported externally"
 task "test-imports" do
+    puts "Testing imports"
+    puts
     Dir.chdir "lib"
 
     paths = Dir["**/*.rb"].map {|f| f.sub /\.rb$/, "" }
