@@ -198,6 +198,37 @@ task "register-release", [:version] do |task, args|
     upload_release_notes(args[:version])
 end
 
+desc "Import files individually to make sure they can be imported externally"
+task "test-imports" do
+    Dir.chdir "lib"
+
+    paths = Dir["**/*.rb"].map {|f| f.sub /\.rb$/, "" }
+    paths = paths.sort_by {|p| p.count "/"}
+    errors = []
+    paths.each do |path|
+        print "importing #{path}..."
+        output = `ruby -e '$LOAD_PATH.unshift(File.expand_path(".")); require "#{path}"' 2>&1`
+        print " ["
+        if $?.success?
+            print "OK".green
+        else
+            print "FAIL".red
+            errors << "#{path}: #{output.red}"
+        end
+        puts "]"
+    end
+
+    unless errors.empty?
+        puts
+        puts
+        fail <<-EOFAILURE
+Failed to import some files:
+
+#{errors.join "\n\n"}
+        EOFAILURE
+    end
+end
+
 def upload_release_notes(version)
     puts "Registering release notes for #{version}"
     github = Github.new
