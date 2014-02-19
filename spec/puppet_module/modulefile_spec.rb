@@ -101,6 +101,13 @@ module PuppetLibrary::PuppetModule
                 end
             end
         end
+
+        describe "#parse" do
+            it "works like #read, but with a string" do
+                metadata = Modulefile.parse("version '1.0.0'")
+                expect(metadata.get_version).to eq "1.0.0"
+            end
+        end
     end
 end
 

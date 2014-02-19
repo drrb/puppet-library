@@ -17,8 +17,12 @@
 module PuppetLibrary::PuppetModule
     class Modulefile
         def self.read(modulefile_path)
+            parse(File.read(modulefile_path))
+        end
+
+        def self.parse(modulefile_source)
             Modulefile.new.tap do |modulefile|
-                modulefile.instance_eval(File.read(modulefile_path))
+                modulefile.instance_eval(modulefile_source)
             end
         end
 
