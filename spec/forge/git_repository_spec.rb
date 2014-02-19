@@ -2,22 +2,22 @@ require 'spec_helper'
 
 module PuppetLibrary::Forge
     describe GitRepository do
-        let(:repo_path) { Tempdir.create("git-repo") }
-        let(:versions) { [ "0.9.0", "1.0.0-rc1", "1.0.0" ] }
-        let(:tags) { versions + [ "xxx" ] }
-        let(:forge) { GitRepository.new("puppetlabs", "apache", /[0-9.]+/, repo_path) }
+        @@repo_path = Tempdir.create("git-repo")
+        @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
+        @@tags = @@versions + [ "xxx" ]
 
-        before do
+        before :all do
             def git(command)
-                `git --git-dir=#{repo_path}/.git --work-tree=#{repo_path} #{command}`
+                git_command = "git --git-dir=#{@@repo_path}/.git --work-tree=#{@@repo_path} #{command}"
+                `#{git_command}`
                 unless $?.success?
                     raise "Failed to run command: \"#{git_command}\""
                 end
             end
 
             git "init"
-            versions.zip(tags).each do |(version, tag)|
-                File.open(File.join(repo_path, "Modulefile"), "w") do |modulefile|
+            @@versions.zip(@@tags).each do |(version, tag)|
+                File.open(File.join(@@repo_path, "Modulefile"), "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
                     version '#{version}'
@@ -30,9 +30,11 @@ module PuppetLibrary::Forge
             end
         end
 
-        after do
-            rm_rf repo_path
+        after :all do
+            rm_rf @@repo_path
         end
+
+        let(:forge) { GitRepository.new("puppetlabs", "apache", /[0-9.]+/, @@repo_path) }
 
         describe "#get_module" do
             context "when the requested author is different from the configured author" do
@@ -90,6 +92,15 @@ module PuppetLibrary::Forge
                     expect(metadata.first["name"]).to eq "puppetlabs-apache"
                     expect(metadata.first["version"]).to eq "0.9.0"
                 end
+            end
+        end
+
+        describe "#get_all_metadata" do
+            it "generates the metadata for the each version" do
+                metadata = forge.get_metadata("puppetlabs", "apache")
+                expect(metadata).to have(3).versions
+                expect(metadata.first["name"]).to eq "puppetlabs-apache"
+                expect(metadata.first["version"]).to eq "0.9.0"
             end
         end
     end

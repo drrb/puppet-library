@@ -50,9 +50,7 @@ module PuppetLibrary::Forge
                 return []
             end
             tags.map do |tag|
-                on_tag(tag) do
-                    modulefile.to_metadata
-                end
+                modulefile_for_tag(tag).to_metadata
             end
         end
 
@@ -62,6 +60,11 @@ module PuppetLibrary::Forge
 
         def tags
             git("tag").split.select {|tag| tag =~ @version_tag_regex }
+        end
+
+        def modulefile_for_tag(tag)
+            modulefile_source = git("show refs/tags/#{tag}:Modulefile")
+            PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
         end
 
         def modulefile
