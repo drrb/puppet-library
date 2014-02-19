@@ -1,7 +1,13 @@
 features:
     - Web UI:
         - asynchronous (index page loads too slowly)
-    - Proxy a git repository
+    - Proxy a git repository:
+        - make it threadsafe (checkouts into temp dirs)
+        - make the specs fast
+        - add an integration test
+        - make it work with remote forges (clone and fetch on query/download)
+        - make it fast (pre-clone repos on startup (maybe just warn if they can't be found). Maybe cache artifacts?)
+    - logging
     - Named subforges:
         - per-subforge queries
         - upload modules (web form and API)

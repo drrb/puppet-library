@@ -58,6 +58,7 @@ module PuppetLibrary::Forge
             get_metadata(@author, @name)
         end
 
+        private
         def tags
             git("tag").split.select {|tag| tag =~ @version_tag_regex }
         end
@@ -86,19 +87,20 @@ module PuppetLibrary::Forge
 
         def on_tag(tag, &block)
             git "checkout #{tag}"
-            in_dir(&block)
+            in_dir(@path, &block)
         end
 
-        def in_dir
+        def in_dir(dir)
             origin = Dir.pwd
-            Dir.chdir @path
+            Dir.chdir dir
             yield
         ensure
             Dir.chdir origin
         end
 
         def git(command)
-            IO.popen("git --git-dir=#{@path}/.git --work-tree=#{@path} #{command}").read
+            #TODO: redirection will fail on windows. How do we properly discard stderr?
+            IO.popen("git --git-dir=#{@path}/.git --work-tree=#{@path} #{command} 2>/dev/null").read
         end
     end
 end
