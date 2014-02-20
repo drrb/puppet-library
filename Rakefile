@@ -243,7 +243,7 @@ def upload_release_notes(version)
     end
 
     tag = "v#{version}"
-    changelog = YAML.load_file("CHANGELOG.yml")
+    changelog = YAML.load_file(File.expand_path("CHANGELOG.yml", File.dirname(__FILE__)))
     release_notes = changelog.find {|release| release["tag"] == tag}
     changes = release_notes ? release_notes["changes"] : []
     description = changes.map { |change| "- #{change}" }.join("\n")
