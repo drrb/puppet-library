@@ -62,4 +62,5 @@
       - Fixed source forge bug that generated metadata incorrectly
 - tag: v0.10.0
   changes:
+      - Added new Git repo forge that serves modules from Git repositories, using tags for version numbers!
       - Fixed imports to enable easier embedding of Puppet Library
