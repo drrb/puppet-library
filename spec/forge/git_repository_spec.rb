@@ -16,6 +16,8 @@ module PuppetLibrary::Forge
             end
 
             git "init"
+            git "config user.name tester"
+            git "config user.email tester@example.com"
             @@versions.zip(@@tags).each do |(version, tag)|
                 File.open(File.join(@@repo_path, "Modulefile"), "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
