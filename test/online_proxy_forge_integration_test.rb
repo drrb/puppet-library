@@ -64,7 +64,7 @@ module PuppetLibrary
             cd start_dir
         end
 
-        it "queries, downloads and searches through a proxy to a directory" do
+        it "services queries, downloads and searches through a proxy to a remote forge" do
             add_module("drrb", "tomcat", "1.0.0") do |metadata|
                 metadata["dependencies"] << { "name" => "puppetlabs/apache", "version_requirement" => "0.9.0" }
             end

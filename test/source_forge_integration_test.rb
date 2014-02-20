@@ -62,7 +62,7 @@ module PuppetLibrary
             cd start_dir
         end
 
-        it "queries, downloads and searches from a directory" do
+        it "services queries, downloads and searches from a directory containg a module's source" do
             add_file "Modulefile", <<-EOF
             name 'puppetlabs-ficticious'
             version '0.2.0'

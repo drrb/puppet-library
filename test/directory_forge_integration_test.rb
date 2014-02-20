@@ -62,7 +62,7 @@ module PuppetLibrary
             cd start_dir
         end
 
-        it "queries, downloads and searches from a directory" do
+        it "services queries, downloads and searches from a directory" do
             add_module("puppetlabs", "apache", "1.0.0") do |metadata|
                 metadata["dependencies"] << { "name" => "puppetlabs/concat", "version_requirement" => ">= 2.0.0" }
                 metadata["dependencies"] << { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 3.0.0" }
