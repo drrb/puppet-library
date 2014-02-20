@@ -43,7 +43,7 @@ module PuppetLibrary::Forge
             return nil unless this_module?(author, name, version)
             PuppetLibrary::Archive::Archiver.archive_dir(@module_dir, "#{author}-#{name}-#{version}") do |archive|
                 archive.add_file("metadata.json", 0644) do |entry|
-                    entry.write modulefile.to_metadata
+                    entry.write modulefile.to_metadata.to_json
                 end
             end
         end

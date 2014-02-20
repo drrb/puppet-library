@@ -67,7 +67,7 @@ module PuppetLibrary::Forge
                 end
                 it "generates the metadata file and includes it in the archive" do
                     buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
-                    expect(buffer).to be_tgz_with "puppetlabs-apache-1.0.0/metadata.json", /"version"=>"1.0.0"/
+                    expect(buffer).to be_tgz_with "puppetlabs-apache-1.0.0/metadata.json", /"version":"1.0.0"/
                 end
             end
         end

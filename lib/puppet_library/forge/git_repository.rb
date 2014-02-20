@@ -39,7 +39,7 @@ module PuppetLibrary::Forge
             on_tag_for(version) do
                 PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{@author}-#{@name}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
-                        entry.write modulefile.to_metadata
+                        entry.write modulefile.to_metadata.to_json
                     end
                 end
             end

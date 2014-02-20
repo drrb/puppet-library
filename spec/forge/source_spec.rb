@@ -95,7 +95,7 @@ module PuppetLibrary::Forge
                 it "generates a metadata file in the packaged application" do
                     buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
 
-                    expect(buffer).to be_tgz_with(/metadata.json/, /puppetlabs-apache/)
+                    expect(buffer).to be_tgz_with(/metadata.json/, /"name":"puppetlabs-apache"/)
                 end
             end
         end
