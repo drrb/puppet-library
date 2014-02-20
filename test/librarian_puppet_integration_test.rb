@@ -179,7 +179,7 @@ module PuppetLibrary
             # Download
             archive = open("http://localhost:9005/modules/puppetlabs-ficticious-0.2.0.tar.gz")
             expect(archive).to be_tgz_with /Modulefile/, /puppetlabs-ficticious/
-            expect(archive).to be_tgz_with /metadata.json/, /puppetlabs-ficticious/
+            expect(archive).to be_tgz_with /metadata.json/, /"name":"puppetlabs-ficticious"/
         end
     end
 
