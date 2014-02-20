@@ -160,16 +160,19 @@ end
 
 desc "Check all files for license headers"
 task "check-license" do
-    puts "Checking that all program files contain license headers"
+    print "Checking that all program files contain license headers"
 
     files = `git ls-files`.split "\n"
     ignored_files = File.read(".licenseignore").split("\n") << ".licenseignore"
     offending_files = files.reject { |file| File.read(file).include? "WITHOUT ANY WARRANTY" } - ignored_files
-    if offending_files.empty?
-        puts "Done"
+    ok = offending_files.empty?
+    result = if ok
+        "OK".green
     else
-        abort("ERROR: THE FOLLOWING FILES HAVE NO LICENSE HEADERS: \n" + offending_files.join("\n"))
+        "FAIL".red
     end
+    puts " [ #{result} ]"
+    abort("ERROR: THE FOLLOWING FILES HAVE NO LICENSE HEADERS: \n" + offending_files.join("\n")) unless ok
 end
 
 desc "Print the version number"
