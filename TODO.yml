@@ -2,9 +2,6 @@ features:
     - Web UI:
         - asynchronous (index page loads too slowly)
     - Proxy a git repository:
-        - make it threadsafe (checkouts into temp dirs)
-        - make the specs fast
-        - add an integration test
         - make it work with remote forges (clone and fetch on query/download)
         - make it fast (pre-clone repos on startup (maybe just warn if they can't be found). Maybe cache artifacts?)
     - logging
@@ -15,7 +12,6 @@ features:
         - clear proxy cache (web form and API)
         - delete modules from disk (web form)
     - Authentication
-    - Make imports work properly from pry, and other projects
 
 dubious_features:
     - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)
