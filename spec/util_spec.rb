@@ -20,6 +20,11 @@ require 'spec_helper'
 describe 'util' do
     describe Gem::Version do
         describe "#new" do
+            context "when the version number contains a dash" do
+                it "replaces the dash with '.pre.'" do
+                    expect(Gem::Version.new("1.0.0-rc1")).to eq Gem::Version.new("1.0.0.pre.rc1")
+                end
+            end
             context "when the version number has trailing garbage" do
                 it "uses the numbers at the beginning" do
                     expect(Gem::Version.new("123 xyz")).to eq Gem::Version.new("123")
@@ -28,6 +33,29 @@ describe 'util' do
             context "when the version is completely garbage" do
                 it "pretends the version number is zero" do
                     expect(Gem::Version.new("xyz")).to eq Gem::Version.new("0")
+                end
+            end
+        end
+    end
+    describe Gem::Dependency do
+        describe "#new" do
+            context "when the version contains a dash" do
+                it "replaces the dash with '.pre.'" do
+                    expect(Gem::Dependency.new("x", "1.0.0-rc1")).to eq Gem::Dependency.new("x", "1.0.0.pre.rc1")
+                end
+            end
+            context "when the version number has trailing garbage" do
+                it "uses the numbers at the beginning" do
+                    [ "", "~>", "<", ">", ">=", "<=", "=" ].each do |operator|
+                        expect(Gem::Dependency.new("x", " #{operator} 123 xyz")).to eq Gem::Dependency.new("x", "#{operator} 123")
+                    end
+                end
+            end
+            context "when the version is completely garbage" do
+                it "pretends the version number is greater than or equal zero" do
+                    [ "", "<", ">", ">=", "<=", "=" ].each do |operator|
+                        expect(Gem::Dependency.new("x", " #{operator} xyz")).to eq Gem::Dependency.new("x", ">= 0")
+                    end
                 end
             end
         end

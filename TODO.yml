@@ -17,9 +17,6 @@ features:
     - Authentication
     - Make imports work properly from pry, and other projects
 
-bugs:
-    - Problems with version numbers like 1.0.0-rc1 with early versions of RubyGems
-
 dubious_features:
     - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)
     - Make proxy cache TTL configurable

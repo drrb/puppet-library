@@ -17,18 +17,33 @@
 
 require 'rubygems/package'
 
+# Early versions of Rubygems have problems with version numbers with dashes
+# (e.g. "1.0.0-rc1"). This adds the behaviour or new RG versions to all
+# versions, hopefully without breaking newer versions. In most cases we want to
+# fail silently with bad version numbers so that we don't crash the server
+# because of weird stuff from a remote forge or elsewhere.
 module Gem
     def Version.new(version)
-        begin
-            super(version.to_s.gsub("-",".pre."))
-        rescue ArgumentError => e
-            # If it starts with numbers, use those
-            if version =~ /^\d+(\.\d+)*/
-                super(version[/^\d+(\.\d+)*/])
-            # Somebody's really made a mess of this version number
-            else
-                super("0")
-            end
+        super(version.to_s.gsub("-",".pre."))
+    rescue ArgumentError
+        # If it starts with numbers, use those
+        if version =~ /^\d+(\.\d+)*/
+            super(version[/^\d+(\.\d+)*/])
+        # Somebody's really made a mess of this version number
+        else
+            super("0")
+        end
+    end
+
+    def Dependency.new(name, spec)
+        super(name, spec.to_s.gsub("-", ".pre."))
+    rescue Gem::Requirement::BadRequirementError
+        # If it starts with numbers, use those
+        if spec =~ /^([~><= ]+)?\d+(\.\d+)*/
+            super(name, spec[/^([~><= ]+)?\d+(\.\d+)*/])
+        # Somebody's really made a mess of this version number
+        else
+            super(name, ">= 0")
         end
     end
 end
