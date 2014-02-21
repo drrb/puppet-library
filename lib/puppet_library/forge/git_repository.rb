@@ -15,8 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
-require 'rubygems/package'
 require 'zlib'
+require 'open3'
+require 'rubygems/package'
 require 'puppet_library/forge/abstract'
 
 module PuppetLibrary::Forge
@@ -83,20 +84,13 @@ module PuppetLibrary::Forge
 
         def on_tag(tag, &block)
             git "checkout #{tag}"
-            in_dir(@path, &block)
-        end
-
-        def in_dir(dir)
-            origin = Dir.pwd
-            Dir.chdir dir
-            yield
-        ensure
-            Dir.chdir origin
+            Dir.chdir(@path, &block)
         end
 
         def git(command)
-            #TODO: redirection will fail on windows. How do we properly discard stderr?
-            IO.popen("git --git-dir=#{@path}/.git --work-tree=#{@path} #{command} 2>/dev/null").read
+            Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{@path} #{command}") do |stdin, stdout, stderr, thread|
+                stdout.read
+            end
         end
     end
 end
