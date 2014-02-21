@@ -15,14 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'spec_helper'
+
 module PuppetLibrary
-    require 'puppet_library/archive'
-    require 'puppet_library/forge'
-    require 'puppet_library/http'
-    require 'puppet_library/puppet_library'
-    require 'puppet_library/puppet_module'
-    require 'puppet_library/server'
-    require 'puppet_library/util'
-    require 'puppet_library/temp_dir'
-    require 'puppet_library/version'
+    describe TempDir do
+        describe "#use" do
+            it "creates a directory and changes to it for the life of the block" do
+                dir_path = nil
+                dir_existed_in_block = false
+                TempDir.use("xxx") do |path|
+                    dir_existed_in_block = File.directory? path
+                    dir_path = path
+                end
+                expect(dir_existed_in_block).to be_true
+                expect(File.exist? dir_path).to be_false
+            end
+        end
+    end
 end

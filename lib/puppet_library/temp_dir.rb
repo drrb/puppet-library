@@ -15,14 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'fileutils'
+
 module PuppetLibrary
-    require 'puppet_library/archive'
-    require 'puppet_library/forge'
-    require 'puppet_library/http'
-    require 'puppet_library/puppet_library'
-    require 'puppet_library/puppet_module'
-    require 'puppet_library/server'
-    require 'puppet_library/util'
-    require 'puppet_library/temp_dir'
-    require 'puppet_library/version'
+    class TempDir
+        attr_reader :path
+
+        def self.use(name, &block)
+            path = create(name)
+            Dir.chdir(path, &block)
+        ensure
+            FileUtils.rm_rf path
+        end
+
+        def self.create(name)
+            TempDir.new(name).path
+        end
+
+        def initialize(name)
+            file = Tempfile.new(name)
+            @path = file.path
+            file.unlink
+            FileUtils.mkdir @path
+        end
+    end
 end

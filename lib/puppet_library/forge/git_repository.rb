@@ -19,6 +19,7 @@ require 'zlib'
 require 'open3'
 require 'rubygems/package'
 require 'puppet_library/forge/abstract'
+require 'puppet_library/temp_dir'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
@@ -28,6 +29,7 @@ module PuppetLibrary::Forge
             @name = name
             @path = File.expand_path(git_path)
             @version_tag_regex = version_tag_regex
+            @git = Git.new(git_path)
         end
 
         def get_module(author, name, version)
@@ -37,7 +39,6 @@ module PuppetLibrary::Forge
             unless tags.include? tag_name(version)
                 return nil
             end
-            # TODO: this isn't threadsafe. We'll need checkouts for each request.
             on_tag_for(version) do
                 PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{@author}-#{@name}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
@@ -62,34 +63,55 @@ module PuppetLibrary::Forge
 
         private
         def tags
-            git("tag").split.select {|tag| tag =~ @version_tag_regex }
+            @git.tags.select {|tag| tag =~ @version_tag_regex }
         end
 
         def modulefile_for_tag(tag)
-            modulefile_source = git("show refs/tags/#{tag}:Modulefile")
+            modulefile_source = @git.read_file("Modulefile", tag)
             PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
         end
 
         def modulefile
-            modulefile_path = File.join(@path, "Modulefile")
-            PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
+            modulefile_source = @git.read_file("Modulefile")
+            PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+        end
+
+        def on_tag_for(version, &block)
+            @git.on_tag(tag_name(version), &block)
         end
 
         def tag_name(version)
             version
         end
+    end
 
-        def on_tag_for(version, &block)
-            on_tag(tag_name(version), &block)
+    class Git
+        def initialize(path)
+            @path = path
+        end
+
+        def tags
+            git("tag").split
         end
 
         def on_tag(tag, &block)
-            git "checkout #{tag}"
-            Dir.chdir(@path, &block)
+            PuppetLibrary::TempDir.use "git" do |path|
+                git "checkout #{tag}", path
+                yield
+            end
         end
 
-        def git(command)
-            Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{@path} #{command}") do |stdin, stdout, stderr, thread|
+        def read_file(path, tag = nil)
+            if tag.nil?
+                File.read(File.join(@path, path))
+            else
+                git "show refs/tags/#{tag}:#{path}"
+            end
+        end
+
+        def git(command, work_tree = nil)
+            work_tree = @path unless work_tree
+            Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
                 stdout.read
             end
         end
