@@ -37,7 +37,7 @@ module Gem
 
     def Dependency.new(name, spec)
         super(name, spec.to_s.gsub("-", ".pre."))
-    rescue Gem::Requirement::BadRequirementError
+    rescue ArgumentError
         # If it starts with numbers, use those
         if spec =~ /^([~><= ]+)?\d+(\.\d+)*/
             super(name, spec[/^([~><= ]+)?\d+(\.\d+)*/])
