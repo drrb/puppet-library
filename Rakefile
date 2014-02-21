@@ -17,7 +17,6 @@
 
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
-require 'coveralls/rake/task'
 require 'json'
 require 'yaml'
 require 'net/http'
@@ -61,7 +60,16 @@ rescue
     return true
 end
 
-Coveralls::RakeTask.new
+if RUBY_VERSION.start_with? "1.8"
+    namespace :coveralls do
+        task :push do
+            puts "Skipping Coverage pushing because this Ruby version doesn't support it"
+        end
+    end
+else
+    require 'coveralls/rake/task'
+    Coveralls::RakeTask.new
+end
 
 desc "Run the specs"
 RSpec::Core::RakeTask.new(:spec)
