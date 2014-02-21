@@ -73,10 +73,6 @@ module PuppetLibrary::Forge
             PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
         end
 
-        def package_name(version)
-            "#{@author}-#{@name}-#{version}.tar.gz"
-        end
-
         def tag_name(version)
             version
         end
