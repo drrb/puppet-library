@@ -102,7 +102,7 @@ end
 task :default => [:test, 'coveralls:push']
 
 desc "Check it works on all local rubies"
-task :verify => 'test-imports' do
+task :verify => [ 'check-license', 'test-imports' ] do
     versions = SUPPORTED_RUBY_VERSIONS
     puts "\nRunning Specs".green
     spec_results = versions.map do |ruby_version|
@@ -122,13 +122,18 @@ task :verify => 'test-imports' do
         system "rvm #{ruby_version} do bundle exec rake features"
     end
 
+    gem_versions = versions.map do |ruby_version|
+        `rvm #{ruby_version} do gem --version`.strip
+    end
+
     puts "\nResults:\n".green
-    results = [ spec_results, integration_test_results, acceptance_test_results ].transpose
-    puts "+---------+-------+-------+-------+"
-    puts "| Version | Specs |  ITs  |  ATs  |"
-    puts "+---------+-------+-------+-------+"
-    versions.zip(results).each do |(version, (spec_result, integration_test_result, acceptance_test_result))|
+    results = [ gem_versions, spec_results, integration_test_results, acceptance_test_results ].transpose
+    puts "+---------+----------+-------+-------+-------+"
+    puts "| Version | Gem Ver. | Specs |  ITs  |  ATs  |"
+    puts "+---------+----------+-------+-------+-------+"
+    versions.zip(results).each do |(version, (gem_version, spec_result, integration_test_result, acceptance_test_result))|
         v = version.ljust(7)
+        g = gem_version.ljust(8)
         s = spec_result ? "pass".green : "fail".red
         if ruby_version_supports_integration_test? version
             i = integration_test_result ? "pass".green : "fail".red
@@ -141,9 +146,9 @@ task :verify => 'test-imports' do
         else
             a = "skip".yellow
         end
-        puts "| #{v} | #{s}  | #{i}  | #{a}  |"
+        puts "| #{v} | #{g} | #{s}  | #{i}  | #{a}  |"
     end
-    puts "+---------+-------+-------+-------+"
+    puts "+---------+----------+-------+-------+-------+"
 
     versions.zip(results).each do |(version, (spec_result, integration_test_result))|
         unless spec_result
@@ -203,8 +208,7 @@ end
 
 desc "Import files individually to make sure they can be imported externally"
 task "test-imports" do
-    puts "Testing imports"
-    puts
+    puts "Testing imports:"
     Dir.chdir "lib"
 
     paths = Dir["**/*.rb"].map {|f| f.sub /\.rb$/, "" }
@@ -212,7 +216,7 @@ task "test-imports" do
     errors = []
     paths.each do |path|
         print "importing #{path}..."
-        output = `ruby -e '$LOAD_PATH.unshift(File.expand_path(".")); require "#{path}"' 2>&1`
+        output = `bundle exec ruby -e '$LOAD_PATH.unshift(File.expand_path(".")); require "#{path}"' 2>&1`
         print " ["
         if $?.success?
             print "OK".green
