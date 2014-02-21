@@ -15,21 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'spec_helper'
+require 'fileutils'
 
-module PuppetLibrary
-    describe TempDir do
-        describe "#use" do
-            it "creates a directory and changes to it for the life of the block" do
-                dir_path = nil
-                dir_existed_in_block = false
-                TempDir.use("xxx") do |path|
-                    dir_existed_in_block = File.directory? path
-                    dir_path = path
-                end
-                expect(dir_existed_in_block).to be_true
-                expect(File.exist? dir_path).to be_false
-            end
+module PuppetLibrary::Util
+    class TempDir
+        attr_reader :path
+
+        def self.use(name, &block)
+            path = create(name)
+            Dir.chdir(path, &block)
+        ensure
+            FileUtils.rm_rf path
+        end
+
+        def self.create(name)
+            TempDir.new(name).path
+        end
+
+        def initialize(name)
+            file = Tempfile.new(name)
+            @path = file.path
+            file.unlink
+            FileUtils.mkdir @path
         end
     end
 end

@@ -19,7 +19,7 @@ require 'zlib'
 require 'open3'
 require 'rubygems/package'
 require 'puppet_library/forge/abstract'
-require 'puppet_library/temp_dir'
+require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
@@ -95,7 +95,7 @@ module PuppetLibrary::Forge
         end
 
         def on_tag(tag, &block)
-            PuppetLibrary::TempDir.use "git" do |path|
+            PuppetLibrary::Util::TempDir.use "git" do |path|
                 git "checkout #{tag}", path
                 yield
             end

@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 
-describe 'util' do
+describe 'patches' do
     describe Gem::Version do
         describe "#new" do
             context "when the version number contains a dash" do

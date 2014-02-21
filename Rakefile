@@ -171,6 +171,10 @@ task :verify => [ 'check-license', 'test-imports' ] do
     end
 end
 
+desc "Run simple checks"
+task :check => [ "check-license", "test-imports" ]do
+end
+
 desc "Check all files for license headers"
 task "check-license" do
     print "Checking that all program files contain license headers"

@@ -23,6 +23,5 @@ module PuppetLibrary
     require 'puppet_library/puppet_module'
     require 'puppet_library/server'
     require 'puppet_library/util'
-    require 'puppet_library/temp_dir'
     require 'puppet_library/version'
 end
