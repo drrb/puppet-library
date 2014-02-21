@@ -37,6 +37,7 @@ module PuppetLibrary::Forge
             unless tags.include? tag_name(version)
                 return nil
             end
+            # TODO: this isn't threadsafe. We'll need checkouts for each request.
             on_tag_for(version) do
                 PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{@author}-#{@name}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
@@ -46,6 +47,10 @@ module PuppetLibrary::Forge
             end
         end
 
+        def get_all_metadata
+            get_metadata(@author, @name)
+        end
+
         def get_metadata(author, module_name)
             unless author == @author && module_name == @name
                 return []
@@ -53,10 +58,6 @@ module PuppetLibrary::Forge
             tags.map do |tag|
                 modulefile_for_tag(tag).to_metadata
             end
-        end
-
-        def get_all_metadata
-            get_metadata(@author, @name)
         end
 
         private
