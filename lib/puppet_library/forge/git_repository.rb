@@ -19,7 +19,7 @@ require 'zlib'
 require 'open3'
 require 'rubygems/package'
 require 'puppet_library/forge/abstract'
-require 'puppet_library/util/temp_dir'
+require 'puppet_library/util/git'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
@@ -29,7 +29,7 @@ module PuppetLibrary::Forge
             @name = name
             @path = File.expand_path(git_path)
             @version_tag_regex = version_tag_regex
-            @git = Git.new(git_path)
+            @git = PuppetLibrary::Util::Git.new(git_path)
         end
 
         def get_module(author, name, version)
@@ -82,38 +82,6 @@ module PuppetLibrary::Forge
 
         def tag_name(version)
             version
-        end
-    end
-
-    class Git
-        def initialize(path)
-            @path = path
-        end
-
-        def tags
-            git("tag").split
-        end
-
-        def on_tag(tag, &block)
-            PuppetLibrary::Util::TempDir.use "git" do |path|
-                git "checkout #{tag}", path
-                yield
-            end
-        end
-
-        def read_file(path, tag = nil)
-            if tag.nil?
-                File.read(File.join(@path, path))
-            else
-                git "show refs/tags/#{tag}:#{path}"
-            end
-        end
-
-        def git(command, work_tree = nil)
-            work_tree = @path unless work_tree
-            Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
-                stdout.read
-            end
         end
     end
 end

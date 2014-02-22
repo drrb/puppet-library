@@ -18,5 +18,6 @@
 module PuppetLibrary::Util
 end
 
+require 'puppet_library/util/git'
 require 'puppet_library/util/patches'
 require 'puppet_library/util/temp_dir'
