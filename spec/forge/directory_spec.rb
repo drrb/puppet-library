@@ -45,6 +45,10 @@ module PuppetLibrary::Forge
                     chmod 0400, module_dir
                 end
 
+                after do
+                    chmod 0777, module_dir
+                end
+
                 it "raises an error" do
                     expect {
                         Directory.new(module_dir)

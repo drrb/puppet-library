@@ -22,14 +22,21 @@ module PuppetLibrary::Archive
             ArchiveReader.new(archive)
         end
 
+        let :source_dir do
+            Tempdir.create("zipping")
+        end
+
         let :archive do
-            dir = Tempdir.create("zipping")
-            archive = File.join(dir, "archive.tgz")
+            archive = File.join(source_dir, "archive.tgz")
             write_tar_gzip!(archive) do |zip|
                 zip.add_file("arrive.txt", 0644) { |entry| entry.write "say hello" }
                 zip.add_file("later/depart.txt", 0644) { |entry| entry.write "say bye" }
             end
             archive
+        end
+
+        after do
+            rm_rf source_dir
         end
 
         def write_tar_gzip!(file_name)

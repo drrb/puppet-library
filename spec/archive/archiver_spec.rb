@@ -34,6 +34,10 @@ module PuppetLibrary::Archive
                 write_file! "later/depart.txt", "say bye"
             end
 
+            after do
+                rm_rf dir
+            end
+
             it "tars and gzips a directory and its contents" do
                 buffer = Archiver.archive_dir(dir, "todo")
 
