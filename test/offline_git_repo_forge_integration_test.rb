@@ -20,7 +20,7 @@ require 'integration_test_helper'
 require 'open-uri'
 
 module PuppetLibrary
-    describe "git repo forge" do
+    describe "offline git repo forge" do
         @@repo_path = Tempdir.create("git-repo")
         @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
         @@tags = @@versions + [ "xxx" ]
@@ -57,6 +57,7 @@ module PuppetLibrary
 
         include ModuleSpecHelper
 
+        let(:port) { Ports.next! }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
         let(:git_forge) { Forge::GitRepository.new(@@repo_path, /^[0-9.]+/) }
@@ -69,7 +70,7 @@ module PuppetLibrary
             Rack::Server.new(
                 :app => git_server,
                 :Host => "localhost",
-                :Port => 9003,
+                :Port => port,
                 :server => "webrick"
             )
         end
@@ -96,7 +97,7 @@ module PuppetLibrary
 
         it "services queries, downloads and searches from a git repository" do
             write_puppetfile <<-EOF
-                forge 'http://localhost:9003'
+                forge 'http://localhost:#{port}'
                 mod 'puppetlabs/apache'
             EOF
 
@@ -105,13 +106,13 @@ module PuppetLibrary
             expect("apache").to be_installed
 
             # Search
-            search_results = JSON.parse(open("http://localhost:9003/modules.json").read)
+            search_results = JSON.parse(open("http://localhost:#{port}/modules.json").read)
             apache_result = search_results.first
             expect(apache_result["full_name"]).to eq "puppetlabs/apache"
             expect(apache_result["releases"]).to eq [{"version"=>"1.0.0"}, {"version"=>"1.0.0-rc1"}, {"version"=>"0.9.0"}]
 
             # Download
-            archive = open("http://localhost:9003/modules/puppetlabs-apache-0.9.0.tar.gz")
+            archive = open("http://localhost:#{port}/modules/puppetlabs-apache-0.9.0.tar.gz")
             expect(archive).to be_tgz_with /Modulefile/, /puppetlabs-apache/
             expect(archive).to be_tgz_with /metadata.json/, /"name":"puppetlabs-apache"/
         end

@@ -23,6 +23,8 @@ module PuppetLibrary
     describe "offline proxy", :no_1_8 => true do
         include ModuleSpecHelper
 
+        let(:proxy_port) { Ports.next! }
+        let(:disk_port) { Ports.next! }
         let(:module_dir) { Tempdir.create("module_dir") }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:cache_dir) { Tempdir.create("cache_dir") }
@@ -37,7 +39,7 @@ module PuppetLibrary
             Rack::Server.new(
                 :app => disk_server,
                 :Host => "localhost",
-                :Port => 9000,
+                :Port => disk_port,
                 :server => "webrick"
             )
         end
@@ -46,7 +48,7 @@ module PuppetLibrary
                 disk_rack_server.start
             end
         end
-        let(:proxy_forge) { Forge::Cache.new("http://localhost:9000", cache_dir) }
+        let(:proxy_forge) { Forge::Cache.new("http://localhost:#{disk_port}", cache_dir) }
         let(:proxy_server) do
             Server.set_up do |server|
                 server.forge proxy_forge
@@ -56,7 +58,7 @@ module PuppetLibrary
             Rack::Server.new(
                 :app => proxy_server,
                 :Host => "localhost",
-                :Port => 9001,
+                :Port => proxy_port,
                 :server => "webrick"
             )
         end
@@ -94,7 +96,7 @@ module PuppetLibrary
             add_module("puppetlabs", "stdlib", "3.0.0")
 
             write_puppetfile <<-EOF
-                forge 'http://localhost:9001'
+                forge 'http://localhost:#{proxy_port}'
                 mod 'puppetlabs/apache'
             EOF
 
@@ -109,7 +111,7 @@ module PuppetLibrary
             expect("puppetlabs-stdlib-3.0.0.tar.gz").to be_cached
 
             # Search through the proxy
-            search_results = JSON.parse(open("http://localhost:9001/modules.json").read)
+            search_results = JSON.parse(open("http://localhost:#{proxy_port}/modules.json").read)
             found_modules = Hash[search_results.map do |result|
                 [ result["full_name"], result["version"] ]
             end]

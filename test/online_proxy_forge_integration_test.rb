@@ -23,6 +23,7 @@ module PuppetLibrary
     describe "online proxy", :online => true do
         include ModuleSpecHelper
 
+        let(:port) { Ports.next! }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:module_dir) { Tempdir.create("module_dir") }
         let(:cache_dir) { Tempdir.create("cache_dir") }
@@ -37,7 +38,7 @@ module PuppetLibrary
             Rack::Server.new(
                 :app => proxy_server,
                 :Host => "localhost",
-                :Port => 9002,
+                :Port => port,
                 :server => "webrick"
             )
         end
@@ -70,7 +71,7 @@ module PuppetLibrary
             end
 
             write_puppetfile <<-EOF
-                forge 'http://localhost:9002'
+                forge 'http://localhost:#{port}'
                 mod 'drrb/tomcat'
             EOF
 

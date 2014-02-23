@@ -14,38 +14,90 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'fileutils'
+require 'monitor'
+require 'time'
 require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Util
     class Git
-        def initialize(path)
-            @path = path
+        DEFAULT_CACHE_TTL_SECONDS = 10
+        def initialize(source, cache_path, cache_ttl_seconds = DEFAULT_CACHE_TTL_SECONDS)
+            @source = source
+            @cache_path = File.expand_path(cache_path)
+            @cache_ttl_seconds = cache_ttl_seconds
+            @git_dir = "#{@cache_path}/.git"
+            @mutex = Monitor.new
+        end
+
+        def clear_cache!
+            @mutex.synchronize do
+                FileUtils.rm_rf @cache_path
+            end
+        end
+
+        def update_cache!
+            create_cache unless cache_exists?
+            update_cache if cache_stale?
         end
 
         def tags
+            update_cache!
             git("tag").split
         end
 
         def on_tag(tag)
+            update_cache!
             PuppetLibrary::Util::TempDir.use "git" do |path|
                 git "checkout #{tag}", path
                 yield
             end
         end
 
-        def read_file(path, tag = nil)
-            if tag.nil?
-                File.read(File.join(@path, path))
-            else
-                git "show refs/tags/#{tag}:#{path}"
+        def read_file(path, tag)
+            update_cache!
+            git "show refs/tags/#{tag}:#{path}"
+        end
+
+        private
+        def git(command, work_tree = nil)
+            work_tree = @cache_path unless work_tree
+            Open3.popen3("git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
+                stdout.read
             end
         end
 
-        def git(command, work_tree = nil)
-            work_tree = @path unless work_tree
-            Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
-                stdout.read
+        def create_cache
+            @mutex.synchronize do
+                git "clone --bare #{@source} #{@git_dir}" unless cache_exists?
+                FileUtils.touch fetch_file
             end
+        end
+
+        def update_cache
+            @mutex.synchronize do
+                git "fetch --tags"
+            end
+        end
+
+        def cache_exists?
+            File.directory? @git_dir
+        end
+
+        def cache_stale?
+            Time.now - last_fetch > @cache_ttl_seconds
+        end
+
+        def last_fetch
+            if File.exist? fetch_file
+                File.stat(fetch_file).mtime
+            else
+                Time.new(0)
+            end
+        end
+
+        def fetch_file
+            "#{@git_dir}/FETCH_HEAD"
         end
     end
 end

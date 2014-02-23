@@ -20,76 +20,68 @@ require 'integration_test_helper'
 require 'open-uri'
 
 module PuppetLibrary
-    describe "directory forge" do
+    describe "online git repo forge", :online => true do
+
         include ModuleSpecHelper
 
         let(:port) { Ports.next! }
-        let(:module_dir) { Tempdir.create("module_dir") }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
-        let(:disk_forge) { Forge::Directory.new(module_dir) }
-        let(:disk_server) do
+        let(:git_forge) { Forge::GitRepository.new("https://github.com/puppetlabs/puppetlabs-stdlib.git", /^[0-9.]+/) }
+        let(:git_server) do
             Server.set_up do |server|
-                server.forge disk_forge
+                server.forge git_forge
             end
         end
-        let(:disk_rack_server) do
+        let(:git_rack_server) do
             Rack::Server.new(
-                :app => disk_server,
+                :app => git_server,
                 :Host => "localhost",
                 :Port => port,
                 :server => "webrick"
             )
         end
-        let(:disk_server_runner) do
+        let(:git_server_runner) do
             Thread.new do
-                disk_rack_server.start
+                git_rack_server.start
             end
         end
 
         before do
             # Initialize to catch wiring errors
-            disk_rack_server
+            git_rack_server
 
             # Start the servers
-            disk_server_runner
+            git_server_runner
             start_dir
             cd project_dir
         end
 
         after do
-            rm_rf module_dir
             rm_rf project_dir
             cd start_dir
         end
 
-        it "services queries, downloads and searches from a directory" do
-            add_module("puppetlabs", "apache", "1.0.0") do |metadata|
-                metadata["dependencies"] << { "name" => "puppetlabs/concat", "version_requirement" => ">= 2.0.0" }
-                metadata["dependencies"] << { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 3.0.0" }
-            end
-            add_module("puppetlabs", "concat", "2.0.0")
-            add_module("puppetlabs", "stdlib", "3.0.0")
-
+        it "services queries, downloads and searches from a git repository" do
             write_puppetfile <<-EOF
                 forge 'http://localhost:#{port}'
-                mod 'puppetlabs/apache'
+                mod 'puppetlabs/stdlib'
             EOF
 
             # Install modules
             system "librarian-puppet install" or fail "call to puppet-library failed"
-            expect("apache").to be_installed
-            expect("concat").to be_installed
             expect("stdlib").to be_installed
 
             # Search
             search_results = JSON.parse(open("http://localhost:#{port}/modules.json").read)
-            found_modules = Hash[search_results.map do |result|
-                [ result["full_name"], result["version"] ]
-            end]
-            expect(found_modules["puppetlabs/apache"]).to eq "1.0.0"
-            expect(found_modules["puppetlabs/concat"]).to eq "2.0.0"
-            expect(found_modules["puppetlabs/stdlib"]).to eq "3.0.0"
+            stdlib_result = search_results.first
+            expect(stdlib_result["full_name"]).to eq "puppetlabs/stdlib"
+            expect(stdlib_result["releases"]).to include({"version"=>"4.0.2"})
+
+            # Download
+            archive = open("http://localhost:#{port}/modules/puppetlabs-stdlib-4.0.2.tar.gz")
+            expect(archive).to be_tgz_with /Modulefile/, /puppetlabs-stdlib/
+            expect(archive).to be_tgz_with /metadata.json/, /"name":"puppetlabs-stdlib"/
         end
     end
 end

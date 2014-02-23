@@ -24,22 +24,18 @@ require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
-        def initialize(url, version_tag_regex)
+        def initialize(source, version_tag_regex)
             super(self)
-            @url = url
-            @path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
+            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
             @version_tag_regex = version_tag_regex
-            @git = PuppetLibrary::Util::Git.new(@path)
-            @mutex = Mutex.new
+            @git = PuppetLibrary::Util::Git.new(source, cache_path)
         end
 
         def destroy!
-            FileUtils.rm_rf @path
+            @git.clear_cache!
         end
 
         def get_module(author, name, version)
-            update_cache
-
             return nil unless tags.include? tag_for(version)
 
             metadata = modulefile_for(version).to_metadata
@@ -55,7 +51,6 @@ module PuppetLibrary::Forge
         end
 
         def get_all_metadata
-            update_cache
             tags.map do |tag|
                 modulefile_for_tag(tag).to_metadata
             end
@@ -70,18 +65,6 @@ module PuppetLibrary::Forge
         end
 
         private
-        def update_cache
-            puts "Updating git repo cache"
-            @mutex.synchronize do
-                if File.directory? "#{@path}/.git"
-                    puts "    Cache already exists: fetching updates from #{@url}"
-                    @git.git "fetch --tags"
-                else
-                    puts "    No cache yet: creating one in #{@path}"
-                    @git.git "clone --bare #{@url} #{@path}/.git"
-                end
-            end
-        end
 
         def tags
             @git.tags.select {|tag| tag =~ @version_tag_regex }

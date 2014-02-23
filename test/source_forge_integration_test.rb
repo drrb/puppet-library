@@ -23,6 +23,7 @@ module PuppetLibrary
     describe "source forge" do
         include ModuleSpecHelper
 
+        let(:port) { Ports.next! }
         let(:module_dir) { Tempdir.create("module_dir") }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
@@ -36,7 +37,7 @@ module PuppetLibrary
             Rack::Server.new(
                 :app => source_server,
                 :Host => "localhost",
-                :Port => 9005,
+                :Port => port,
                 :server => "webrick"
             )
         end
@@ -71,7 +72,7 @@ module PuppetLibrary
             EOF
 
             write_puppetfile <<-EOF
-                forge 'http://localhost:9005'
+                forge 'http://localhost:#{port}'
                 mod 'puppetlabs/ficticious'
             EOF
 
@@ -80,14 +81,14 @@ module PuppetLibrary
             expect("ficticious").to be_installed
 
             # Search
-            search_results = JSON.parse(open("http://localhost:9005/modules.json").read)
+            search_results = JSON.parse(open("http://localhost:#{port}/modules.json").read)
             found_modules = Hash[search_results.map do |result|
                 [ result["full_name"], result["version"] ]
             end]
             expect(found_modules["puppetlabs/ficticious"]).to eq "0.2.0"
 
             # Download
-            archive = open("http://localhost:9005/modules/puppetlabs-ficticious-0.2.0.tar.gz")
+            archive = open("http://localhost:#{port}/modules/puppetlabs-ficticious-0.2.0.tar.gz")
             expect(archive).to be_tgz_with /Modulefile/, /puppetlabs-ficticious/
             expect(archive).to be_tgz_with /metadata.json/, /"name":"puppetlabs-ficticious"/
         end

@@ -33,3 +33,10 @@ def write_puppetfile(content)
     end
 end
 
+
+module Ports
+    def self.next!
+        @port ||= 9000
+        @port += 1
+    end
+end
