@@ -53,6 +53,9 @@ module PuppetLibrary::Forge
         end
 
         let(:forge) { GitRepository.new(@@repo_path, /[0-9.]+/) }
+        after do
+            forge.destroy!
+        end
 
         describe "#get_module" do
             context "when the requested author is different from the configured author" do

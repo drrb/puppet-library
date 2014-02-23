@@ -41,7 +41,6 @@ module PuppetLibrary::Util
             end
         end
 
-        private
         def git(command, work_tree = nil)
             work_tree = @path unless work_tree
             Open3.popen3("git --git-dir=#{@path}/.git --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|

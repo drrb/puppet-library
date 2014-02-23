@@ -20,24 +20,33 @@ require 'open3'
 require 'rubygems/package'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/util/git'
+require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
-        def initialize(git_path, version_tag_regex)
+        def initialize(url, version_tag_regex)
             super(self)
-            @path = File.expand_path(git_path)
+            @url = url
+            @path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
             @version_tag_regex = version_tag_regex
             @git = PuppetLibrary::Util::Git.new(@path)
+            @mutex = Mutex.new
+        end
+
+        def destroy!
+            FileUtils.rm_rf @path
         end
 
         def get_module(author, name, version)
+            update_cache
+
             return nil unless tags.include? tag_for(version)
 
             metadata = modulefile_for(version).to_metadata
             return nil unless metadata["name"] == "#{author}-#{name}"
 
             on_tag_for(version) do
-                PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{metadata["name"]}-#{version}") do |archive|
+                PuppetLibrary::Archive::Archiver.archive_dir('.', "#{metadata["name"]}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
                         entry.write metadata.to_json
                     end
@@ -46,6 +55,7 @@ module PuppetLibrary::Forge
         end
 
         def get_all_metadata
+            update_cache
             tags.map do |tag|
                 modulefile_for_tag(tag).to_metadata
             end
@@ -60,6 +70,19 @@ module PuppetLibrary::Forge
         end
 
         private
+        def update_cache
+            puts "Updating git repo cache"
+            @mutex.synchronize do
+                if File.directory? "#{@path}/.git"
+                    puts "    Cache already exists: fetching updates from #{@url}"
+                    @git.git "fetch --tags"
+                else
+                    puts "    No cache yet: creating one in #{@path}"
+                    @git.git "clone --bare #{@url} #{@path}/.git"
+                end
+            end
+        end
+
         def tags
             @git.tags.select {|tag| tag =~ @version_tag_regex }
         end
