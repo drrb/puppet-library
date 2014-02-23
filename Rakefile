@@ -158,15 +158,17 @@ task :verify => [ 'check-license', 'test-imports' ] do
     end
     puts "+---------+----------+-------+-------+-------+"
 
-    versions.zip(results).each do |(version, (spec_result, integration_test_result))|
+    versions.zip(results).each do |(version, (gem_version, spec_result, integration_test_result, acceptance_test_result))|
         unless spec_result
             fail "Specs failed with Ruby #{version}"
         end
 
-        if ruby_version_supports_integration_test?(version)
-            unless integration_test_result
-                fail "Integration tests failed with Ruby #{version}"
-            end
+        unless integration_test_result
+            fail "Integration tests failed with Ruby #{version}"
+        end
+
+        unless acceptance_test_result
+            fail "Acceptance tests failed with Ruby #{version}"
         end
     end
 end
