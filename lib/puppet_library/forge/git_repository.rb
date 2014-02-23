@@ -23,41 +23,39 @@ require 'puppet_library/util/git'
 
 module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
-        def initialize(author, name, version_tag_regex, git_path)
+        def initialize(git_path, version_tag_regex)
             super(self)
-            @author = author
-            @name = name
             @path = File.expand_path(git_path)
             @version_tag_regex = version_tag_regex
-            @git = PuppetLibrary::Util::Git.new(git_path)
+            @git = PuppetLibrary::Util::Git.new(@path)
         end
 
         def get_module(author, name, version)
-            unless author == @author && name == @name
-                return nil
-            end
-            unless tags.include? tag_name(version)
-                return nil
-            end
+            return nil unless tags.include? tag_for(version)
+
+            metadata = modulefile_for(version).to_metadata
+            return nil unless metadata["name"] == "#{author}-#{name}"
+
             on_tag_for(version) do
-                PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{@author}-#{@name}-#{version}") do |archive|
+                PuppetLibrary::Archive::Archiver.archive_dir(@path, "#{metadata["name"]}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
-                        entry.write modulefile.to_metadata.to_json
+                        entry.write metadata.to_json
                     end
                 end
             end
         end
 
         def get_all_metadata
-            get_metadata(@author, @name)
+            tags.map do |tag|
+                modulefile_for_tag(tag).to_metadata
+            end
         end
 
         def get_metadata(author, module_name)
-            unless author == @author && module_name == @name
-                return []
-            end
-            tags.map do |tag|
-                modulefile_for_tag(tag).to_metadata
+            metadata = get_all_metadata
+            metadata.select do |m|
+                m["author"] == author
+                m["name"] == "#{author}-#{module_name}"
             end
         end
 
@@ -71,16 +69,15 @@ module PuppetLibrary::Forge
             PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
         end
 
-        def modulefile
-            modulefile_source = @git.read_file("Modulefile")
-            PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+        def modulefile_for(version)
+            modulefile_for_tag(tag_for(version))
         end
 
         def on_tag_for(version, &block)
-            @git.on_tag(tag_name(version), &block)
+            @git.on_tag(tag_for(version), &block)
         end
 
-        def tag_name(version)
+        def tag_for(version)
             version
         end
     end

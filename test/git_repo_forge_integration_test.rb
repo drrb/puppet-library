@@ -20,7 +20,7 @@ require 'integration_test_helper'
 require 'open-uri'
 
 module PuppetLibrary
-    describe "source forge" do
+    describe "git repo forge" do
         @@repo_path = Tempdir.create("git-repo")
         @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
         @@tags = @@versions + [ "xxx" ]
@@ -59,7 +59,7 @@ module PuppetLibrary
 
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
-        let(:git_forge) { Forge::GitRepository.new("puppetlabs", "apache", /^[0-9.]+/, @@repo_path) }
+        let(:git_forge) { Forge::GitRepository.new(@@repo_path, /^[0-9.]+/) }
         let(:git_server) do
             Server.set_up do |server|
                 server.forge git_forge

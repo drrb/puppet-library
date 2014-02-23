@@ -52,7 +52,7 @@ module PuppetLibrary::Forge
             rm_rf @@repo_path
         end
 
-        let(:forge) { GitRepository.new("puppetlabs", "apache", /[0-9.]+/, @@repo_path) }
+        let(:forge) { GitRepository.new(@@repo_path, /[0-9.]+/) }
 
         describe "#get_module" do
             context "when the requested author is different from the configured author" do
