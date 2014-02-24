@@ -85,7 +85,7 @@ module PuppetLibrary::Util
             if File.exist? fetch_file
                 File.stat(fetch_file).mtime
             else
-                Time.new(0)
+                Time.at(0)
             end
         end
 
