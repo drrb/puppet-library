@@ -26,19 +26,8 @@ module PuppetLibrary::Util
             @source = source
             @cache_path = File.expand_path(cache_path)
             @cache_ttl_seconds = cache_ttl_seconds
-            @git_dir = "#{@cache_path}/.git"
+            @git_dir = File.join(@cache_path, ".git")
             @mutex = Monitor.new
-        end
-
-        def clear_cache!
-            @mutex.synchronize do
-                FileUtils.rm_rf @cache_path
-            end
-        end
-
-        def update_cache!
-            create_cache unless cache_exists?
-            update_cache if cache_stale?
         end
 
         def tags
@@ -59,14 +48,18 @@ module PuppetLibrary::Util
             git "show refs/tags/#{tag}:#{path}"
         end
 
-        private
-        def git(command, work_tree = nil)
-            work_tree = @cache_path unless work_tree
-            Open3.popen3("git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
-                stdout.read
+        def clear_cache!
+            @mutex.synchronize do
+                FileUtils.rm_rf @cache_path
             end
         end
 
+        def update_cache!
+            create_cache unless cache_exists?
+            update_cache if cache_stale?
+        end
+
+        private
         def create_cache
             @mutex.synchronize do
                 git "clone --bare #{@source} #{@git_dir}" unless cache_exists?
@@ -97,7 +90,14 @@ module PuppetLibrary::Util
         end
 
         def fetch_file
-            "#{@git_dir}/FETCH_HEAD"
+            File.join(@git_dir, "FETCH_HEAD")
+        end
+
+        def git(command, work_tree = nil)
+            work_tree = @cache_path unless work_tree
+            Open3.popen3("git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
+                stdout.read
+            end
         end
     end
 end
