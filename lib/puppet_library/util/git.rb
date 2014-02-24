@@ -21,7 +21,7 @@ require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Util
     class Git
-        DEFAULT_CACHE_TTL_SECONDS = 10
+        DEFAULT_CACHE_TTL_SECONDS = 60
         def initialize(source, cache_path, cache_ttl_seconds = DEFAULT_CACHE_TTL_SECONDS)
             @source = source
             @cache_path = File.expand_path(cache_path)
