@@ -223,32 +223,32 @@ end
 desc "Import files individually to make sure they can be imported externally"
 task "test-imports" do
     puts "Testing imports:"
-    Dir.chdir "lib"
-
-    paths = Dir["**/*.rb"].map {|f| f.sub /\.rb$/, "" }
-    paths = paths.sort_by {|p| p.count "/"}
-    errors = []
-    paths.each do |path|
-        print "importing #{path}..."
-        output = `bundle exec ruby -e '$LOAD_PATH.unshift(File.expand_path(".")); require "#{path}"' 2>&1`
-        print " ["
-        if $?.success?
-            print "OK".green
-        else
-            print "FAIL".red
-            errors << "#{path}: #{output.red}"
+    Dir.chdir "lib" do
+        paths = Dir["**/*.rb"].map {|f| f.sub /\.rb$/, "" }
+        paths = paths.sort_by {|p| p.count "/"}
+        errors = []
+        paths.each do |path|
+            print "importing #{path}..."
+            output = `bundle exec ruby -e '$LOAD_PATH.unshift(File.expand_path(".")); require "#{path}"' 2>&1`
+            print " ["
+            if $?.success?
+                print "OK".green
+            else
+                print "FAIL".red
+                errors << "#{path}: #{output.red}"
+            end
+            puts "]"
         end
-        puts "]"
-    end
 
-    unless errors.empty?
-        puts
-        puts
-        fail <<-EOFAILURE
+        unless errors.empty?
+            puts
+            puts
+            fail <<-EOFAILURE
 Failed to import some files:
 
 #{errors.join "\n\n"}
-        EOFAILURE
+            EOFAILURE
+        end
     end
 end
 
