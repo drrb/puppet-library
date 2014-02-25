@@ -21,7 +21,26 @@ module PuppetLibrary::Forge
 
     # A forge that proxies a remote forge. All module archives downloaded from the
     # remote forged are cached to disk.
+    #
+    # <b>Usage:</b>
+    #
+    #    forge = PuppetLibrary::Forge::Cache.configure do |repo|
+    #        # The URL of the remote forge
+    #        repo.url = "http://forge.example.com
+    #
+    #        # The path to cache the files to on disk
+    #        repo.path = "/var/modules/cache
+    #    end
     class Cache < Proxy
+        class Config
+            attr_accessor :url, :path
+        end
+
+        def self.configure
+            config = Config.new
+            yield(config)
+            Cache.new(config.url, config.path)
+        end
 
         # * <tt>:url</tt> - The URL of the remote forge.
         # * <tt>:cache_dir</tt> - The directory in which to cache the downloaded artifacts.

@@ -146,11 +146,16 @@ require "rubygems"
 require "puppet_library"
 
 # NB: this config API is not yet stable, and may change without notice
-server = PuppetLibrary::Server.set_up do |library|
+server = PuppetLibrary::Server.configure do |library|
     # Serve our private modules
-    library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
-    # Download all other moduls from the Puppet Forge
-    library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
+    library.forge PuppetLibrary::Forge::Directory do |forge|
+        forge.path = "/var/lib/modules"
+    end
+
+    # Download all other modules from the Puppet Forge
+    library.forge PuppetLibrary::Forge::Proxy do |forge|
+        forge.url = "http://forge.puppetlabs.com"
+    end
 end
 
 run server

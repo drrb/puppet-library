@@ -22,13 +22,27 @@ require 'puppet_library/http/cache/noop'
 module PuppetLibrary::Forge
 
     # A forge that proxies a remote forge.
+    #
+    # <b>Usage:</b>
+    #
+    #    forge = PuppetLibrary::Forge::Proxy.configure do |repo|
+    #        # The URL of the remote forge
+    #        repo.url = "http://forge.example.com
+    #    end
     class Proxy
 
+        class Config
+            attr_accessor :url
+        end
+
+        def self.configure
+            config = Config.new
+            yield(config)
+            Proxy.new(config.url)
+        end
+
         # * <tt>:url</tt> - The URL of the remote forge.
-        def initialize(url,
-                       query_cache = PuppetLibrary::Http::Cache::InMemory.new,
-                       download_cache = PuppetLibrary::Http::Cache::NoOp.new,
-                       http_client = PuppetLibrary::Http::HttpClient.new)
+        def initialize(url, query_cache = PuppetLibrary::Http::Cache::InMemory.new, download_cache = PuppetLibrary::Http::Cache::NoOp.new, http_client = PuppetLibrary::Http::HttpClient.new)
             @url = PuppetLibrary::Http::Url.normalize(url)
             @http_client = http_client
             @query_cache = query_cache

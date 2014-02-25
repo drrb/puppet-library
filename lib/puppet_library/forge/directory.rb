@@ -27,7 +27,23 @@ module PuppetLibrary::Forge
     # * The modules must be named in the format <tt>author-modulename-version.tar.gz</tt>
     # * The modules must contain a +metadata.json+ file
     # That is, the format must be the same as what is produced by <tt>puppet module build</tt>
+    #
+    # <b>Usage:</b>
+    #
+    #    forge = PuppetLibrary::Forge::Directory.configure do |repo|
+    #        # The path to serve the modules from
+    #        repo.path = "/var/modules/cache
+    #    end
     class Directory < PuppetLibrary::Forge::Abstract
+        class Config
+            attr_accessor :path
+        end
+
+        def self.configure
+            config = Config.new
+            yield(config)
+            Directory.new(config.path)
+        end
 
         # * <tt>:module_dir</tt> - The directory containing the packaged modules.
         def initialize(module_dir)

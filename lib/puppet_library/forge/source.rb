@@ -27,6 +27,16 @@ module PuppetLibrary::Forge
     # <b>Note:</b>
     # The module directory must have a +Modulefile+.
     class Source < PuppetLibrary::Forge::Abstract
+        class Config
+            attr_accessor :path
+        end
+
+        def self.configure
+            config = Config.new
+            yield(config)
+            Source.new(config.path)
+        end
+
         CACHE_TTL_MILLIS = 500
 
         # * <tt>:module_dir</tt> - The directory containing the module's source.

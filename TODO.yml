@@ -12,6 +12,9 @@ features:
         - clear proxy cache (web form and API)
         - delete modules from disk (web form)
     - Authentication
+    - Config APIs:
+        - parameterless blocks (especially for Server. Include PuppetLibrary::Forge aliased to Forge in scope)
+        - validation of required params
 
 dubious_features:
     - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)

@@ -29,10 +29,11 @@ module PuppetLibrary
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:cache_dir) { Tempdir.create("cache_dir") }
         let(:start_dir) { pwd }
-        let(:disk_forge) { Forge::Directory.new(module_dir) }
         let(:disk_server) do
-            Server.set_up do |server|
-                server.forge disk_forge
+            Server.configure do |server|
+                server.forge Forge::Directory do |forge|
+                    forge.path = module_dir
+                end
             end
         end
         let(:disk_rack_server) do
@@ -48,10 +49,12 @@ module PuppetLibrary
                 disk_rack_server.start
             end
         end
-        let(:proxy_forge) { Forge::Cache.new("http://localhost:#{disk_port}", cache_dir) }
         let(:proxy_server) do
-            Server.set_up do |server|
-                server.forge proxy_forge
+            Server.configure do |server|
+                server.forge Forge::Cache do |forge|
+                    forge.url = "http://localhost:#{disk_port}"
+                    forge.path = cache_dir
+                end
             end
         end
         let(:proxy_rack_server) do

@@ -29,7 +29,7 @@ module PuppetLibrary
         let(:start_dir) { pwd }
         let(:source_forge) { Forge::Source.new(module_dir) }
         let(:source_server) do
-            Server.set_up do |server|
+            Server.configure do |server|
                 server.forge source_forge
             end
         end

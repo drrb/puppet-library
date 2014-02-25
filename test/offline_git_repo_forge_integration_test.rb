@@ -60,10 +60,12 @@ module PuppetLibrary
         let(:port) { Ports.next! }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
-        let(:git_forge) { Forge::GitRepository.new(@@repo_path, /^[0-9.]+/) }
         let(:git_server) do
-            Server.set_up do |server|
-                server.forge git_forge
+            Server.configure do |server|
+                server.forge Forge::GitRepository do |forge|
+                    forge.source = @@repo_path
+                    forge.include_tags = /^[0-9.]+/
+                end
             end
         end
         let(:git_rack_server) do

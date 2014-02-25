@@ -25,7 +25,7 @@ module PuppetLibrary
     #
     # A Rack application that can be configured as follows:
     #
-    #    server = PuppetLibrary::Server.set_up do |library|
+    #    server = PuppetLibrary::Server.configure do |library|
     #        # Look for my modules locally
     #        library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
     #
@@ -40,12 +40,21 @@ module PuppetLibrary
                 @forge = forge
             end
 
-            def forge(forge)
-                @forge.add_forge forge
+            def forge(forge, &block)
+                if forge.is_a? Class
+                    @forge.add_forge forge.configure(&block)
+                else
+                    @forge.add_forge forge
+                end
             end
         end
 
         def self.set_up(&config_block)
+            puts "PuppetLibrary::Server::set_up deprecated: use #configure instead"
+            self.configure(&config_block)
+        end
+
+        def self.configure
             forge = Forge::Multi.new
             yield(Config.new(forge))
             Server.new(forge)

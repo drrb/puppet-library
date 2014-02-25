@@ -18,9 +18,34 @@
 require 'rubygems'
 require 'puppet_library'
 
-server = PuppetLibrary::Server.set_up do |library|
-    library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
-    library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
+server = PuppetLibrary::Server.configure do |library|
+    Forge = PuppetLibrary::Forge
+
+    # My custom modules
+    library.forge Forge::Directory do |forge|
+        forge.path = "/var/lib/modules"
+    end
+
+    # Unreleased versions from Github
+    library.forge Forge::GitRepository do |forge|
+        forge.repository = "https://github.com/puppetlabs/puppetlabs-apache.git"
+        forge.tag_regex = /[0-9.]+/
+    end
+
+    library.forge Forge::GitRepository do |forge|
+        forge.repository = "https://github.com/puppetlabs/puppetlabs-concat.git"
+        forge.tag_regex = /[0-9.]+/
+    end
+
+    library.forge Forge::GitRepository do |forge|
+        forge.repository = "https://github.com/puppetlabs/puppetlabs-stdlib.git"
+        forge.tag_regex = /[0-9.]+/
+    end
+
+    # Everything from The Forge
+    library.forge Forge::Proxy do |forge|
+        forge.url = "http://forge.puppetlabs.com"
+    end
 end
 
 run server

@@ -29,9 +29,14 @@ module PuppetLibrary
         let(:cache_dir) { Tempdir.create("cache_dir") }
         let(:start_dir) { pwd }
         let(:proxy_server) do
-            Server.set_up do |server|
-                server.forge Forge::Directory.new(module_dir)
-                server.forge Forge::Cache.new("http://forge.puppetlabs.com", cache_dir)
+            Server.configure do |server|
+                server.forge Forge::Directory do |forge|
+                    forge.path = module_dir
+                end
+                server.forge Forge::Cache do |forge|
+                    forge.url = "http://forge.puppetlabs.com"
+                    forge.path = cache_dir
+                end
             end
         end
         let(:proxy_rack_server) do

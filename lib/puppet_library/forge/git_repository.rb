@@ -23,7 +23,31 @@ require 'puppet_library/util/git'
 require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Forge
+    # A forge for serving modules from a Git repository
+    #
+    # <b>Usage:</b>
+    #
+    #    forge = PuppetLibrary::Forge::GitRepository.configure do |repo|
+    #        # The location of the git repository
+    #        repo.source = "http://example.com/mymodule.git
+    #
+    #        # A regular expression describing which tags to serve
+    #        repo.include_tags = /[0-9.]+/
+    #    end
     class GitRepository < PuppetLibrary::Forge::Abstract
+        class Config
+            attr_accessor :source
+            attr_accessor :include_tags
+        end
+
+        def self.configure
+            config = Config.new
+            yield(config)
+            GitRepository.new(config.source, config.include_tags)
+        end
+
+        # * <tt>:source</tt> - The URL or path of the git repository
+        # * <tt>:version_tag_regex</tt> - A regex that describes which tags to serve
         def initialize(source, version_tag_regex)
             super(self)
             cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
