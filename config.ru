@@ -28,18 +28,18 @@ server = PuppetLibrary::Server.configure do |library|
 
     # Unreleased versions from Github
     library.forge Forge::GitRepository do |forge|
-        forge.repository = "https://github.com/puppetlabs/puppetlabs-apache.git"
-        forge.tag_regex = /[0-9.]+/
+        forge.source = "https://github.com/puppetlabs/puppetlabs-apache.git"
+        forge.include_tags = /[0-9.]+/
     end
 
     library.forge Forge::GitRepository do |forge|
-        forge.repository = "https://github.com/puppetlabs/puppetlabs-concat.git"
-        forge.tag_regex = /[0-9.]+/
+        forge.source = "https://github.com/puppetlabs/puppetlabs-concat.git"
+        forge.include_tags = /[0-9.]+/
     end
 
     library.forge Forge::GitRepository do |forge|
-        forge.repository = "https://github.com/puppetlabs/puppetlabs-stdlib.git"
-        forge.tag_regex = /[0-9.]+/
+        forge.source = "https://github.com/puppetlabs/puppetlabs-stdlib.git"
+        forge.include_tags = /[0-9.]+/
     end
 
     # Everything from The Forge

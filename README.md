@@ -16,6 +16,7 @@ Plugins can be created to serve modules from arbitrary sources. Puppet Library c
  - proxying a remote forge (or forges)
  - caching proxied forges to disk
  - serving modules from source on disk
+ - serving modules from Git repositories using tags as version numbers!
 
 ## Installation
 
@@ -90,6 +91,7 @@ Puppet Library contains built-in support for:
  - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
  - proxying a remote forge (or forges)
  - serving modules from source on disk
+ - serving modules from Git repositories using tags as version numbers!
  - serving modules from a combination of the above
 
 ## Compatibility with other tools
@@ -152,9 +154,15 @@ server = PuppetLibrary::Server.configure do |library|
         forge.path = "/var/lib/modules"
     end
 
+    # Serve the latest (unreleased) versions from GitHub
+    library.forge PuppetLibrary::Forge::GitRepository do |forge|
+        forge.url = "http://github.com/puppetlabs/puppetlabs-apache.git"
+    end
+
     # Download all other modules from the Puppet Forge
     library.forge PuppetLibrary::Forge::Proxy do |forge|
         forge.url = "http://forge.puppetlabs.com"
+        forge.include_tags = /[0-9.]+/
     end
 end
 
