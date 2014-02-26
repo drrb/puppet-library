@@ -156,13 +156,13 @@ server = PuppetLibrary::Server.configure do |library|
 
     # Serve the latest (unreleased) versions from GitHub
     library.forge PuppetLibrary::Forge::GitRepository do |forge|
-        forge.url = "http://github.com/puppetlabs/puppetlabs-apache.git"
+        forge.source = "http://github.com/puppetlabs/puppetlabs-apache.git"
+        forge.include_tags = /[0-9.]+/
     end
 
     # Download all other modules from the Puppet Forge
     library.forge PuppetLibrary::Forge::Proxy do |forge|
         forge.url = "http://forge.puppetlabs.com"
-        forge.include_tags = /[0-9.]+/
     end
 end
 
