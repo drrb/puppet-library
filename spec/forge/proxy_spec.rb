@@ -24,6 +24,15 @@ module PuppetLibrary::Forge
         let(:download_cache) { PuppetLibrary::Http::Cache::InMemory.new }
         let(:forge) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
+        describe "#configure" do
+            it "exposes a configuration API" do
+                forge = Proxy.configure do |forge|
+                    forge.url = "http://example.com"
+                end
+                expect(forge.instance_eval "@url").to eq "http://example.com"
+            end
+        end
+
         describe "#search_modules" do
             it "forwards the request directly" do
                 search_results = '["a","b","c"]'

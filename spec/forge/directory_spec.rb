@@ -21,10 +21,19 @@ module PuppetLibrary::Forge
         include ModuleSpecHelper
 
         let(:module_dir) { Tempdir.create("module_dir") }
-        let(:module_repo) { Directory.new(module_dir) }
+        let(:forge) { Directory.new(module_dir) }
 
         after do
             rm_rf module_dir
+        end
+
+        describe "#configure" do
+            it "exposes a configuration API" do
+                forge = Directory.configure do |forge|
+                    forge.path = module_dir
+                end
+                expect(forge.instance_eval "@module_dir").to eq module_dir
+            end
         end
 
         describe "#initialize" do
@@ -64,7 +73,7 @@ module PuppetLibrary::Forge
                 end
 
                 it "returns a the module archive as a file buffer" do
-                    buffer = module_repo.get_module("puppetlabs", "apache", "1.0.0")
+                    buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
 
                     expect(buffer.path).to end_with("puppetlabs-apache-1.0.0.tar.gz")
                 end
@@ -72,7 +81,7 @@ module PuppetLibrary::Forge
 
             context "when the module file doesn't exist" do
                 it "returns nil" do
-                    buffer = module_repo.get_module("puppetlabs", "noneixstant", "1.0.0")
+                    buffer = forge.get_module("puppetlabs", "noneixstant", "1.0.0")
 
                     expect(buffer).to be_nil
                 end
@@ -87,7 +96,7 @@ module PuppetLibrary::Forge
                 end
 
                 it "returns a the module archive as a file buffer" do
-                    metadata = module_repo.get_all_metadata
+                    metadata = forge.get_all_metadata
 
                     v1 = metadata.find {|m| m["version"] == "1.0.0" }
                     v2 = metadata.find {|m| m["version"] == "2.0.0" }
@@ -98,7 +107,7 @@ module PuppetLibrary::Forge
 
             context "when no modules exist" do
                 it "returns an empty array" do
-                    result = module_repo.get_all_metadata
+                    result = forge.get_all_metadata
 
                     expect(result).to be_empty
                 end
@@ -108,7 +117,7 @@ module PuppetLibrary::Forge
         describe "#get_metadata" do
             context "when the module directory is empty" do
                 it "returns an empty array" do
-                    metadata_list = module_repo.get_metadata("puppetlabs", "apache")
+                    metadata_list = forge.get_metadata("puppetlabs", "apache")
                     expect(metadata_list).to be_empty
                 end
             end
@@ -120,7 +129,7 @@ module PuppetLibrary::Forge
                 end
 
                 it "returns an array containing the module's versions' metadata" do
-                    metadata_list = module_repo.get_metadata("puppetlabs", "apache")
+                    metadata_list = forge.get_metadata("puppetlabs", "apache")
                     expect(metadata_list.size).to eq 2
                     metadata_list = metadata_list.sort_by {|m| m["version"] }
                     expect(metadata_list[0]["name"]).to eq "puppetlabs-apache"

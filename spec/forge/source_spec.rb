@@ -51,6 +51,15 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#configure" do
+            it "exposes a configuration API" do
+                forge = Source.configure do |forge|
+                    forge.path = module_dir
+                end
+                expect(forge.instance_eval "@module_dir").to eq module_dir
+            end
+        end
+
         describe "#initialize" do
             context "when the module directory doesn't exist" do
                 before do

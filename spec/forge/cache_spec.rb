@@ -31,6 +31,16 @@ module PuppetLibrary::Forge
             expect(forge).to be_a Proxy
         end
 
+        describe "#configure" do
+            it "exposes a configuration API" do
+                forge = Cache.configure do |forge|
+                    forge.url = "http://example.com"
+                    forge.path = cache_dir
+                end
+                expect(forge.instance_eval "@url").to eq "http://example.com"
+            end
+        end
+
         describe "#get_module_buffer" do
             before do
                 allow(http_client).to receive(:get).

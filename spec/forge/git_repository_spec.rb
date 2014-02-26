@@ -57,6 +57,16 @@ module PuppetLibrary::Forge
             forge.destroy!
         end
 
+        describe "#configure" do
+            it "exposes a configuration API" do
+                forge = GitRepository.configure do |forge|
+                    forge.source = @@repo_path
+                    forge.include_tags = /v123/
+                end
+                expect(forge.instance_eval "@version_tag_regex").to eq /v123/
+            end
+        end
+
         describe "#get_module" do
             context "when the requested author is different from the configured author" do
                 it "returns nil" do

@@ -28,6 +28,16 @@ module PuppetLibrary
             Server.new(forge)
         end
 
+        describe "#configure" do
+            it "exposes a configuration API" do
+                Server.configure do |server|
+                    server.forge Forge::Directory do |forge|
+                        forge.path = "."
+                    end
+                end
+            end
+        end
+
         describe "GET /" do
             it "lists all the modules" do
                 modules = [

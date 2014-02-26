@@ -49,11 +49,6 @@ module PuppetLibrary
             end
         end
 
-        def self.set_up(&config_block)
-            puts "PuppetLibrary::Server::set_up deprecated: use #configure instead"
-            self.configure(&config_block)
-        end
-
         def self.configure
             forge = Forge::Multi.new
             yield(Config.new(forge))
