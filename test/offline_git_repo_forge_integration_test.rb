@@ -61,10 +61,10 @@ module PuppetLibrary
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
         let(:git_server) do
-            Server.configure do |server|
-                server.forge Forge::GitRepository do |forge|
-                    forge.source = @@repo_path
-                    forge.include_tags = /^[0-9.]+/
+            Server.configure do
+                forge :git_repository do
+                    source @@repo_path
+                    include_tags /^[0-9.]+/
                 end
             end
         end

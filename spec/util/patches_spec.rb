@@ -83,4 +83,13 @@ describe 'patches' do
             end
         end
     end
+
+    describe String do
+        describe "#snake_case_to_camel_case" do
+            it "converts snake case to camel case" do
+                camelized = "my_variable_name".snake_case_to_camel_case
+                expect(camelized).to eq "MyVariableName"
+            end
+        end
+    end
 end

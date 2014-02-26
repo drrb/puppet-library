@@ -27,10 +27,11 @@ module PuppetLibrary
         let(:module_dir) { Tempdir.create("module_dir") }
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
-        let(:source_forge) { Forge::Source.new(module_dir) }
         let(:source_server) do
-            Server.configure do |server|
-                server.forge source_forge
+            Server.configure do
+                forge :source do
+                    path module_dir
+                end
             end
         end
         let(:source_rack_server) do

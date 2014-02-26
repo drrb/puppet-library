@@ -33,9 +33,9 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                forge = Cache.configure do |forge|
-                    forge.url = "http://example.com"
-                    forge.path = cache_dir
+                forge = Cache.configure do
+                    url "http://example.com"
+                    path cache_dir
                 end
                 expect(forge.instance_eval "@url").to eq "http://example.com"
             end

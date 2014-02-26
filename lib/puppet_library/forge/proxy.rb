@@ -18,6 +18,7 @@
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
+require 'puppet_library/util/config_api'
 
 module PuppetLibrary::Forge
 
@@ -31,14 +32,9 @@ module PuppetLibrary::Forge
     #    end
     class Proxy
 
-        class Config
-            attr_accessor :url
-        end
-
-        def self.configure
-            config = Config.new
-            yield(config)
-            Proxy.new(config.url)
+        def self.configure(&block)
+            config = PuppetLibrary::Util::ConfigApi.configure(Proxy, :url, &block)
+            Proxy.new(config.get_url)
         end
 
         # * <tt>:url</tt> - The URL of the remote forge.

@@ -29,8 +29,9 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                forge = Directory.configure do |forge|
-                    forge.path = module_dir
+                module_dir = "."
+                forge = Directory.configure do
+                    path module_dir
                 end
                 expect(forge.instance_eval "@module_dir").to eq module_dir
             end

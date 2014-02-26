@@ -28,10 +28,10 @@ module PuppetLibrary
         let(:project_dir) { Tempdir.create("project_dir") }
         let(:start_dir) { pwd }
         let(:git_server) do
-            Server.configure do |server|
-                server.forge Forge::GitRepository do |forge|
-                    forge.source = "https://github.com/puppetlabs/puppetlabs-stdlib.git"
-                    forge.include_tags = /^[0-9.]+/
+            Server.configure do
+                forge :git_repository do
+                    source "https://github.com/puppetlabs/puppetlabs-stdlib.git"
+                    include_tags /^[0-9.]+/
                 end
             end
         end
@@ -71,7 +71,7 @@ module PuppetLibrary
             EOF
 
             # Install modules
-            system "librarian-puppet install" or fail "call to puppet-library failed"
+            system "librarian-puppet install --verbose" or fail "call to puppet-library failed"
             expect("stdlib").to be_installed
 
             # Search

@@ -17,6 +17,7 @@
 require 'json'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/archive/archive_reader'
+require 'puppet_library/util/config_api'
 
 module PuppetLibrary::Forge
 
@@ -35,14 +36,10 @@ module PuppetLibrary::Forge
     #        repo.path = "/var/modules/cache
     #    end
     class Directory < PuppetLibrary::Forge::Abstract
-        class Config
-            attr_accessor :path
-        end
 
-        def self.configure
-            config = Config.new
-            yield(config)
-            Directory.new(config.path)
+        def self.configure(&block)
+            config = PuppetLibrary::Util::ConfigApi.configure(Directory, :path, &block)
+            Directory.new(config.get_path)
         end
 
         # * <tt>:module_dir</tt> - The directory containing the packaged modules.

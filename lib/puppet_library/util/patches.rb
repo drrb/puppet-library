@@ -92,6 +92,12 @@ class Hash
     end
 end
 
+class String
+    def snake_case_to_camel_case
+        split("_").map(&:capitalize).join
+    end
+end
+
 class Gem::Package::TarReader
     # Old versions of RubyGems don't include Enumerable in here
     def find

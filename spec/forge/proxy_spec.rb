@@ -26,8 +26,8 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                forge = Proxy.configure do |forge|
-                    forge.url = "http://example.com"
+                forge = Proxy.configure do
+                    url "http://example.com"
                 end
                 expect(forge.instance_eval "@url").to eq "http://example.com"
             end

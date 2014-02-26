@@ -103,10 +103,9 @@ module PuppetLibrary
             load_defaults!(options)
             process_options!(options)
 
-            Server.configure do |server|
+            Server.configure do
                 options[:forges].each do |(forge_type, config)|
-                    subforge = forge_type.new(*config)
-                    server.forge subforge
+                    forge forge_type.new(*config)
                 end
             end
         end

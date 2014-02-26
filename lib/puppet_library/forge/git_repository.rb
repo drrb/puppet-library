@@ -21,6 +21,7 @@ require 'rubygems/package'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/util/git'
 require 'puppet_library/util/temp_dir'
+require 'puppet_library/util/config_api'
 
 module PuppetLibrary::Forge
     # A forge for serving modules from a Git repository
@@ -35,15 +36,10 @@ module PuppetLibrary::Forge
     #        repo.include_tags = /[0-9.]+/
     #    end
     class GitRepository < PuppetLibrary::Forge::Abstract
-        class Config
-            attr_accessor :source
-            attr_accessor :include_tags
-        end
 
-        def self.configure
-            config = Config.new
-            yield(config)
-            GitRepository.new(config.source, config.include_tags)
+        def self.configure(&block)
+            config = PuppetLibrary::Util::ConfigApi.configure(GitRepository, :source, :include_tags, &block)
+            GitRepository.new(config.get_source, config.get_include_tags)
         end
 
         # * <tt>:source</tt> - The URL or path of the git repository

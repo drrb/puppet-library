@@ -30,9 +30,10 @@ module PuppetLibrary
 
         describe "#configure" do
             it "exposes a configuration API" do
-                Server.configure do |server|
-                    server.forge Forge::Directory do |forge|
-                        forge.path = "."
+                repo_path = "."
+                Server.configure do
+                    forge :directory do
+                        path repo_path # make sure our API keeps the block's scope
                     end
                 end
             end

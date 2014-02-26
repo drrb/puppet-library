@@ -59,9 +59,9 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                forge = GitRepository.configure do |forge|
-                    forge.source = @@repo_path
-                    forge.include_tags = /v123/
+                forge = GitRepository.configure do
+                    source @@repo_path
+                    include_tags /v123/
                 end
                 expect(forge.instance_eval "@version_tag_regex").to eq /v123/
             end

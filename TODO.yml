@@ -3,7 +3,13 @@ features:
         - asynchronous (index page loads too slowly)
     - Git repo forge:
         - make it fast (pre-clone repos on startup (maybe just warn if they can't be found). Maybe cache artifacts?)
-    - logging
+    - Performance:
+        - cache stuff so it's faster
+        - allow configuration of cache ttl
+    - logging:
+        - use Ruby logging
+        - include some verbose logging
+        - improve error messages (e.g. for when a module can't be untarred)
     - Named subforges:
         - per-subforge queries
         - upload modules (web form and API)

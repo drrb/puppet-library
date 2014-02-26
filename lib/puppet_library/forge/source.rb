@@ -27,14 +27,9 @@ module PuppetLibrary::Forge
     # <b>Note:</b>
     # The module directory must have a +Modulefile+.
     class Source < PuppetLibrary::Forge::Abstract
-        class Config
-            attr_accessor :path
-        end
-
-        def self.configure
-            config = Config.new
-            yield(config)
-            Source.new(config.path)
+        def self.configure(&block)
+            config = PuppetLibrary::Util::ConfigApi.configure(Source, :path, &block)
+            Source.new(config.get_path)
         end
 
         CACHE_TTL_MILLIS = 500

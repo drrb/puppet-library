@@ -53,8 +53,8 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                forge = Source.configure do |forge|
-                    forge.path = module_dir
+                forge = Source.configure do
+                    path module_dir
                 end
                 expect(forge.instance_eval "@module_dir").to eq module_dir
             end

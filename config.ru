@@ -18,33 +18,31 @@
 require 'rubygems'
 require 'puppet_library'
 
-server = PuppetLibrary::Server.configure do |library|
-    Forge = PuppetLibrary::Forge
-
+server = PuppetLibrary::Server.configure do
     # My custom modules
-    library.forge Forge::Directory do |forge|
-        forge.path = "/var/lib/modules"
+    forge :directory do
+        path "/var/puppet/modules"
     end
 
     # Unreleased versions from Github
-    library.forge Forge::GitRepository do |forge|
-        forge.source = "https://github.com/puppetlabs/puppetlabs-apache.git"
-        forge.include_tags = /[0-9.]+/
+    forge :git_repository do
+        source "https://github.com/puppetlabs/puppetlabs-apache.git"
+        include_tags /[0-9.]+/
     end
 
-    library.forge Forge::GitRepository do |forge|
-        forge.source = "https://github.com/puppetlabs/puppetlabs-concat.git"
-        forge.include_tags = /[0-9.]+/
+    forge :git_repository do
+        source "https://github.com/puppetlabs/puppetlabs-concat.git"
+        include_tags /[0-9.]+/
     end
 
-    library.forge Forge::GitRepository do |forge|
-        forge.source = "https://github.com/puppetlabs/puppetlabs-stdlib.git"
-        forge.include_tags = /[0-9.]+/
+    forge :git_repository do
+        source "https://github.com/puppetlabs/puppetlabs-stdlib.git"
+        include_tags /[0-9.]+/
     end
 
     # Everything from The Forge
-    library.forge Forge::Proxy do |forge|
-        forge.url = "http://forge.puppetlabs.com"
+    forge :proxy do
+        url "http://forge.puppetlabs.com"
     end
 end
 

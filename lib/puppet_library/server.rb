@@ -17,8 +17,10 @@
 
 require 'sinatra/base'
 require 'haml'
+require 'docile'
 
 require 'puppet_library/forge/multi'
+require 'puppet_library/util/patches'
 
 module PuppetLibrary
     # The Puppet Library server
@@ -41,17 +43,19 @@ module PuppetLibrary
             end
 
             def forge(forge, &block)
-                if forge.is_a? Class
-                    @forge.add_forge forge.configure(&block)
+                if forge.is_a? Symbol
+                    class_name = forge.to_s.snake_case_to_camel_case
+                    forge_type = Forge.module_eval(class_name)
+                    @forge.add_forge forge_type.configure(&block)
                 else
                     @forge.add_forge forge
                 end
             end
         end
 
-        def self.configure
+        def self.configure(&block)
             forge = Forge::Multi.new
-            yield(Config.new(forge))
+            Docile.dsl_eval(Config.new(forge), &block)
             Server.new(forge)
         end
 

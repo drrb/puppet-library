@@ -17,6 +17,8 @@
 
 require 'puppet_library/forge/proxy'
 require 'puppet_library/http/http_client'
+require 'puppet_library/util/config_api'
+
 module PuppetLibrary::Forge
 
     # A forge that proxies a remote forge. All module archives downloaded from the
@@ -32,14 +34,10 @@ module PuppetLibrary::Forge
     #        repo.path = "/var/modules/cache
     #    end
     class Cache < Proxy
-        class Config
-            attr_accessor :url, :path
-        end
 
-        def self.configure
-            config = Config.new
-            yield(config)
-            Cache.new(config.url, config.path)
+        def self.configure(&block)
+            config = PuppetLibrary::Util::ConfigApi.configure(Cache, :url, :path, &block)
+            Cache.new(config.get_url, config.get_path)
         end
 
         # * <tt>:url</tt> - The URL of the remote forge.
