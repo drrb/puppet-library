@@ -17,10 +17,13 @@
 require 'fileutils'
 require 'monitor'
 require 'time'
+require 'puppet_library/util/logging'
 require 'puppet_library/util/temp_dir'
 
 module PuppetLibrary::Util
     class Git
+        include Logging
+
         DEFAULT_CACHE_TTL_SECONDS = 60
         def initialize(source, cache_path, cache_ttl_seconds = DEFAULT_CACHE_TTL_SECONDS)
             @source = source
@@ -62,7 +65,8 @@ module PuppetLibrary::Util
         private
         def create_cache
             @mutex.synchronize do
-                git "clone --bare #{@source} #{@git_dir}" unless cache_exists?
+                info "Cloning Git repository from #{@source} to #{@git_dir}"
+                git "clone --bare #{@source} #{@git_dir}"
                 FileUtils.touch fetch_file
             end
         end
@@ -95,7 +99,12 @@ module PuppetLibrary::Util
 
         def git(command, work_tree = nil)
             work_tree = @cache_path unless work_tree
-            Open3.popen3("git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}") do |stdin, stdout, stderr, thread|
+            git_command = "git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}"
+            debug git_command
+            Open3.popen3(git_command) do |stdin, stdout, stderr, thread|
+                unless thread.value.success?
+                    raise "Error running Git command: #{git_command}\n#{stderr.read}"
+                end
                 stdout.read
             end
         end

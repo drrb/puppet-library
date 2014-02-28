@@ -25,6 +25,8 @@ require 'fileutils'
 
 include FileUtils
 
+ENV["TESTING"] = "true"
+
 class Tempdir
     attr_reader :path
 

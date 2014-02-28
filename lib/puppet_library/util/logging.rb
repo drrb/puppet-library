@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 # Puppet Library
 # Copyright (C) 2014 drrb
 #
@@ -15,10 +14,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PuppetLibrary::Util
-end
+require 'logger'
 
-require 'puppet_library/util/git'
-require 'puppet_library/util/logging'
-require 'puppet_library/util/patches'
-require 'puppet_library/util/temp_dir'
+module PuppetLibrary::Util
+    module Logging
+        def log_io
+            @log_io ||= StringIO.new
+        end
+
+        def logger
+            destination = ENV["TESTING"] ? log_io : STDERR
+            @logger ||= Logger.new(destination).tap do |logger|
+                logger.progname = self.class.name
+                logger.level = Logger::DEBUG
+            end
+        end
+
+        def debug(message)
+            logger.debug message
+        end
+
+        def info(message)
+            logger.info message
+        end
+
+        #def warn(message)
+        #    logger.warn message
+        #end
+
+        #def error(message)
+        #    logger.error message
+        #end
+    end
+end

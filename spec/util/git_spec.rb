@@ -58,6 +58,14 @@ module PuppetLibrary::Util
             git.clear_cache!
         end
 
+        context "when a git command returns nonzero" do
+            it "raises an error" do
+                expect {
+                    git.read_file("nonexistant.file", "0.9.0")
+                }.to raise_error /Error running Git command/
+            end
+        end
+
         describe "#tags" do
             it "lists the tags" do
                 @@tags.each { |tag| expect(git.tags).to include tag }
