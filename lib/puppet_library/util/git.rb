@@ -17,6 +17,7 @@
 require 'fileutils'
 require 'monitor'
 require 'time'
+require 'open4'
 require 'puppet_library/util/logging'
 require 'puppet_library/util/temp_dir'
 
@@ -99,14 +100,17 @@ module PuppetLibrary::Util
 
         def git(command, work_tree = nil)
             work_tree = @cache_path unless work_tree
-            git_command = "git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}"
-            debug git_command
-            Open3.popen3(git_command) do |stdin, stdout, stderr, thread|
-                unless thread.value.success?
-                    raise "Error running Git command: #{git_command}\n#{stderr.read}"
-                end
-                stdout.read
+            run "git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}"
+        end
+
+        def run(command)
+            debug command
+            pid, stdin, stdout, stderr = Open4.popen4(command)
+            ignored, status = Process::waitpid2 pid
+            unless status.success?
+                raise "Error running Git command: #{command}\n#{stderr.read}"
             end
+            stdout.read
         end
     end
 end
