@@ -78,6 +78,17 @@ class Array
             merged.deep_merge(map)
         end
     end
+
+    def each_in_parallel
+        threads = map do |element|
+            Thread.new do
+                yield(element)
+            end
+        end
+        threads.each do |thread|
+            thread.join
+        end
+    end
 end
 
 class Hash

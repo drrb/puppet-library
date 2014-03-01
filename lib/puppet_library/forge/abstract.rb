@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/forge/forge'
 require 'puppet_library/forge/search_result'
 require 'puppet_library/util'
 
@@ -24,7 +25,7 @@ module PuppetLibrary::Forge
     # types.
     #
     # See PuppetLibrary::Forge::Directory for an example
-    class Abstract
+    class Abstract < Forge
         def initialize(module_repo)
             @repo = module_repo
         end

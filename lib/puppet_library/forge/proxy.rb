@@ -30,7 +30,7 @@ module PuppetLibrary::Forge
     #        # The URL of the remote forge
     #        repo.url = "http://forge.example.com
     #    end
-    class Proxy
+    class Proxy < Forge
 
         def self.configure(&block)
             config = PuppetLibrary::Util::ConfigApi.configure(Proxy, :url, &block)

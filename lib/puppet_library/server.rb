@@ -62,6 +62,7 @@ module PuppetLibrary
         def initialize(forge)
             super(nil)
             @forge = forge
+            @forge.prime
         end
 
         configure do

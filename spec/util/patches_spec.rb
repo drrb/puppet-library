@@ -82,6 +82,15 @@ describe 'patches' do
                 expect(["1.10.0-badprerelease", "1.3", "1.10.0", "xxx", "1.10.0.rc1", "1.2.0"].version_sort).to eq ["xxx", "1.2.0", "1.3", "1.10.0-badprerelease", "1.10.0.rc1", "1.10.0"]
             end
         end
+
+        describe "#each_in_parallel" do
+            it "does something to each in parallel" do
+                array = [ "a", "b", "c" ]
+                array.each_in_parallel &:upcase!
+
+                expect(array).to eq [ "A", "B", "C" ]
+            end
+        end
     end
 
     describe String do

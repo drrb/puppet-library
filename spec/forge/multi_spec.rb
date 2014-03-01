@@ -38,6 +38,14 @@ module PuppetLibrary::Forge
             return forge
         end
 
+        describe "#prime" do
+            it "primes the subforges" do
+                expect(subforge_one).to receive(:prime)
+                expect(subforge_two).to receive(:prime)
+                multi_forge.prime
+            end
+        end
+
         describe "#search_modules" do
             context "when no modules match in any subforge" do
                 it "returns an empty array" do

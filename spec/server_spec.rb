@@ -24,9 +24,17 @@ module PuppetLibrary
         include Rack::Test::Methods
 
         let(:forge) { double(Forge) }
-        let(:app) do
+        let :app do
+            allow(forge).to receive(:prime)
             Server.new(forge)
         end
+
+        #describe "#new" do
+        #    it "primes the repositories" do
+        #        expect(forge).to receive(:prime)
+        #        app
+        #    end
+        #end
 
         describe "#configure" do
             it "exposes a configuration API" do

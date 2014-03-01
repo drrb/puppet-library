@@ -19,12 +19,12 @@ require 'spec_helper'
 
 module PuppetLibrary
     describe PuppetLibrary do
-        let(:forge) do
+        let :forge do
             forge = double(Forge::Multi).as_null_object
             allow(Forge::Multi).to receive(:new).and_return(forge)
             return forge
         end
-        let(:server) do
+        let :server do
             server = double(Server)
             allow(Server).to receive(:new).with(forge).and_return(server)
             return server
@@ -129,6 +129,8 @@ module PuppetLibrary
             end
 
             context "when using --proxy option" do
+                let(:proxy) { double('proxy').as_null_object }
+
                 it "adds a proxy module forge for each option specified" do
                     proxy1 = double('proxy1')
                     proxy2 = double('proxy2')
@@ -143,7 +145,7 @@ module PuppetLibrary
 
                 context "when no protocol is specified" do
                     it "defaults to HTTP" do
-                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com")
+                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com").and_return proxy
 
                         library.go(["--proxy", "forge.example.com"])
                     end
@@ -151,7 +153,7 @@ module PuppetLibrary
 
                 context "when the URL contains a trailing slash" do
                     it "removes the slash" do
-                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com")
+                        expect(Forge::Proxy).to receive(:new).with("http://forge.example.com").and_return proxy
 
                         library.go(["--proxy", "http://forge.example.com/"])
                     end
@@ -159,17 +161,18 @@ module PuppetLibrary
             end
 
             context "when using --cache-basedir option" do
+                let(:proxy) { double('proxy').as_null_object }
+
                 it "uses the specified directory to hold cache directories for all proxies" do
-                    proxy1 = double('proxy')
-                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy1)
-                    expect(forge).to receive(:add_forge).with(proxy1)
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy)
+                    expect(forge).to receive(:add_forge).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
                     library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/modules"])
                 end
 
                 it "expands the path specified" do
-                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com")
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy)
 
                     library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/../var/modules"])
                 end

@@ -39,16 +39,21 @@ module PuppetLibrary::Forge
 
         def self.configure(&block)
             config = PuppetLibrary::Util::ConfigApi.configure(GitRepository, :source, :include_tags, &block)
-            GitRepository.new(config.get_source, config.get_include_tags)
+            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
+            git = PuppetLibrary::Util::Git.new(config.get_source, cache_path)
+            GitRepository.new(git, config.get_include_tags)
         end
 
         # * <tt>:source</tt> - The URL or path of the git repository
         # * <tt>:version_tag_regex</tt> - A regex that describes which tags to serve
-        def initialize(source, version_tag_regex)
+        def initialize(git, version_tag_regex)
             super(self)
-            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
             @version_tag_regex = version_tag_regex
-            @git = PuppetLibrary::Util::Git.new(source, cache_path)
+            @git = git
+        end
+
+        def prime
+            @git.update_cache!
         end
 
         def destroy!

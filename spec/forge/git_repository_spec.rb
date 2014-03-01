@@ -52,7 +52,12 @@ module PuppetLibrary::Forge
             rm_rf @@repo_path
         end
 
-        let(:forge) { GitRepository.new(@@repo_path, /[0-9.]+/) }
+        let :forge do
+            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
+            git = PuppetLibrary::Util::Git.new(@@repo_path, cache_path)
+            GitRepository.new(git, /[0-9.]+/)
+        end
+
         after do
             forge.destroy!
         end
@@ -64,6 +69,17 @@ module PuppetLibrary::Forge
                     include_tags /v123/
                 end
                 expect(forge.instance_eval "@version_tag_regex").to eq /v123/
+            end
+        end
+
+        describe "#prime" do
+            it "creates the repo cache" do
+                git = double('git')
+                forge = GitRepository.new(git, //)
+
+                expect(git).to receive(:update_cache!)
+
+                forge.prime
             end
         end
 

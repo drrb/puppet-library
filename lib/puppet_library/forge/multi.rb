@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/forge/forge'
 require 'puppet_library/forge/search_result'
+require 'puppet_library/util/patches'
 
 module PuppetLibrary::Forge
 
@@ -35,9 +37,15 @@ module PuppetLibrary::Forge
     #     multi_forge = Multi.new
     #     multi_forge.add_forge(Directory.new("/var/modules"))
     #     multi_forge.add_forge(Proxy.new("http://forge.puppetlabs.com"))
-    class Multi
+    class Multi < Forge
         def initialize
             @forges = []
+        end
+
+        def prime
+            @forges.each_in_parallel do |forge|
+                forge.prime
+            end
         end
 
         # Add another forge to delegate to.

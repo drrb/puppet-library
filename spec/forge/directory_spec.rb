@@ -37,7 +37,7 @@ module PuppetLibrary::Forge
             end
         end
 
-        describe "#initialize" do
+        describe "#new" do
             context "when the module directory doesn't exist" do
                 before do
                     rm_rf module_dir
@@ -64,6 +64,12 @@ module PuppetLibrary::Forge
                         Directory.new(module_dir)
                     }.to raise_error /Module directory .* isn't readable/
                 end
+            end
+        end
+
+        describe "#prime" do
+            it "does nothing" do
+                forge.prime
             end
         end
 
