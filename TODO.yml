@@ -5,7 +5,6 @@ features:
         - make it more flexible:
             - support tags non-trivial names (e.g. v1.0.0)
             - fail gracefully if there's no Modulefile
-        - make it fast (pre-clone repos on startup (maybe just warn if they can't be found). Maybe cache artifacts?)
     - Performance:
         - cache stuff so it's faster
         - allow configuration of cache ttl
