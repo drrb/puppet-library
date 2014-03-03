@@ -60,7 +60,7 @@ module PuppetLibrary::Forge
             end
         end
 
-        def get_metadata(author = "*", module_name = "")
+        def get_metadata(author, module_name)
             Dir["#{@module_dir}/#{author}-#{module_name}*"].map do |module_path|
                 archive = PuppetLibrary::Archive::ArchiveReader.new(module_path)
                 metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
@@ -69,7 +69,7 @@ module PuppetLibrary::Forge
         end
 
         def get_all_metadata
-            get_metadata
+            get_metadata("*", "")
         end
     end
 end
