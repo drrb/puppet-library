@@ -45,6 +45,11 @@ module PuppetLibrary::Forge
             @download_cache = download_cache
         end
 
+        def clear_cache
+            @query_cache.clear
+            @download_cache.clear
+        end
+
         def search_modules(query)
             query_parameter = query.nil? ? "" : "?q=#{query}"
             results = get("/modules.json#{query_parameter}")

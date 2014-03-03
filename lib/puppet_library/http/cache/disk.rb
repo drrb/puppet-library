@@ -15,11 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'fileutils'
+require 'monitor'
+
 module PuppetLibrary::Http
     module Cache
         class Disk
             def initialize(directory)
                 @directory = directory
+                @mutex = Monitor.new
             end
 
             def get(path = "entry")
@@ -30,25 +34,39 @@ module PuppetLibrary::Http
                 retrieve(path)
             end
 
+            def clear
+                @mutex.synchronize do
+                    FileUtils.rm_rf @directory
+                end
+            end
+
             private
             def include?(path)
-                File.exist? entry_path(path)
+                @mutex.synchronize do
+                    File.exist? entry_path(path)
+                end
             end
 
             def save(path, buffer)
-                file_path = entry_path(path)
-                FileUtils.mkdir_p File.dirname(file_path)
-                File.open(file_path, "w") do |file|
-                    file.write buffer.read
+                @mutex.synchronize do
+                    file_path = entry_path(path)
+                    FileUtils.mkdir_p File.dirname(file_path)
+                    File.open(file_path, "w") do |file|
+                        file.write buffer.read
+                    end
                 end
             end
 
             def retrieve(path)
-                File.open(entry_path(path))
+                @mutex.synchronize do
+                    File.open(entry_path(path))
+                end
             end
 
             def entry_path(path)
-                File.join(@directory, path)
+                @mutex.synchronize do
+                    File.join(@directory, path)
+                end
             end
         end
     end

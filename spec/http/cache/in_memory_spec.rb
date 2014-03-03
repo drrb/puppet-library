@@ -59,5 +59,17 @@ module PuppetLibrary::Http::Cache
                 end
             end
         end
+
+        describe "#clear" do
+            it "clears the cache" do
+                cache.get { 1 }
+                result = cache.get { 2 }
+                expect(result).to eq 1
+
+                cache.clear
+                result = cache.get { 3 }
+                expect(result).to eq 3
+            end
+        end
     end
 end

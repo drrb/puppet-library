@@ -42,6 +42,10 @@ module PuppetLibrary::Http
                 cache[key] = entry
             end
 
+            def clear
+                @cache.clear
+            end
+
             private
             def cache
                 @cache ||= {}

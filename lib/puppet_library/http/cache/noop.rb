@@ -23,6 +23,9 @@ module PuppetLibrary::Http
             def get(path = "entry")
                 yield
             end
+
+            def clear
+            end
         end
     end
 end

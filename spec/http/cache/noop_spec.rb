@@ -28,5 +28,11 @@ module PuppetLibrary::Http::Cache
                 expect(name).to eq "james"
             end
         end
+
+        describe "#clear" do
+            it "does nothing" do
+                cache.clear
+            end
+        end
     end
 end

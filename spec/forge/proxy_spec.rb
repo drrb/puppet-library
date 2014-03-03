@@ -33,6 +33,15 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#clear_cache" do
+            it "clears the caches" do
+                expect(query_cache).to receive(:clear)
+                expect(download_cache).to receive(:clear)
+
+                forge.clear_cache
+            end
+        end
+
         describe "#search_modules" do
             it "forwards the request directly" do
                 search_results = '["a","b","c"]'

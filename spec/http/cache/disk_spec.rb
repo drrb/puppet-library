@@ -53,5 +53,14 @@ module PuppetLibrary::Http::Cache
                 end
             end
         end
+
+        describe "#clear" do
+            it "clears the cache" do
+                cache.get("dir/my-file") { StringIO.new "1" }
+                cache.clear
+                result = cache.get("dir/my-file") { StringIO.new "2" }
+                expect(result.read).to eq "2"
+            end
+        end
     end
 end
