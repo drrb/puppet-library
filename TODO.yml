@@ -7,7 +7,6 @@ features:
             - fail gracefully if we can't contact the puppetmaster
     - Performance:
         - cache stuff so it's faster
-        - allow configuration of cache ttl
     - logging:
         - use Ruby logging
         - include some verbose logging
@@ -20,7 +19,6 @@ features:
         - delete modules from disk (web form)
     - Authentication
     - Config APIs:
-        - parameterless blocks (especially for Server. Include PuppetLibrary::Forge aliased to Forge in scope)
         - validation of required params
         - documentation
 
