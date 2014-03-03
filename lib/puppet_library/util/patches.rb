@@ -85,9 +85,7 @@ class Array
                 yield(element)
             end
         end
-        threads.each do |thread|
-            thread.join
-        end
+        threads.each &:join
     end
 end
 
