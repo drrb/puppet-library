@@ -23,7 +23,7 @@ module PuppetLibrary::Http
                 @reaper = Reaper.new(millis_to_live)
             end
 
-            def get(key)
+            def get(key = "entry")
                 entry = retrieve(key)
                 if entry
                     return entry.value unless @reaper.wants_to_kill? entry

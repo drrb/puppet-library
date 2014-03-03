@@ -22,6 +22,7 @@ require 'puppet_library/forge/abstract'
 require 'puppet_library/util/git'
 require 'puppet_library/util/temp_dir'
 require 'puppet_library/util/config_api'
+require 'puppet_library/http/cache/in_memory'
 
 module PuppetLibrary::Forge
     # A forge for serving modules from a Git repository
@@ -50,6 +51,8 @@ module PuppetLibrary::Forge
             super(self)
             @version_tag_regex = version_tag_regex
             @git = git
+            @modulefile_cache = PuppetLibrary::Http::Cache::InMemory.new
+            @tags_cache = PuppetLibrary::Http::Cache::InMemory.new
         end
 
         def prime
@@ -90,14 +93,17 @@ module PuppetLibrary::Forge
         end
 
         private
-
         def tags
-            @git.tags.select {|tag| tag =~ @version_tag_regex }
+            @tags_cache.get do
+                @git.tags.select {|tag| tag =~ @version_tag_regex }
+            end
         end
 
         def modulefile_for_tag(tag)
-            modulefile_source = @git.read_file("Modulefile", tag)
-            PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+            @modulefile_cache.get(tag) do
+                modulefile_source = @git.read_file("Modulefile", tag)
+                PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+            end
         end
 
         def modulefile_for(version)
@@ -109,7 +115,14 @@ module PuppetLibrary::Forge
         end
 
         def tag_for(version)
-            version
+            tag_versions[version]
+        end
+
+        def tag_versions
+            tags_to_versions = tags.map do |tag|
+                [ modulefile_for_tag(tag).get_version, tag ]
+            end
+            Hash[tags_to_versions]
         end
     end
 end

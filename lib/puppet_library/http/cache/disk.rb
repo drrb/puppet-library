@@ -22,7 +22,7 @@ module PuppetLibrary::Http
                 @directory = directory
             end
 
-            def get(path)
+            def get(path = "entry")
                 unless include? path
                     buffer = yield
                     save(path, buffer)

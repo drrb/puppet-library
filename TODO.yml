@@ -3,8 +3,8 @@ features:
         - asynchronous (index page loads too slowly)
     - Git repo forge:
         - make it more flexible:
-            - support tags non-trivial names (e.g. v1.0.0)
             - fail gracefully if there's no Modulefile
+            - fail gracefully if we can't contact the puppetmaster
     - Performance:
         - cache stuff so it's faster
         - allow configuration of cache ttl

@@ -20,7 +20,7 @@ require 'puppet_library/http/cache/in_memory'
 module PuppetLibrary::Http
     module Cache
         class NoOp
-            def get(path)
+            def get(path = "entry")
                 yield
             end
         end

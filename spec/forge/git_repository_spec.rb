@@ -20,7 +20,7 @@ module PuppetLibrary::Forge
     describe GitRepository do
         @@repo_path = Tempdir.create("git-repo")
         @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
-        @@tags = @@versions + [ "xxx" ]
+        @@tags = @@versions.map {|version| "v#{version}"} + [ "xxx" ]
 
         before :all do
             def git(command)
