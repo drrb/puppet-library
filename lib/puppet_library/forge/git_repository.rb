@@ -59,7 +59,7 @@ module PuppetLibrary::Forge
             @git.update_cache!
         end
 
-        def destroy!
+        def clear_cache
             @git.clear_cache!
         end
 

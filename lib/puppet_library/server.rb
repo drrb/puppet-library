@@ -137,6 +137,10 @@ module PuppetLibrary
             end
         end
 
+        post "/api/forge/clear-cache" do
+            @forge.clear_cache
+        end
+
         private
         def download(buffer)
             if buffer.respond_to?(:size)

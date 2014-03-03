@@ -43,9 +43,11 @@ module PuppetLibrary::Forge
         end
 
         def prime
-            @forges.each_in_parallel do |forge|
-                forge.prime
-            end
+            @forges.each_in_parallel &:prime
+        end
+
+        def clear_cache
+            @forges.each_in_parallel &:clear_cache
         end
 
         # Add another forge to delegate to.

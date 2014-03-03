@@ -46,6 +46,14 @@ module PuppetLibrary::Forge
             end
         end
 
+        describe "#clear_cache" do
+            it "clears the subforges' caches" do
+                expect(subforge_one).to receive(:clear_cache)
+                expect(subforge_two).to receive(:clear_cache)
+                multi_forge.clear_cache
+            end
+        end
+
         describe "#search_modules" do
             context "when no modules match in any subforge" do
                 it "returns an empty array" do

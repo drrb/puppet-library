@@ -59,7 +59,7 @@ module PuppetLibrary::Forge
         end
 
         after do
-            forge.destroy!
+            forge.clear_cache
         end
 
         describe "#configure" do
@@ -80,6 +80,17 @@ module PuppetLibrary::Forge
                 expect(git).to receive(:update_cache!)
 
                 forge.prime
+            end
+        end
+
+        describe "#clear_cache" do
+            it "deletes the repo cache" do
+                git = double('git')
+                forge = GitRepository.new(git, //)
+
+                expect(git).to receive(:clear_cache!)
+
+                forge.clear_cache
             end
         end
 

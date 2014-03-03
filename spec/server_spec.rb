@@ -97,6 +97,14 @@ module PuppetLibrary
             end
         end
 
+        describe "POST /api/forge/clear-cache" do
+            it "clears the forges' caches" do
+                expect(forge).to receive(:clear_cache)
+
+                post "/api/forge/clear-cache"
+            end
+        end
+
         describe "GET /modules.json" do
             it "renders the search result as JSON" do
                 search_results = [

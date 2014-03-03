@@ -54,6 +54,7 @@ module PuppetLibrary::Util
 
         def clear_cache!
             @mutex.synchronize do
+                info "Clearing cache for Git repository #{@source} from #{@git_dir}"
                 FileUtils.rm_rf @cache_path
             end
         end
