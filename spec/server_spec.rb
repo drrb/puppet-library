@@ -29,12 +29,12 @@ module PuppetLibrary
             Server.new(forge)
         end
 
-        #describe "#new" do
-        #    it "primes the repositories" do
-        #        expect(forge).to receive(:prime)
-        #        app
-        #    end
-        #end
+        describe "#new" do
+            it "primes the repositories" do
+                expect(forge).to receive(:prime)
+                app
+            end
+        end
 
         describe "#configure" do
             it "exposes a configuration API" do
