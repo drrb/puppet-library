@@ -18,9 +18,9 @@
 module PuppetLibrary::Http
     module Cache
         class InMemory
-            ARBITRARY_CACHE_TTL_MILLIS = 10 * 1000
-            def initialize(millis_to_live = ARBITRARY_CACHE_TTL_MILLIS)
-                @reaper = Reaper.new(millis_to_live)
+            ARBITRARY_CACHE_TTL_SECONDS = 10
+            def initialize(seconds_to_live = ARBITRARY_CACHE_TTL_SECONDS)
+                @reaper = Reaper.new(seconds_to_live)
             end
 
             def get(key = "entry")
@@ -55,19 +55,18 @@ module PuppetLibrary::Http
                     @value = value
                 end
 
-                def age_millis
-                    age_seconds = Time.now - @birth
-                    age_seconds * 1000
+                def age
+                    Time.now - @birth
                 end
             end
 
             class Reaper
-                def initialize(millis_to_live)
-                    @millis_to_live = millis_to_live
+                def initialize(time_to_let_live)
+                    @time_to_let_live = time_to_let_live
                 end
 
                 def wants_to_kill?(entry)
-                    entry.age_millis > @millis_to_live
+                    entry.age > @time_to_let_live
                 end
             end
         end
