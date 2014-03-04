@@ -19,7 +19,6 @@ features:
         - delete modules from disk (web form)
     - Authentication
     - Config APIs:
-        - validation of required params
         - documentation
 
 dubious_features:

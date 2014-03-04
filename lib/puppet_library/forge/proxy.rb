@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/forge/forge'
 require 'puppet_library/http/http_client'
 require 'puppet_library/http/cache/in_memory'
 require 'puppet_library/http/cache/noop'
@@ -33,7 +34,10 @@ module PuppetLibrary::Forge
     class Proxy < Forge
 
         def self.configure(&block)
-            config = PuppetLibrary::Util::ConfigApi.configure(Proxy, :url, &block)
+            config_api = PuppetLibrary::Util::ConfigApi.for(Proxy) do
+                required :url, "URL"
+            end
+            config = config_api.configure(&block)
             Proxy.new(config.get_url)
         end
 

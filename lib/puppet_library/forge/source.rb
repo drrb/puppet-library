@@ -28,7 +28,10 @@ module PuppetLibrary::Forge
     # The module directory must have a +Modulefile+.
     class Source < PuppetLibrary::Forge::Abstract
         def self.configure(&block)
-            config = PuppetLibrary::Util::ConfigApi.configure(Source, :path, &block)
+            config_api = PuppetLibrary::Util::ConfigApi.for(Source) do
+                required :path, "path to the module's source"
+            end
+            config = config_api.configure(&block)
             Source.new(config.get_path)
         end
 

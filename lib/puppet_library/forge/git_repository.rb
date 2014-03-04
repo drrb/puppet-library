@@ -39,7 +39,14 @@ module PuppetLibrary::Forge
     class GitRepository < PuppetLibrary::Forge::Abstract
 
         def self.configure(&block)
-            config = PuppetLibrary::Util::ConfigApi.configure(GitRepository, :source, :include_tags, &block)
+            config_api = PuppetLibrary::Util::ConfigApi.for(GitRepository) do
+                required :source, "path or URL"
+                required :include_tags, "regex" do |value|
+                    value.is_a? Regexp
+                end
+            end
+
+            config = config_api.configure(&block)
             cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
             git = PuppetLibrary::Util::Git.new(config.get_source, cache_path)
             GitRepository.new(git, config.get_include_tags)

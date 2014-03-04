@@ -38,15 +38,19 @@ module PuppetLibrary::Forge
     class Directory < PuppetLibrary::Forge::Abstract
 
         def self.configure(&block)
-            config = PuppetLibrary::Util::ConfigApi.configure(Directory, :path, &block)
+            config_api = PuppetLibrary::Util::ConfigApi.for(Directory) do
+                required :path, "path to a directory to serve modules from" do |dir|
+                    raise "Module directory '#{dir}' doesn't exist" unless File.directory? dir
+                    raise "Module directory '#{dir}' isn't readable" unless File.executable? dir
+                end
+            end
+            config = config_api.configure(&block)
             Directory.new(config.get_path)
         end
 
         # * <tt>:module_dir</tt> - The directory containing the packaged modules.
         def initialize(module_dir)
             super(self)
-            raise "Module directory '#{module_dir}' doesn't exist" unless File.directory? module_dir
-            raise "Module directory '#{module_dir}' isn't readable" unless File.executable? module_dir
             @module_dir = module_dir
         end
 

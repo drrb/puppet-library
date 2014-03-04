@@ -36,7 +36,11 @@ module PuppetLibrary::Forge
     class Cache < Proxy
 
         def self.configure(&block)
-            config = PuppetLibrary::Util::ConfigApi.configure(Cache, :url, :path, &block)
+            config_api = PuppetLibrary::Util::ConfigApi.for(Cache) do
+                required :url, "URL"
+                required :path, "path"
+            end
+            config = config_api.configure(&block)
             Cache.new(config.get_url, config.get_path)
         end
 

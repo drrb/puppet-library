@@ -19,28 +19,81 @@ require 'docile'
 
 module PuppetLibrary::Util
     class ConfigApi
-        def self.configure(owner, *fields, &block)
-            class_name = "#{owner.name.split('::').last}Config"
-            config_class = if PuppetLibrary.const_defined?(class_name.intern)
-                               PuppetLibrary.const_get(class_name)
-                           else
-                               define_class(class_name, fields)
-                           end
-            Docile.dsl_eval(config_class.new, &block)
+        def self.for(owner, &block)
+            Docile.dsl_eval(ConfigApi.new(owner), &block)
         end
 
-        def self.define_class(class_name, fields)
+        def initialize(owner)
+            @owner = owner
+            @params = []
+        end
+
+        def configure(&block)
+            config_api = config_class.new
+            Docile.dsl_eval(config_api, &block)
+            config_api.validate!
+        end
+
+        def config_class
+            class_name = "#{@owner.to_s.split('::').last}Config"
+            if PuppetLibrary.const_defined?(class_name.intern)
+                PuppetLibrary.const_get(class_name)
+            else
+                define_config_class(class_name)
+            end
+        end
+
+        def define_config_class(class_name)
+            params = @params
             config_class = Class.new do
-                fields.each do |field|
-                    define_method(field.to_sym) do |new_value|
-                        instance_variable_set "@#{field}", new_value
+                define_method(:validate!) do
+                    params.select(&:required?).each do |param|
+                        if send("get_#{param.name}").nil?
+                            raise "Config parameter '#{param.name}' is required (expected #{param.description}), but wasn't specified"
+                        end
                     end
-                    define_method("get_#{field}".to_sym) do
-                        instance_variable_get "@#{field}"
+                    self
+                end
+                params.each do |param|
+                    define_method(param.name.to_sym) do |new_value|
+                        begin
+                            param.validate! new_value
+                            instance_variable_set "@#{param.name}", new_value
+                        rescue => validation_error
+                            raise "Invalid value for config parameter '#{param.name}': #{validation_error.message} (was expecting #{param.description})"
+                        end
+                    end
+
+                    define_method("get_#{param.name}".to_sym) do
+                        instance_variable_get "@#{param.name}"
                     end
                 end
             end
             PuppetLibrary.const_set(class_name, config_class)
+        end
+
+        def required(name, description, &validate)
+            param(name, description, true, validate)
+        end
+
+        def param(name, description, required, validate)
+            @params << Param.new(name, description, required, validate)
+        end
+
+        class Param
+            attr_reader :name, :description
+
+            def initialize(name, description, required, validate)
+                @name, @description, @required, @validate = name, description, required, validate
+            end
+
+            def required?
+                @required
+            end
+
+            def validate!(value)
+                @validate.nil? || @validate.call(value)
+            end
         end
     end
 end

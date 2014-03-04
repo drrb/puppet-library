@@ -29,15 +29,12 @@ module PuppetLibrary::Forge
 
         describe "#configure" do
             it "exposes a configuration API" do
-                module_dir = "."
                 forge = Directory.configure do
-                    path module_dir
+                    path "."
                 end
-                expect(forge.instance_eval "@module_dir").to eq module_dir
+                expect(forge.instance_eval "@module_dir").to eq "."
             end
-        end
 
-        describe "#new" do
             context "when the module directory doesn't exist" do
                 before do
                     rm_rf module_dir
@@ -45,7 +42,9 @@ module PuppetLibrary::Forge
 
                 it "raises an error" do
                     expect {
-                        Directory.new(module_dir)
+                        Directory.configure do
+                            path module_dir
+                        end
                     }.to raise_error /Module directory .* doesn't exist/
                 end
             end
@@ -61,7 +60,9 @@ module PuppetLibrary::Forge
 
                 it "raises an error" do
                     expect {
-                        Directory.new(module_dir)
+                        Directory.configure do
+                            path module_dir
+                        end
                     }.to raise_error /Module directory .* isn't readable/
                 end
             end
