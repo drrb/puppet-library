@@ -64,3 +64,11 @@
   changes:
       - Added new Git repo forge that serves modules from Git repositories, using tags for version numbers!
       - Fixed imports to enable easier embedding of Puppet Library
+- tag: v0.11.0
+  changes:
+      - Added support for nontrivial tag names as version numbers when proxying Git repositories (e.g. tags named "v1.0.1")
+      - Added REST API to clear forge caches
+      - Git repositories are cached at startup for better performance and reliability
+      - Ensured temp directories are cleaned up more reliably
+      - Improved logging
+      - Improved Ruby config API for Rack/Passenger/embedded use
