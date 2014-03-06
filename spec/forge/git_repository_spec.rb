@@ -19,15 +19,16 @@ require 'spec_helper'
 module PuppetLibrary::Forge
     describe GitRepository do
         @@repo_dir = Tempdir.new("git-repo")
-        @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
+        @@versions = [ "0.1.0", "0.9.0", "1.0.0-rc1", "1.0.0" ]
         @@tags = @@versions.map {|version| "v#{version}"} + [ "xxx" ]
 
         before :all do
             def git(command)
                 git_command = "git --git-dir=#{@@repo_dir.path}/.git --work-tree=#{@@repo_dir.path} #{command}"
-                `#{git_command}`
-                unless $?.success?
-                    raise "Failed to run command: \"#{git_command}\""
+                pid, stdin, stdout, stderr = Open4.popen4(git_command)
+                ignored, status = Process::waitpid2 pid
+                unless status.success?
+                    raise "Error running Git command: #{git_command}\n#{stdout.read}\n#{stderr.read}"
                 end
             end
 
@@ -35,13 +36,24 @@ module PuppetLibrary::Forge
             git "config user.name tester"
             git "config user.email tester@example.com"
             @@versions.zip(@@tags).each do |(version, tag)|
-                File.open(File.join(@@repo_dir.path, "Modulefile"), "w") do |modulefile|
+                # Add some changes for the version
+                change_file_path = File.join(@@repo_dir.path, "changes.txt")
+                File.open(change_file_path, "a") do |change_file|
+                    change_file.puts "Version #{version}"
+                end
+
+                # Update the module file
+                modulefile_path = File.join(@@repo_dir.path, "Modulefile")
+                File.open(modulefile_path, "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
                     version '#{version}'
                     author 'puppetlabs'
                     MODULEFILE
                 end
+
+                # A dodgy early version with no modulefile
+                File.delete modulefile_path if version == "0.1.0"
                 git "add ."
                 git "commit --message='Version #{version}'"
                 git "tag #{tag}"
@@ -151,6 +163,12 @@ module PuppetLibrary::Forge
                 expect(metadata).to have(3).versions
                 expect(metadata.first["name"]).to eq "puppetlabs-apache"
                 expect(metadata.first["version"]).to eq "0.9.0"
+            end
+
+            it "doesn't include versions with no Modulefile" do
+                metadata = forge.get_all_metadata
+                dodgy_version = metadata.find {|m| m["version"] == "0.1.0" }
+                expect(dodgy_version).to be_nil
             end
         end
     end

@@ -3,8 +3,7 @@ features:
         - asynchronous (index page loads too slowly)
     - Git repo forge:
         - make it more flexible:
-            - fail gracefully if there's no Modulefile
-            - fail gracefully if we can't contact the puppetmaster
+            - fail gracefully if we can't contact the remote repo
     - Performance:
         - cache stuff so it's faster
     - logging:

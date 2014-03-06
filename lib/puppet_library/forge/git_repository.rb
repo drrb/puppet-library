@@ -102,7 +102,9 @@ module PuppetLibrary::Forge
         private
         def tags
             @tags_cache.get do
-                @git.tags.select {|tag| tag =~ @version_tag_regex }
+                tags = @git.tags
+                tags = tags.select {|tag| tag =~ @version_tag_regex }
+                tags = tags.select {|tag| @git.file_exists?("Modulefile", tag) }
             end
         end
 

@@ -38,9 +38,9 @@ module PuppetLibrary::Util
             logger.info message
         end
 
-        #def warn(message)
-        #    logger.warn message
-        #end
+        def warn(message)
+            logger.warn message
+        end
 
         #def error(message)
         #    logger.error message

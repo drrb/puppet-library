@@ -52,6 +52,13 @@ module PuppetLibrary::Util
             git "show refs/tags/#{tag}:#{path}"
         end
 
+        def file_exists?(path, tag)
+            read_file(path, tag)
+            true
+        rescue GitCommandError
+            false
+        end
+
         def clear_cache!
             @mutex.synchronize do
                 info "Clearing cache for Git repository #{@source} from #{@git_dir}"
@@ -109,9 +116,12 @@ module PuppetLibrary::Util
             pid, stdin, stdout, stderr = Open4.popen4(command)
             ignored, status = Process::waitpid2 pid
             unless status.success?
-                raise "Error running Git command: #{command}\n#{stderr.read}"
+                raise GitCommandError, "Error running Git command: #{command}\n#{stdout.read}\n#{stderr.read}"
             end
             stdout.read
+        end
+
+        class GitCommandError < StandardError
         end
     end
 end
