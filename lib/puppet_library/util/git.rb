@@ -119,6 +119,10 @@ module PuppetLibrary::Util
                 raise GitCommandError, "Error running Git command: #{command}\n#{stdout.read}\n#{stderr.read}"
             end
             stdout.read
+        ensure
+            stdin.close
+            stdout.close
+            stderr.close
         end
 
         class GitCommandError < StandardError
