@@ -25,7 +25,7 @@ module PuppetLibrary
         include ModuleSpecHelper
 
         let(:port) { Ports.next! }
-        let(:project_dir) { Tempdir.create("project_dir") }
+        let(:project_dir) { Tempdir.new("project_dir") }
         let(:start_dir) { pwd }
         let(:git_server) do
             Server.configure do
@@ -56,11 +56,10 @@ module PuppetLibrary
             # Start the servers
             git_server_runner
             start_dir
-            cd project_dir
+            cd project_dir.path
         end
 
         after do
-            rm_rf project_dir
             cd start_dir
         end
 

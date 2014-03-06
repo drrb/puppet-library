@@ -18,12 +18,12 @@ require 'spec_helper'
 
 module PuppetLibrary::Util
     describe Git do
-        @@repo_path = Tempdir.create("git-repo")
+        @@repo_dir = Tempdir.new("git-repo")
         @@tags = [ "0.9.0", "1.0.0-rc1", "1.0.0", "xxx" ]
 
         before :all do
             def git(command)
-                git_command = "git --git-dir=#{@@repo_path}/.git --work-tree=#{@@repo_path} #{command}"
+                git_command = "git --git-dir=#{@@repo_dir.path}/.git --work-tree=#{@@repo_dir.path} #{command}"
                 `#{git_command}`
                 unless $?.success?
                     raise "Failed to run command: \"#{git_command}\""
@@ -34,7 +34,7 @@ module PuppetLibrary::Util
             git "config user.name tester"
             git "config user.email tester@example.com"
             @@tags.each do |tag|
-                File.open(File.join(@@repo_path, "Modulefile"), "w") do |modulefile|
+                File.open(File.join(@@repo_dir.path, "Modulefile"), "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
                     version '#{tag}'
@@ -47,16 +47,8 @@ module PuppetLibrary::Util
             end
         end
 
-        after :all do
-            rm_rf @@repo_path
-        end
-
-        let(:git) { Git.new(@@repo_path, cache_path) }
-        let(:cache_path) { Tempdir.create("git-cache") }
-
-        after do
-            git.clear_cache!
-        end
+        let(:git) { Git.new(@@repo_dir.path, cache_dir) }
+        let(:cache_dir) { Tempdir.new("git-cache") }
 
         context "when a git command returns nonzero" do
             it "raises an error" do
@@ -90,17 +82,17 @@ module PuppetLibrary::Util
             it "clones the git repository to the cache directory" do
                 git.update_cache!
 
-                expect(`git --git-dir #{cache_path}/.git remote -v`).to include @@repo_path
+                expect(`git --git-dir #{cache_dir.path}/.git remote -v`).to include @@repo_dir.path
             end
 
             it "creates Git's .git/FETCH_HEAD file so that we know that the cache was recently created" do
                 git.update_cache!
 
-                expect(File.exist?(File.join(cache_path, ".git", "FETCH_HEAD"))).to be_true
+                expect(File.exist?(File.join(cache_dir.path, ".git", "FETCH_HEAD"))).to be_true
             end
 
             it "copes with a missing .git/FETCH_HEAD file" do
-                fetch_file = File.join(cache_path, ".git", "FETCH_HEAD")
+                fetch_file = File.join(cache_dir.path, ".git", "FETCH_HEAD")
                 git.update_cache!
                 rm fetch_file
 
@@ -111,7 +103,7 @@ module PuppetLibrary::Util
 
             it "doesn't update the cache if it was recently updated" do
                 git.update_cache!
-                new_head = Dir.chdir(@@repo_path) do
+                new_head = Dir.chdir(@@repo_dir.path) do
                     touch "xxx"
                     `git add xxx`
                     `git commit --message='Added file'`
@@ -120,13 +112,13 @@ module PuppetLibrary::Util
 
                 git.update_cache!
 
-                expect(`git --git-dir #{cache_path}/.git rev-parse HEAD`).not_to eq new_head
+                expect(`git --git-dir #{cache_dir.path}/.git rev-parse HEAD`).not_to eq new_head
             end
 
             it "updates the cache if it's been long enough" do
                 git.update_cache!
-                git = Git.new(@@repo_path, cache_path, 0) # zero second cache TTL
-                new_head = Dir.chdir(@@repo_path) do
+                git = Git.new(@@repo_dir.path, cache_dir, 0) # zero second cache TTL
+                new_head = Dir.chdir(@@repo_dir.path) do
                     touch "xxx"
                     `git add xxx`
                     `git commit --message='Added file'`
@@ -135,7 +127,7 @@ module PuppetLibrary::Util
 
                 git.update_cache!
 
-                expect(`git --git-dir #{cache_path}/.git rev-parse HEAD`).to eq new_head
+                expect(`git --git-dir #{cache_dir.path}/.git rev-parse HEAD`).to eq new_head
             end
         end
 
@@ -144,7 +136,7 @@ module PuppetLibrary::Util
                 git.update_cache!
                 git.clear_cache!
 
-                expect(File.exist? cache_path).to be_false
+                expect(File.exist? cache_dir.path).to be_false
             end
         end
     end

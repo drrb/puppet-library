@@ -18,18 +18,14 @@ require 'spec_helper'
 
 module PuppetLibrary::Forge
     describe Source do
-        let(:module_dir) { Tempdir.create("module_dir") }
-        let(:modulefile_path) { File.join(module_dir, "Modulefile") }
+        let(:module_dir) { Tempdir.new("module_dir") }
+        let(:modulefile_path) { File.join(module_dir.path, "Modulefile") }
         let(:forge) { Source.new(module_dir) }
 
         before do
             set_module! "puppetlabs", "apache", "1.0.0"
             add_module_dependency! "puppetlabs", "stdlib", ">= 2.4.0"
             add_module_dependency! "puppetlabs", "concat", ">= 1.0.1"
-        end
-
-        after do
-            rm_rf module_dir
         end
 
         def set_module!(author, name, version)
@@ -54,16 +50,16 @@ module PuppetLibrary::Forge
         describe "#configure" do
             it "exposes a configuration API" do
                 forge = Source.configure do
-                    path module_dir
+                    path module_dir.path
                 end
-                expect(forge.instance_eval "@module_dir").to eq module_dir
+                expect(forge.instance_eval "@module_dir.path").to eq module_dir.path
             end
         end
 
         describe "#initialize" do
             context "when the module directory doesn't exist" do
                 before do
-                    rm_rf module_dir
+                    rm_rf module_dir.path
                 end
 
                 it "raises an error" do
@@ -75,11 +71,11 @@ module PuppetLibrary::Forge
 
             context "when the module directory isn't readable" do
                 before do
-                    chmod 0400, module_dir
+                    chmod 0400, module_dir.path
                 end
 
                 after do
-                    chmod 0777, module_dir
+                    chmod 0777, module_dir.path
                 end
 
                 it "raises an error" do

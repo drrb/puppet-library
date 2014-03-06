@@ -18,13 +18,13 @@ require 'spec_helper'
 
 module PuppetLibrary::Forge
     describe GitRepository do
-        @@repo_path = Tempdir.create("git-repo")
+        @@repo_dir = Tempdir.new("git-repo")
         @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
         @@tags = @@versions.map {|version| "v#{version}"} + [ "xxx" ]
 
         before :all do
             def git(command)
-                git_command = "git --git-dir=#{@@repo_path}/.git --work-tree=#{@@repo_path} #{command}"
+                git_command = "git --git-dir=#{@@repo_dir.path}/.git --work-tree=#{@@repo_dir.path} #{command}"
                 `#{git_command}`
                 unless $?.success?
                     raise "Failed to run command: \"#{git_command}\""
@@ -35,7 +35,7 @@ module PuppetLibrary::Forge
             git "config user.name tester"
             git "config user.email tester@example.com"
             @@versions.zip(@@tags).each do |(version, tag)|
-                File.open(File.join(@@repo_path, "Modulefile"), "w") do |modulefile|
+                File.open(File.join(@@repo_dir.path, "Modulefile"), "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
                     version '#{version}'
@@ -48,24 +48,16 @@ module PuppetLibrary::Forge
             end
         end
 
-        after :all do
-            rm_rf @@repo_path
-        end
-
         let :forge do
-            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
-            git = PuppetLibrary::Util::Git.new(@@repo_path, cache_path)
+            cache_dir = Tempdir.new("git-repo-cache")
+            git = PuppetLibrary::Util::Git.new(@@repo_dir.path, cache_dir)
             GitRepository.new(git, /[0-9.]+/)
-        end
-
-        after do
-            forge.clear_cache
         end
 
         describe "#configure" do
             it "exposes a configuration API" do
                 forge = GitRepository.configure do
-                    source @@repo_path
+                    source @@repo_dir.path
                     include_tags /v123/
                 end
                 expect(forge.instance_eval "@version_tag_regex").to eq /v123/

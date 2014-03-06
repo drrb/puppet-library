@@ -21,13 +21,13 @@ require 'open-uri'
 
 module PuppetLibrary
     describe "offline git repo forge" do
-        @@repo_path = Tempdir.create("git-repo")
+        @@repo_dir = Tempdir.new("git-repo")
         @@versions = [ "0.9.0", "1.0.0-rc1", "1.0.0" ]
         @@tags = @@versions + [ "xxx" ]
 
         before :all do
             def git(command)
-                git_command = "git --git-dir=#{@@repo_path}/.git --work-tree=#{@@repo_path} #{command}"
+                git_command = "git --git-dir=#{@@repo_dir.path}/.git --work-tree=#{@@repo_dir.path} #{command}"
                 `#{git_command}`
                 unless $?.success?
                     raise "Failed to run command: \"#{git_command}\""
@@ -38,7 +38,7 @@ module PuppetLibrary
             git "config user.name tester"
             git "config user.email tester@example.com"
             @@versions.zip(@@tags).each do |(version, tag)|
-                File.open(File.join(@@repo_path, "Modulefile"), "w") do |modulefile|
+                File.open(File.join(@@repo_dir.path, "Modulefile"), "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
                     version '#{version}'
@@ -51,19 +51,15 @@ module PuppetLibrary
             end
         end
 
-        after :all do
-            rm_rf @@repo_path
-        end
-
         include ModuleSpecHelper
 
         let(:port) { Ports.next! }
-        let(:project_dir) { Tempdir.create("project_dir") }
+        let(:project_dir) { Tempdir.new("project_dir") }
         let(:start_dir) { pwd }
         let(:git_server) do
             Server.configure do
                 forge :git_repository do
-                    source @@repo_path
+                    source @@repo_dir.path
                     include_tags /^[0-9.]+/
                 end
             end
@@ -89,11 +85,10 @@ module PuppetLibrary
             # Start the servers
             git_server_runner
             start_dir
-            cd project_dir
+            cd project_dir.path
         end
 
         after do
-            rm_rf project_dir
             cd start_dir
         end
 

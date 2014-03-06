@@ -36,7 +36,7 @@ module PuppetLibrary::Http
 
             def clear
                 @mutex.synchronize do
-                    FileUtils.rm_rf @directory
+                    FileUtils.rm_rf @directory.path
                 end
             end
 
@@ -65,7 +65,7 @@ module PuppetLibrary::Http
 
             def entry_path(path)
                 @mutex.synchronize do
-                    File.join(@directory, path)
+                    File.join(@directory.path, path)
                 end
             end
         end

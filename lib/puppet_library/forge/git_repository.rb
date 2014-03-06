@@ -47,8 +47,8 @@ module PuppetLibrary::Forge
             end
 
             config = config_api.configure(&block)
-            cache_path = PuppetLibrary::Util::TempDir.create("git-repo-cache")
-            git = PuppetLibrary::Util::Git.new(config.get_source, cache_path)
+            cache_dir = PuppetLibrary::Util::TempDir.new("git-repo-cache")
+            git = PuppetLibrary::Util::Git.new(config.get_source, cache_dir)
             GitRepository.new(git, config.get_include_tags)
         end
 

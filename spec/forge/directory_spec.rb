@@ -20,30 +20,26 @@ module PuppetLibrary::Forge
     describe Directory do
         include ModuleSpecHelper
 
-        let(:module_dir) { Tempdir.create("module_dir") }
+        let(:module_dir) { Tempdir.new("module_dir") }
         let(:forge) { Directory.new(module_dir) }
-
-        after do
-            rm_rf module_dir
-        end
 
         describe "#configure" do
             it "exposes a configuration API" do
                 forge = Directory.configure do
                     path "."
                 end
-                expect(forge.instance_eval "@module_dir").to eq "."
+                expect(forge.instance_eval "@module_dir.path").to eq "."
             end
 
             context "when the module directory doesn't exist" do
                 before do
-                    rm_rf module_dir
+                    rm_rf module_dir.path
                 end
 
                 it "raises an error" do
                     expect {
                         Directory.configure do
-                            path module_dir
+                            path module_dir.path
                         end
                     }.to raise_error /Module directory .* doesn't exist/
                 end
@@ -51,17 +47,17 @@ module PuppetLibrary::Forge
 
             context "when the module directory isn't readable" do
                 before do
-                    chmod 0400, module_dir
+                    chmod 0400, module_dir.path
                 end
 
                 after do
-                    chmod 0777, module_dir
+                    chmod 0777, module_dir.path
                 end
 
                 it "raises an error" do
                     expect {
                         Directory.configure do
-                            path module_dir
+                            path module_dir.path
                         end
                     }.to raise_error /Module directory .* isn't readable/
                 end

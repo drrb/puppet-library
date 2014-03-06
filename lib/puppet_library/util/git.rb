@@ -26,11 +26,11 @@ module PuppetLibrary::Util
         include Logging
 
         DEFAULT_CACHE_TTL_SECONDS = 60
-        def initialize(source, cache_path, cache_ttl_seconds = DEFAULT_CACHE_TTL_SECONDS)
+        def initialize(source, cache_dir, cache_ttl_seconds = DEFAULT_CACHE_TTL_SECONDS)
             @source = source
-            @cache_path = File.expand_path(cache_path)
+            @cache_dir = cache_dir
             @cache_ttl_seconds = cache_ttl_seconds
-            @git_dir = File.join(@cache_path, ".git")
+            @git_dir = File.join(@cache_dir.path, ".git")
             @mutex = Monitor.new
         end
 
@@ -55,7 +55,7 @@ module PuppetLibrary::Util
         def clear_cache!
             @mutex.synchronize do
                 info "Clearing cache for Git repository #{@source} from #{@git_dir}"
-                FileUtils.rm_rf @cache_path
+                FileUtils.rm_rf @cache_dir.path
             end
         end
 
@@ -100,7 +100,7 @@ module PuppetLibrary::Util
         end
 
         def git(command, work_tree = nil)
-            work_tree = @cache_path unless work_tree
+            work_tree = @cache_dir.path unless work_tree
             run "git --git-dir=#{@git_dir} --work-tree=#{work_tree} #{command}"
         end
 

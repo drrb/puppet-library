@@ -19,12 +19,8 @@ require 'spec_helper'
 
 module PuppetLibrary::Http::Cache
     describe Disk do
-        let(:cache_dir) { Tempdir.new("modulecache").path }
+        let(:cache_dir) { Tempdir.new("modulecache") }
         let(:cache) { Disk.new(cache_dir) }
-
-        after do
-            rm_rf cache_dir
-        end
 
         describe "#get" do
             context "the first time it's called" do
@@ -41,7 +37,7 @@ module PuppetLibrary::Http::Cache
 
                     result = cache.get("dir/my-file") { buffer }
 
-                    path = File.join(cache_dir, "dir", "my-file")
+                    path = File.join(cache_dir.path, "dir", "my-file")
                     expect(File.read(path)).to eq "hello"
                 end
             end

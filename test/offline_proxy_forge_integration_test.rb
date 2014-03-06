@@ -25,14 +25,14 @@ module PuppetLibrary
 
         let(:proxy_port) { Ports.next! }
         let(:disk_port) { Ports.next! }
-        let(:module_dir) { Tempdir.create("module_dir") }
-        let(:project_dir) { Tempdir.create("project_dir") }
-        let(:cache_dir) { Tempdir.create("cache_dir") }
+        let(:module_dir) { Tempdir.new("module_dir") }
+        let(:project_dir) { Tempdir.new("project_dir") }
+        let(:cache_dir) { Tempdir.new("cache_dir") }
         let(:start_dir) { pwd }
         let(:disk_server) do
             Server.configure do
                 forge :directory do
-                    path module_dir
+                    path module_dir.path
                 end
             end
         end
@@ -53,7 +53,7 @@ module PuppetLibrary
             Server.configure do
                 forge :cache do
                     url "http://localhost:#{disk_port}"
-                    path cache_dir
+                    path cache_dir.path
                 end
             end
         end
@@ -80,13 +80,10 @@ module PuppetLibrary
             disk_server_runner
             proxy_server_runner
             start_dir
-            cd project_dir
+            cd project_dir.path
         end
 
         after do
-            rm_rf module_dir
-            rm_rf project_dir
-            rm_rf cache_dir
             cd start_dir
         end
 

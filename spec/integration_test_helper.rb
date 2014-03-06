@@ -17,18 +17,18 @@
 
 RSpec::Matchers.define :be_cached do
     match do |mod_file|
-        ! Dir[File.join(cache_dir, mod_file)].empty?
+        ! Dir[File.join(cache_dir.path, mod_file)].empty?
     end
 end
 
 RSpec::Matchers.define :be_installed do
     match do |mod_name|
-        File.directory?(File.join(project_dir, "modules",  mod_name))
+        File.directory?(File.join(project_dir.path, "modules",  mod_name))
     end
 end
 
 def write_puppetfile(content)
-    File.open("#{project_dir}/Puppetfile", "w") do |puppetfile|
+    File.open("#{project_dir.path}/Puppetfile", "w") do |puppetfile|
         puppetfile.puts content
     end
 end

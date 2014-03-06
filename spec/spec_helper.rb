@@ -24,23 +24,9 @@ require 'tempfile'
 require 'fileutils'
 
 include FileUtils
+Tempdir = PuppetLibrary::Util::TempDir
 
 ENV["TESTING"] = "true"
-
-class Tempdir
-    attr_reader :path
-
-    def self.create(name)
-        Tempdir.new(name).path
-    end
-
-    def initialize(name)
-        file = Tempfile.new(name)
-        @path = file.path
-        file.unlink
-        FileUtils.mkdir @path
-    end
-end
 
 class Tgz
     def initialize(buffer)

@@ -24,13 +24,13 @@ module PuppetLibrary
         include ModuleSpecHelper
 
         let(:port) { Ports.next! }
-        let(:module_dir) { Tempdir.create("module_dir") }
-        let(:project_dir) { Tempdir.create("project_dir") }
+        let(:module_dir) { Tempdir.new("module_dir") }
+        let(:project_dir) { Tempdir.new("project_dir") }
         let(:start_dir) { pwd }
         let(:disk_server) do
             Server.configure do
                 forge :directory do
-                    path module_dir
+                    path module_dir.path
                 end
             end
         end
@@ -55,12 +55,10 @@ module PuppetLibrary
             # Start the servers
             disk_server_runner
             start_dir
-            cd project_dir
+            cd project_dir.path
         end
 
         after do
-            rm_rf module_dir
-            rm_rf project_dir
             cd start_dir
         end
 

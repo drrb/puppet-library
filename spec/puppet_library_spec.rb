@@ -108,18 +108,19 @@ module PuppetLibrary
 
             context "when using --config-file option" do
                 it "uses config values from config file as config defaults" do
+                    forge_dir = Tempdir.new("forge")
                     config = {
                         "port" => 4567,
                         "daemonize" => true,
                         "server" => "thin",
                         "pidfile" => "/var/run/puppet-library.pid",
                         "forges" => [
-                            { "Directory" => "/var/lib/modules" },
+                            { "Directory" => forge_dir.path },
                             { "Proxy" => "http://forge.puppetlabs.com" }
                         ]
                     }
                     File.open(config_file.path, "w") { |f| f << config.to_yaml }
-                    expect(Forge::Directory).to receive(:new).with("/var/lib/modules")
+                    expect(Forge::Directory).to receive(:new)
                     expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com")
                     expect(forge).to receive(:add_forge).twice
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Port => 4567, :daemonize => true, :pid => "/var/run/puppet-library.pid", :server => "thin"))
@@ -162,28 +163,41 @@ module PuppetLibrary
 
             context "when using --cache-basedir option" do
                 let(:proxy) { double('proxy').as_null_object }
+                let(:cache_basedir) { Tempdir.new("cache") }
+                let(:cache_dir) { double(Dir) }
+
+                before do
+                    expect(Dir).to receive(:new).with("#{cache_basedir.path}/forge1.example.com").and_return(cache_dir)
+                end
 
                 it "uses the specified directory to hold cache directories for all proxies" do
-                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy)
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", cache_dir).and_return(proxy)
                     expect(forge).to receive(:add_forge).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 
-                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/modules"])
+                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", cache_basedir.path])
                 end
 
                 it "expands the path specified" do
-                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", "/var/modules/forge1.example.com").and_return(proxy)
+                    expect(Forge::Cache).to receive(:new).with("http://forge1.example.com", cache_dir).and_return(proxy)
 
-                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "/var/../var/modules"])
+                    library.go(["--proxy", "http://forge1.example.com", "--cache-basedir", "#{cache_basedir.path}/xxx/.."])
                 end
+            end
+
+            def dir(path)
+                dir = double(Dir)
+                allow(Dir).to receive(:new).with(path).and_return dir
+                dir
             end
 
             context "when using --module-dir option" do
                 it "adds a directory forge to the server for each module directory" do
                     directory_forge_1 = double("directory_forge_1")
                     directory_forge_2 = double("directory_forge_2")
-                    expect(Forge::Directory).to receive(:new).with("dir1").and_return(directory_forge_1)
-                    expect(Forge::Directory).to receive(:new).with("dir2").and_return(directory_forge_2)
+                    dir1, dir2 = dir("dir1"), dir("dir2")
+                    expect(Forge::Directory).to receive(:new).with(dir1).and_return(directory_forge_1)
+                    expect(Forge::Directory).to receive(:new).with(dir2).and_return(directory_forge_2)
                     expect(forge).to receive(:add_forge).with(directory_forge_1)
                     expect(forge).to receive(:add_forge).with(directory_forge_2)
                     expect(Rack::Server).to receive(:start).with(default_options)
@@ -196,8 +210,9 @@ module PuppetLibrary
                 it "adds a source forge to the server for each source directory" do
                     source_forge_1 = double("source_forge_1")
                     source_forge_2 = double("source_forge_2")
-                    expect(Forge::Source).to receive(:new).with("dir1").and_return(source_forge_1)
-                    expect(Forge::Source).to receive(:new).with("dir2").and_return(source_forge_2)
+                    dir1, dir2 = dir("dir1"), dir("dir2")
+                    expect(Forge::Source).to receive(:new).with(dir1).and_return(source_forge_1)
+                    expect(Forge::Source).to receive(:new).with(dir2).and_return(source_forge_2)
                     expect(forge).to receive(:add_forge).with(source_forge_1)
                     expect(forge).to receive(:add_forge).with(source_forge_2)
                     expect(Rack::Server).to receive(:start).with(default_options)

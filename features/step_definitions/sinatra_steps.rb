@@ -19,30 +19,21 @@ spec_path = File.expand_path("../../spec", File.dirname(__FILE__))
 $LOAD_PATH.unshift spec_path unless $LOAD_PATH.include? spec_path
 
 require 'module_spec_helper'
+require 'spec_helper'
 require 'fileutils'
 
 include FileUtils
 
 def module_dir
-    unless @module_dir
-        file = Tempfile.new("module_dir")
-        @module_dir = file.path
-        file.delete
-    end
-    @module_dir
+    @module_dir ||= Tempdir.new("module_dir")
 end
 
 def module_writer
-    @module_writer ||= ModuleSpecHelper::ModuleWriter.new(module_dir)
+    @module_writer ||= ModuleSpecHelper::ModuleWriter.new(module_dir.path)
 end
 
 Before do
-    mkdir_p module_dir
     forge.add_forge PuppetLibrary::Forge::Directory.new(module_dir)
-end
-
-After do
-    rm_rf module_dir
 end
 
 Given /^the "(.*?)" module is available at version "(.*?)"$/ do |full_name, version|

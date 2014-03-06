@@ -41,7 +41,7 @@ module PuppetLibrary::Forge
                 required :path, "path"
             end
             config = config_api.configure(&block)
-            Cache.new(config.get_url, config.get_path)
+            Cache.new(config.get_url, Dir.new(config.get_path))
         end
 
         # * <tt>:url</tt> - The URL of the remote forge.

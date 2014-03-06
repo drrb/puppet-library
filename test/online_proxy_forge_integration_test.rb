@@ -24,18 +24,18 @@ module PuppetLibrary
         include ModuleSpecHelper
 
         let(:port) { Ports.next! }
-        let(:project_dir) { Tempdir.create("project_dir") }
-        let(:module_dir) { Tempdir.create("module_dir") }
-        let(:cache_dir) { Tempdir.create("cache_dir") }
+        let(:project_dir) { Tempdir.new("project_dir") }
+        let(:module_dir) { Tempdir.new("module_dir") }
+        let(:cache_dir) { Tempdir.new("cache_dir") }
         let(:start_dir) { pwd }
         let(:proxy_server) do
             Server.configure do
                 forge :directory do
-                    path module_dir
+                    path module_dir.path
                 end
                 forge :cache do
                     url "http://forge.puppetlabs.com"
-                    path cache_dir
+                    path cache_dir.path
                 end
             end
         end
@@ -60,13 +60,10 @@ module PuppetLibrary
             # Start the server
             proxy_server_runner
             start_dir
-            cd project_dir
+            cd project_dir.path
         end
 
         after do
-            rm_rf module_dir
-            rm_rf project_dir
-            rm_rf cache_dir
             cd start_dir
         end
 

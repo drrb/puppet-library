@@ -19,10 +19,10 @@ require 'spec_helper'
 module PuppetLibrary::Archive
     describe Archiver do
         describe "#archive_dir" do
-            let(:dir) { Tempdir.create("tozip") }
+            let(:dir) { Tempdir.new("tozip") }
 
             def write_file!(filename, content)
-                path = File.join(dir, filename)
+                path = File.join(dir.path, filename)
                 FileUtils.mkdir_p(File.dirname(path))
                 File.open(path, "w") do |file|
                     file.write content
@@ -34,19 +34,15 @@ module PuppetLibrary::Archive
                 write_file! "later/depart.txt", "say bye"
             end
 
-            after do
-                rm_rf dir
-            end
-
             it "tars and gzips a directory and its contents" do
-                buffer = Archiver.archive_dir(dir, "todo")
+                buffer = Archiver.archive_dir(dir.path, "todo")
 
                 expect(buffer).to be_tgz_with "todo/arrive.txt", "say hello"
                 expect(buffer).to be_tgz_with "todo/later/depart.txt", "say bye"
             end
 
             it "allows you to inject files from a block" do
-                buffer = Archiver.archive_dir(dir, "todo") do |archive|
+                buffer = Archiver.archive_dir(dir.path, "todo") do |archive|
                     archive.add_file("later/return.txt", 0644) do |entry|
                        entry.write "say hi again"
                     end
@@ -56,7 +52,7 @@ module PuppetLibrary::Archive
             end
 
             it "fixes leading slash for adding files" do
-                buffer = Archiver.archive_dir(dir, "todo") do |archive|
+                buffer = Archiver.archive_dir(dir.path, "todo") do |archive|
                     archive.add_file("/later/return.txt", 0644) do |entry|
                        entry.write "say hi again"
                     end

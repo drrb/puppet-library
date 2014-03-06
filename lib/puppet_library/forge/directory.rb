@@ -45,7 +45,7 @@ module PuppetLibrary::Forge
                 end
             end
             config = config_api.configure(&block)
-            Directory.new(config.get_path)
+            Directory.new(Dir.new(config.get_path))
         end
 
         # * <tt>:module_dir</tt> - The directory containing the packaged modules.
@@ -56,7 +56,7 @@ module PuppetLibrary::Forge
 
         def get_module(author, name, version)
             file_name = "#{author}-#{name}-#{version}.tar.gz"
-            path = File.join(File.expand_path(@module_dir), file_name)
+            path = File.join(File.expand_path(@module_dir.path), file_name)
             if File.exist? path
                 File.open(path, 'r')
             else
@@ -65,7 +65,7 @@ module PuppetLibrary::Forge
         end
 
         def get_metadata(author, module_name)
-            Dir["#{@module_dir}/#{author}-#{module_name}*"].map do |module_path|
+            Dir["#{@module_dir.path}/#{author}-#{module_name}*"].map do |module_path|
                 archive = PuppetLibrary::Archive::ArchiveReader.new(module_path)
                 metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
                 JSON.parse(metadata_file)

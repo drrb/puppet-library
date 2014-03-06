@@ -32,7 +32,7 @@ module PuppetLibrary::Forge
                 required :path, "path to the module's source"
             end
             config = config_api.configure(&block)
-            Source.new(config.get_path)
+            Source.new(Dir.new(config.get_path))
         end
 
         CACHE_TTL_MILLIS = 500
@@ -40,16 +40,15 @@ module PuppetLibrary::Forge
         # * <tt>:module_dir</tt> - The directory containing the module's source.
         def initialize(module_dir)
             super(self)
-            module_dir = File.expand_path(module_dir)
-            raise "Module directory '#{module_dir}' doesn't exist" unless File.directory? module_dir
-            raise "Module directory '#{module_dir}' isn't readable" unless File.executable? module_dir
+            raise "Module directory '#{module_dir.path}' doesn't exist" unless File.directory? module_dir.path
+            raise "Module directory '#{module_dir.path}' isn't readable" unless File.executable? module_dir.path
             @module_dir = module_dir
             @cache = PuppetLibrary::Http::Cache::InMemory.new(CACHE_TTL_MILLIS)
         end
 
         def get_module(author, name, version)
             return nil unless this_module?(author, name, version)
-            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir, "#{author}-#{name}-#{version}") do |archive|
+            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir.path, "#{author}-#{name}-#{version}") do |archive|
                 archive.add_file("metadata.json", 0644) do |entry|
                     entry.write modulefile.to_metadata.to_json
                 end
@@ -76,7 +75,7 @@ module PuppetLibrary::Forge
         end
 
         def modulefile
-            modulefile_path = File.join(@module_dir, "Modulefile")
+            modulefile_path = File.join(@module_dir.path, "Modulefile")
             @cache.get modulefile_path do
                 PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
             end

@@ -29,14 +29,29 @@ module PuppetLibrary::Util
         end
 
         def self.create(name)
-            TempDir.new(name).path
+            file = Tempfile.new(name)
+            path = file.path
+            file.unlink
+            FileUtils.mkdir path
+            path
         end
 
         def initialize(name)
-            file = Tempfile.new(name)
-            @path = file.path
-            file.unlink
-            FileUtils.mkdir @path
+            @path = TempDir.create(name)
+            @remover = Remover.new(@path)
+            ObjectSpace.define_finalizer(self, @remover)
+        end
+
+        class Remover
+            def initialize(path)
+                @path = path
+            end
+
+            def call(*args)
+                if File.directory? @path
+                    FileUtils.rm_rf @path
+                end
+            end
         end
     end
 end

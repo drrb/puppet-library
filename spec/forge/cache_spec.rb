@@ -19,13 +19,9 @@ require 'spec_helper'
 
 module PuppetLibrary::Forge
     describe Cache do
-        let(:cache_dir) { Tempdir.create("module-cache") }
+        let(:cache_dir) { Tempdir.new("module-cache") }
         let(:http_client) { double(PuppetLibrary::Http::HttpClient) }
         let(:forge) { Cache.new("http://forge.example.com", cache_dir, http_client) }
-
-        after do
-            rm_rf cache_dir
-        end
 
         it "is a proxy" do
             expect(forge).to be_a Proxy
@@ -35,7 +31,7 @@ module PuppetLibrary::Forge
             it "exposes a configuration API" do
                 forge = Cache.configure do
                     url "http://example.com"
-                    path cache_dir
+                    path cache_dir.path
                 end
                 expect(forge.instance_eval "@url").to eq "http://example.com"
             end
@@ -57,7 +53,7 @@ module PuppetLibrary::Forge
 
                     buffer = forge.get_module_buffer("puppetlabs", "apache", "1.0.0")
 
-                    downloaded_file = File.join(cache_dir, "puppetlabs-apache-1.0.0.tar.gz")
+                    downloaded_file = File.join(cache_dir.path, "puppetlabs-apache-1.0.0.tar.gz")
                     expect(File.read downloaded_file).to eq "apache module"
                     expect(buffer.read).to eq "apache module"
                 end
@@ -65,7 +61,7 @@ module PuppetLibrary::Forge
 
             context "the second time it's called" do
                 it "serves the cached module from the disk" do
-                    cached_module = File.join(cache_dir, "puppetlabs-apache-1.0.0.tar.gz")
+                    cached_module = File.join(cache_dir.path, "puppetlabs-apache-1.0.0.tar.gz")
                     File.open(cached_module, "w") do |file|
                         file.write "apache module"
                     end
