@@ -35,7 +35,6 @@ module PuppetLibrary::Util
             config_api
         end
 
-        protected
         def required(name, description, &validate)
             param(name, description, true, validate)
         end
