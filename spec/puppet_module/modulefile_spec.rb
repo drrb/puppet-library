@@ -18,10 +18,10 @@ require 'spec_helper'
 
 module PuppetLibrary::PuppetModule
     describe Modulefile do
-        let(:modulefile) { Tempfile.new("Modulefile") }
+        let(:module_file) { Tempfile.new("Modulefile") }
 
         def write_modulefile(content)
-            File.open(modulefile.path, "w") do |f|
+            File.open(module_file.path, "w") do |f|
                 f.write content
             end
         end
@@ -42,12 +42,8 @@ module PuppetLibrary::PuppetModule
             EOF
         end
 
-        after do
-            modulefile.unlink
-        end
-
         describe "#read" do
-            let(:metadata) { Modulefile.read(modulefile.path) }
+            let(:metadata) { Modulefile.read(module_file.path) }
 
             it "parses the name" do
                 expect(metadata.get_name).to eq "joe-ficticious"
@@ -81,7 +77,6 @@ module PuppetLibrary::PuppetModule
                 expect(metadata.get_license).to eq "Apache 2.0"
             end
 
-
             it "parses the dependencies" do
                 expect(metadata.get_dependencies).to eq [
                     { "name" => "example/standard", "version_requirement" => '>= 2.3.4' },
@@ -97,7 +92,7 @@ module PuppetLibrary::PuppetModule
                         rating '10'
                     EOF
                     expect(Modulefile).to receive(:log).with(/rating/)
-                    Modulefile.read(modulefile.path)
+                    Modulefile.read(module_file.path)
                 end
             end
         end
@@ -106,6 +101,50 @@ module PuppetLibrary::PuppetModule
             it "works like #read, but with a string" do
                 metadata = Modulefile.parse("version '1.0.0'")
                 expect(metadata.get_version).to eq "1.0.0"
+            end
+
+            context "when a a value is missing" do
+                it "defaults to an empty string" do
+                    modulefile = Modulefile.parse <<-EOF
+                        name 'joe-ficticious'
+                        version '1.2.3'
+                    EOF
+                    expect(modulefile.get_description).to eq ""
+                end
+            end
+        end
+
+        describe "#to_metadata" do
+            let :modulefile do
+                Modulefile.parse <<-EOF
+                    name 'joe-ficticious'
+                    version '1.2.3'
+                    source 'git://example.com/joe/puppet-ficticious.git'
+                    author 'joe'
+                    license 'Apache 2.0'
+                    summary 'Example module'
+                    description 'Module for use in a test'
+                    project_page 'https://example.com/joe/puppet-apache'
+
+                    dependency 'example/standard', '>= 2.3.4'
+                    dependency 'example/other', '>= 5.6.7'
+                EOF
+            end
+
+            it "converts the modulefile into a metadata hash" do
+                metadata = modulefile.to_metadata
+                expect(metadata["name"]).to eq "joe-ficticious"
+                expect(metadata["version"]).to eq "1.2.3"
+                expect(metadata["source"]).to eq "git://example.com/joe/puppet-ficticious.git"
+                expect(metadata["author"]).to eq "joe"
+                expect(metadata["license"]).to eq "Apache 2.0"
+                expect(metadata["summary"]).to eq "Example module"
+                expect(metadata["description"]).to eq "Module for use in a test"
+                expect(metadata["project_page"]).to eq "https://example.com/joe/puppet-apache"
+                expect(metadata["dependencies"]).to eq [
+                    { "name" => 'example/standard', "version_requirement" => ">= 2.3.4" },
+                    { "name" => 'example/other', "version_requirement" => ">= 5.6.7" }
+                ]
             end
         end
     end

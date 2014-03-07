@@ -33,7 +33,7 @@ module PuppetLibrary::PuppetModule
                 end
 
                 def get_#{property}
-                    @#{property}
+                    @#{property} || ""
                 end
             EOF
         end
@@ -58,8 +58,12 @@ module PuppetLibrary::PuppetModule
             {
                 "name" => get_name,
                 "version" => get_version,
+                "source" => get_source,
                 "author" => get_author,
+                "license" => get_license,
+                "summary" => get_summary,
                 "description" => get_description,
+                "project_page" => get_project_page,
                 "dependencies" => get_dependencies
             }
         end
