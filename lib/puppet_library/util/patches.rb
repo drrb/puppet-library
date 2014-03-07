@@ -117,3 +117,9 @@ class Gem::Package::TarReader
         end
     end
 end
+
+class Dir
+    def to_str
+        path
+    end
+end
