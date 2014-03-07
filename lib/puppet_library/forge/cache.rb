@@ -38,10 +38,12 @@ module PuppetLibrary::Forge
         def self.configure(&block)
             config_api = PuppetLibrary::Util::ConfigApi.for(Cache) do
                 required :url, "URL"
-                required :path, "path"
+                required :path, "path" do |path|
+                    Dir.new(path)
+                end
             end
             config = config_api.configure(&block)
-            Cache.new(config.get_url, Dir.new(config.get_path))
+            Cache.new(config.get_url, config.get_path)
         end
 
         # * <tt>:url</tt> - The URL of the remote forge.

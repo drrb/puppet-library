@@ -35,12 +35,12 @@ module PuppetLibrary::Util
             config_api
         end
 
-        def required(name, description, &validate)
-            param(name, description, true, validate)
+        def required(name, description, &process)
+            param(name, description, true, process)
         end
 
-        def param(name, description, required, validate)
-            @params << Param.new(name, description, required, validate)
+        def param(name, description, required, process)
+            @params << Param.new(name, description, required, process)
         end
 
         private
@@ -88,8 +88,7 @@ module PuppetLibrary::Util
             end
 
             def set(param, new_value)
-                param.validate! new_value
-                @values[param] = new_value
+                @values[param] = param.process(new_value)
             rescue => validation_error
                 raise "Invalid value for config parameter '#{param.name}': #{validation_error.message} (was expecting #{param.description})"
             end
@@ -98,16 +97,18 @@ module PuppetLibrary::Util
         class Param
             attr_reader :name, :description
 
-            def initialize(name, description, required, validate)
-                @name, @description, @required, @validate = name, description, required, validate
+            def initialize(name, description, required, process)
+                @name, @description, @required = name, description, required
+                do_nothing = lambda { |x| x }
+                @process = process || do_nothing
             end
 
             def required?
                 @required
             end
 
-            def validate!(value)
-                @validate.nil? || @validate.call(value)
+            def process(value)
+                @process.nil? || @process.call(value)
             end
         end
     end

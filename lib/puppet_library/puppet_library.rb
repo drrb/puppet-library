@@ -162,7 +162,7 @@ module PuppetLibrary
         def process_options!(options)
             options[:forges].map! do |(forge_type, config)|
                 if [ Forge::Directory, Forge::Source ].include? forge_type
-                    [ forge_type, [ Dir.new(config) ]]
+                    [ forge_type, [ Dir.new(sanitize_path(config)) ]]
                 elsif forge_type == Forge::Proxy && options[:cache_basedir]
                     cache_dir = File.join(options[:cache_basedir], url_hostname(config))
                     path = sanitize_path(cache_dir)

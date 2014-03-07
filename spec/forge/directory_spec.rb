@@ -28,7 +28,7 @@ module PuppetLibrary::Forge
                 forge = Directory.configure do
                     path "."
                 end
-                expect(forge.instance_eval "@module_dir.path").to eq "."
+                expect(forge.instance_eval "@module_dir.path").to eq Dir.pwd
             end
 
             context "when the module directory doesn't exist" do
@@ -41,7 +41,7 @@ module PuppetLibrary::Forge
                         Directory.configure do
                             path module_dir.path
                         end
-                    }.to raise_error /Module directory .* doesn't exist/
+                    }.to raise_error /No such file/
                 end
             end
 

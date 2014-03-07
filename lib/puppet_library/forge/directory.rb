@@ -40,12 +40,13 @@ module PuppetLibrary::Forge
         def self.configure(&block)
             config_api = PuppetLibrary::Util::ConfigApi.for(Directory) do
                 required :path, "path to a directory to serve modules from" do |dir|
-                    raise "Module directory '#{dir}' doesn't exist" unless File.directory? dir
-                    raise "Module directory '#{dir}' isn't readable" unless File.executable? dir
+                    Dir.new(File.expand_path(dir)).tap do |dir|
+                        raise "Module directory '#{dir}' isn't readable" unless File.executable? dir
+                    end
                 end
             end
             config = config_api.configure(&block)
-            Directory.new(Dir.new(config.get_path))
+            Directory.new(config.get_path)
         end
 
         # * <tt>:module_dir</tt> - The directory containing the packaged modules.

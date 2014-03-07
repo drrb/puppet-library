@@ -42,7 +42,9 @@ module PuppetLibrary::Forge
             config_api = PuppetLibrary::Util::ConfigApi.for(GitRepository) do
                 required :source, "path or URL"
                 required :include_tags, "regex" do |value|
-                    value.is_a? Regexp
+                    value.tap do |value|
+                        raise "not a regex" unless value.is_a? Regexp
+                    end
                 end
             end
 

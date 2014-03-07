@@ -187,7 +187,7 @@ module PuppetLibrary
 
             def dir(path)
                 dir = double(Dir)
-                allow(Dir).to receive(:new).with(path).and_return dir
+                allow(Dir).to receive(:new).with(/.*#{path}$/).and_return dir
                 dir
             end
 

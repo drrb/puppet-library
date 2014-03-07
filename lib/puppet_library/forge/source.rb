@@ -29,10 +29,12 @@ module PuppetLibrary::Forge
     class Source < PuppetLibrary::Forge::Abstract
         def self.configure(&block)
             config_api = PuppetLibrary::Util::ConfigApi.for(Source) do
-                required :path, "path to the module's source"
+                required :path, "path to the module's source" do |path|
+                    Dir.new(File.expand_path(path))
+                end
             end
             config = config_api.configure(&block)
-            Source.new(Dir.new(config.get_path))
+            Source.new(config.get_path)
         end
 
         CACHE_TTL_MILLIS = 500
