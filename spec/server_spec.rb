@@ -61,14 +61,10 @@ module PuppetLibrary
                         "desc" => "Puppet module for Apache"
                     }
                 ]
-                expect(forge).to receive(:search_modules).with(nil).and_return(modules)
 
                 get "/"
 
-                expect(last_response.body).to include "Modules"
-                expect(last_response.body).to include "puppetlabs/apache"
-                expect(last_response.body).to include "0.0.1"
-                expect(last_response.body).to include "0.0.2"
+                expect(last_response.body).to include '"modules.json?q="'
             end
 
             context "when a search term is provided" do
@@ -85,14 +81,10 @@ module PuppetLibrary
                             "desc" => "Puppet module for Apache"
                         }
                     ]
-                    expect(forge).to receive(:search_modules).with("apache").and_return(modules)
 
                     get "/?search=apache"
 
-                    expect(last_response.body).to include "Modules"
-                    expect(last_response.body).to include "puppetlabs/apache"
-                    expect(last_response.body).to include "0.0.1"
-                    expect(last_response.body).to include "0.0.2"
+                    expect(last_response.body).to include "modules.json?q=apache"
                 end
             end
         end

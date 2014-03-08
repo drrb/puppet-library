@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+@javascript
 Feature: Module list page
     As a user
     I want to see a list of available modules

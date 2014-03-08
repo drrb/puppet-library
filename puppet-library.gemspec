@@ -53,6 +53,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "selenium-webdriver"
+  spec.add_development_dependency "poltergeist"
 
   # Guard has dependencies that don't work with Ruby < 1.9
   unless RUBY_VERSION.start_with? "1.8"

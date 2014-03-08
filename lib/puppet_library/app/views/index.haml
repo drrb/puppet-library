@@ -16,11 +16,25 @@
 -# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %h1 Modules
-%ul
-  - modules.each do |mod|
-    %li
-      %b
-        %a{:href => mod["full_name"]}= mod["full_name"]
-      %ul
-        - mod["releases"].each do |release|
-          %li= release["version"]
+.loading
+  Loding module list...
+%ul.modules
+
+:javascript
+  $(document).ready(function() {
+    $.getJSON("modules.json?q=#{query}", function(modules) {
+      $.each(modules, function(index, module) {
+        var item = $("<li/>");
+        item.append($("<b/>").append($("<a/>").attr("href", module.full_name).text(module.full_name)));
+
+        var versionList = $("<ul/>");
+        $.each(module.releases, function(index, release) {
+            versionList.append($("<li>").text(release.version));
+        });
+
+        item.append(versionList);
+        item.appendTo(".modules");
+      });
+      $(".loading").hide();
+    });
+  });

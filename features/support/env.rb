@@ -17,6 +17,7 @@
 
 require 'puppet_library'
 require 'capybara/cucumber'
+require 'capybara/poltergeist'
 
 class ServerWorld
     def server
@@ -30,6 +31,7 @@ end
 
 world = ServerWorld.new
 Capybara.app = world.server
+Capybara.javascript_driver = :poltergeist
 
 World do
     world

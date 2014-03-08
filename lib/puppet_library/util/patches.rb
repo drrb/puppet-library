@@ -35,7 +35,7 @@ module Gem
         end
     end
 
-    def Dependency.new(name, spec)
+    def Dependency.new(name, spec = ">=0")
         super(name, spec.to_s.gsub("-", ".pre."))
     rescue ArgumentError
         # If it starts with numbers, use those

@@ -73,9 +73,7 @@ module PuppetLibrary
 
         get "/" do
             query = params[:search]
-            modules = @forge.search_modules(query)
-
-            haml :index, { :locals => { "modules" => modules } }
+            haml :index, { :locals => { "query" => query } }
         end
 
         get "/modules.json" do
