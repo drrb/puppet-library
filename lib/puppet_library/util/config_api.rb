@@ -58,19 +58,26 @@ module PuppetLibrary::Util
             config_class = Class.new(Config) do
                 define_method(:params) { params }
                 params.each do |param|
-                    define_method(param.name.to_sym) do |new_value|
-                        set(param, new_value)
-                    end
-
-                    define_method("get_#{param.name}".to_sym) do
-                        get(param)
-                    end
+                    define_getter(param)
+                    define_setter(param)
                 end
             end
             PuppetLibrary.const_set(class_name, config_class)
         end
 
         class Config
+            def self.define_getter(param)
+                define_method("get_#{param.name}".to_sym) do
+                    get(param)
+                end
+            end
+
+            def self.define_setter(param)
+                define_method(param.name.to_sym) do |new_value|
+                    set(param, new_value)
+                end
+            end
+
             def initialize
                 @values = {}
             end
