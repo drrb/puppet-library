@@ -1,27 +1,25 @@
 features:
-    - Web UI:
-        - asynchronous (index page loads too slowly)
-    - Git repo forge:
-        - make it more flexible:
-            - fail gracefully if we can't contact the remote repo
-    - Performance:
-        - cache stuff so it's faster
-    - logging:
-        - use Ruby logging
-        - include some verbose logging
-        - improve error messages (e.g. for when a module can't be untarred)
-    - Named subforges:
-        - per-subforge queries
-        - upload modules (web form and API)
-        - browse proxy cache
-        - clear proxy cache (web form and API)
-        - delete modules from disk (web form)
-    - Authentication
-    - Config APIs:
-        - documentation
+  - Git repo forge:
+    - make it more flexible:
+      - fail gracefully if we can't contact the remote repo
+  - Performance:
+    - cache stuff so it's faster
+  - logging:
+    - use Ruby logging
+    - include some verbose logging
+    - improve error messages (e.g. for when a module can't be untarred)
+  - Named subforges:
+    - per-subforge queries
+    - upload modules (web form and API)
+    - browse proxy cache
+    - clear proxy cache (web form and API)
+    - delete modules from disk (web form)
+  - Authentication
+  - Config APIs:
+    - documentation
 
 dubious_features:
-    - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)
-    - Make proxy cache TTL configurable
-    - Allow failover between module repositories
-    - Look in /etc/puppet-library.yml for config by default
+  - Proxy modules' source in a directory (supported individually for now: should we just leave it that way?)
+  - Make proxy cache TTL configurable
+  - Allow failover between module repositories
+  - Look in /etc/puppet-library.yml for config by default

@@ -75,3 +75,6 @@
       - Fixed issue with "Too many open files" caused by Git repo forges on Ruby 1.8
       - Fixed issue Git repo forges with tags without Modulefiles
       - Fixed issue Git repo forges with no description in Modulefile
+- tag: v0.12.0
+  changes:
+      - Load web UI asynchronously to improve performance
