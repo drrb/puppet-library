@@ -31,9 +31,9 @@ module PuppetLibrary::Forge
     #
     # <b>Usage:</b>
     #
-    #    forge = PuppetLibrary::Forge::Directory.configure do |repo|
+    #    forge = PuppetLibrary::Forge::Directory.configure do
     #        # The path to serve the modules from
-    #        repo.path = "/var/modules/cache
+    #        path "/var/modules/cache"
     #    end
     class Directory < PuppetLibrary::Forge::Abstract
 

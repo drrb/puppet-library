@@ -29,12 +29,12 @@ module PuppetLibrary::Forge
     #
     # <b>Usage:</b>
     #
-    #    forge = PuppetLibrary::Forge::GitRepository.configure do |repo|
+    #    forge = PuppetLibrary::Forge::GitRepository.configure do
     #        # The location of the git repository
-    #        repo.source = "http://example.com/mymodule.git
+    #        source "http://example.com/mymodule.git"
     #
     #        # A regular expression describing which tags to serve
-    #        repo.include_tags = /[0-9.]+/
+    #        include_tags /[0-9.]+/
     #    end
     class GitRepository < PuppetLibrary::Forge::Abstract
 

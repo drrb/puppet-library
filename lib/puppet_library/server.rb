@@ -27,12 +27,16 @@ module PuppetLibrary
     #
     # A Rack application that can be configured as follows:
     #
-    #    server = PuppetLibrary::Server.configure do |library|
+    #    server = PuppetLibrary::Server.configure
     #        # Look for my modules locally
-    #        library.forge PuppetLibrary::Forge::Directory.new("/var/lib/modules")
+    #        forge :directory do
+    #            path "/var/lib/modules"
+    #        end
     #
     #        # Get everything else from the Puppet Forge
-    #        library.forge PuppetLibrary::Forge::Proxy.new("http://forge.puppetlabs.com")
+    #        forge :proxy do
+    #            url "http://forge.puppetlabs.com"
+    #        end
     #    end
     #
     #    run server

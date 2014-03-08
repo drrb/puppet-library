@@ -27,9 +27,9 @@ module PuppetLibrary::Forge
     #
     # <b>Usage:</b>
     #
-    #    forge = PuppetLibrary::Forge::Proxy.configure do |repo|
+    #    forge = PuppetLibrary::Forge::Proxy.configure do
     #        # The URL of the remote forge
-    #        repo.url = "http://forge.example.com
+    #        url "http://forge.example.com"
     #    end
     class Proxy < Forge
 

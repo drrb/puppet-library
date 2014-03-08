@@ -26,12 +26,12 @@ module PuppetLibrary::Forge
     #
     # <b>Usage:</b>
     #
-    #    forge = PuppetLibrary::Forge::Cache.configure do |repo|
+    #    forge = PuppetLibrary::Forge::Cache.configure do
     #        # The URL of the remote forge
-    #        repo.url = "http://forge.example.com
+    #        url "http://forge.example.com"
     #
     #        # The path to cache the files to on disk
-    #        repo.path = "/var/modules/cache
+    #        path "/var/modules/cache"
     #    end
     class Cache < Proxy
 
