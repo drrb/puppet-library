@@ -62,10 +62,12 @@
       - Fixed source forge bug that generated metadata incorrectly
 - tag: v0.10.0
   changes:
+      - BROKEN :(
       - Added new Git repo forge that serves modules from Git repositories, using tags for version numbers!
       - Fixed imports to enable easier embedding of Puppet Library
 - tag: v0.11.0
   changes:
+      - BROKEN :(
       - Added support for nontrivial tag names as version numbers when proxying Git repositories (e.g. tags named "v1.0.1")
       - Added REST API to clear forge caches
       - Git repositories are cached at startup for better performance and reliability
@@ -77,5 +79,6 @@
       - Fixed issue Git repo forges with no description in Modulefile
 - tag: v0.12.0
   changes:
+      - BROKEN :(
       - Load web UI asynchronously to improve performance
       - Updated API documentation
