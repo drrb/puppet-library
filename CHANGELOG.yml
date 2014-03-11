@@ -88,3 +88,6 @@
 - tag: v0.12.1
   changes:
       - Fixed "Invalid gemspec" error (#5)
+- tag: v0.13.0
+  changes:
+      - Fixed "Invalid gemspec" error (#5)
