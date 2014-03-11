@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'puppet_library/util/patches'
-require 'puppet_library/util/version'
 
 module PuppetLibrary::Forge
     module SearchResult
@@ -47,7 +46,7 @@ module PuppetLibrary::Forge
         end
 
         def self.max_version(left, right)
-            [PuppetLibrary::Util::Version.new(left), PuppetLibrary::Util::Version.new(right)].max.version
+            [Gem::Version.new(left), Gem::Version.new(right)].max.version
         end
     end
 end

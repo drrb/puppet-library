@@ -18,6 +18,25 @@
 require 'spec_helper'
 
 describe 'patches' do
+    describe Gem::Version do
+        describe "#new" do
+            context "when the version number contains a dash" do
+                it "replaces the dash with '.pre.'" do
+                    expect(Gem::Version.new("1.0.0-rc1")).to eq Gem::Version.new("1.0.0.pre.rc1")
+                end
+            end
+            context "when the version number has trailing garbage" do
+                it "uses the numbers at the beginning" do
+                    expect(Gem::Version.new("123 xyz")).to eq Gem::Version.new("123")
+                end
+            end
+            context "when the version is completely garbage" do
+                it "pretends the version number is zero" do
+                    expect(Gem::Version.new("xyz")).to eq Gem::Version.new("0")
+                end
+            end
+        end
+    end
 
     describe Array do
         describe "#unique_by" do
