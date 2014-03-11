@@ -16,7 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rubygems/package'
-require 'puppet_library/util/version'
+
+# Early versions of Rubygems have problems with version numbers with dashes
+# (e.g. "1.0.0-rc1"). This adds the behaviour or new RG versions to all
+# versions, hopefully without breaking newer versions. In most cases we want to
+# fail silently with bad version numbers so that we don't crash the server
+# because of weird stuff from a remote forge or elsewhere.
+module Gem
+    def Version.new(version)
+        super(version.to_s.gsub("-",".pre."))
+    rescue ArgumentError
+        # If it starts with numbers, use those
+        if version =~ /^\d+(\.\d+)*/
+            super(version[/^\d+(\.\d+)*/])
+        # Somebody's really made a mess of this version number
+        else
+            super("0")
+        end
+    end
+end
 
 class Array
     # Like 'uniq' with a block, but also works on Ruby < 1.9
@@ -39,7 +57,7 @@ class Array
     def version_sort_by
         sort_by do |element|
             version = yield(element)
-            PuppetLibrary::Util::Version.new(version)
+            Gem::Version.new(version)
         end
     end
 
