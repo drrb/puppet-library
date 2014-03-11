@@ -17,7 +17,8 @@
 
 require 'puppet_library/forge/forge'
 require 'puppet_library/forge/search_result'
-require 'puppet_library/util'
+require 'puppet_library/util/dependency'
+require 'puppet_library/util/patches'
 
 module PuppetLibrary::Forge
 
@@ -62,7 +63,7 @@ module PuppetLibrary::Forge
             return versions if version.nil?
 
             versions[full_name] = versions[full_name].select do |v|
-                Gem::Dependency.new(name, version).match?(name, v["version"])
+                PuppetLibrary::Util::Dependency.new(name, version).match?(name, v["version"])
             end
 
             dependencies = versions[full_name].map do |v|

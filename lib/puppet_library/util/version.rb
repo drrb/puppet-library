@@ -16,11 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module PuppetLibrary::Util
+    class Version < Gem::Version
+        def initialize(version)
+            super(version.to_s.gsub("-",".pre."))
+        rescue ArgumentError
+            # If it starts with numbers, use those
+            if version =~ /^\d+(\.\d+)*/
+                super(version[/^\d+(\.\d+)*/])
+                # Somebody's really made a mess of this version number
+            else
+                super("0")
+            end
+        end
+    end
 end
-
-require 'puppet_library/util/dependency'
-require 'puppet_library/util/git'
-require 'puppet_library/util/logging'
-require 'puppet_library/util/patches'
-require 'puppet_library/util/temp_dir'
-require 'puppet_library/util/version'
