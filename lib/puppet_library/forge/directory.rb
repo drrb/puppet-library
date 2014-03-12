@@ -66,7 +66,7 @@ module PuppetLibrary::Forge
         end
 
         def get_metadata(author, module_name)
-            Dir["#{@module_dir.path}/#{author}-#{module_name}*"].map do |module_path|
+            Dir["#{@module_dir.path}/**/#{author}-#{module_name}*.tar.gz"].map do |module_path|
                 begin
                     archive = PuppetLibrary::Archive::ArchiveReader.new(module_path)
                     metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]

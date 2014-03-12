@@ -91,3 +91,8 @@
 - tag: v0.13.0
   changes:
       - Fixed "Invalid gemspec" error (#5)
+- tag: v0.14.0
+  changes:
+      - Ignore corrupt module files on disk
+      - Added logging for when module files can't be read from disk
+      - Recurse into module directories when serving modules from disk

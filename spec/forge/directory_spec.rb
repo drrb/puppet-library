@@ -143,6 +143,21 @@ module PuppetLibrary::Forge
                 end
             end
 
+            context "when the module directory contains the requested in a subdirectory" do
+                before do
+                    add_module("puppetlabs", "apache", "1.0.0")
+                    add_module("puppetlabs", "apache", "1.1.0")
+                    subdir = File.join(module_dir.path, "other-modules")
+                    mkdir_p subdir
+                    mv File.join(module_dir.path, "puppetlabs-apache-1.1.0.tar.gz"), subdir
+                end
+
+                it "returns an array containing the module's versions' metadata" do
+                    metadata_list = forge.get_metadata("puppetlabs", "apache")
+                    expect(metadata_list.size).to eq 2
+                end
+            end
+
             context "when a module found isn't able to be read" do
                 before do
                     module_path = File.join(module_dir.path, "puppetlabs-apache-1.0.0.tar.gz")
