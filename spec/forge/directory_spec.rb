@@ -142,6 +142,38 @@ module PuppetLibrary::Forge
                     expect(metadata_list[1]["version"]).to eq "1.1.0"
                 end
             end
+
+            context "when a module found isn't able to be read" do
+                before do
+                    module_path = File.join(module_dir.path, "puppetlabs-apache-1.0.0.tar.gz")
+                    FileUtils.touch(module_path)
+                end
+
+                it "logs a warning and returns nothing" do
+                    metadata_list = forge.get_metadata("puppetlabs", "apache")
+                    expect(metadata_list).to be_empty
+
+                    expect(forge.logs).to include_string_matching /WARN.*Error reading from/
+                end
+            end
+
+            context "when a module doesn't have a metadata file" do
+                before do
+                    module_source_path = File.join(module_dir.path, "puppetlabs-apache-1.0.0")
+                    FileUtils.mkdir module_source_path
+                    buffer = PuppetLibrary::Archive::Archiver.archive_dir(module_source_path, "puppetlabs-apache-1.0.0")
+                    module_path = File.join(module_dir.path, "puppetlabs-apache-1.0.0.tar.gz")
+                    File.open(module_path, "w") { |archive| archive.write buffer.read }
+                    FileUtils.rm_rf module_source_path
+                end
+
+                it "logs a warning and returns nothing" do
+                    metadata_list = forge.get_metadata("puppetlabs", "apache")
+                    expect(metadata_list).to be_empty
+
+                    expect(forge.logs).to include_string_matching /WARN.*Error reading from/
+                end
+            end
         end
     end
 end

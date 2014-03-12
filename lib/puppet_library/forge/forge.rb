@@ -14,8 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'puppet_library/util/logging'
+
 module PuppetLibrary::Forge
     class Forge
+        include PuppetLibrary::Util::Logging
+
         def prime
         end
 

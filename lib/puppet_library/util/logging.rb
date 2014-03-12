@@ -18,12 +18,21 @@ require 'logger'
 
 module PuppetLibrary::Util
     module Logging
-        def log_io
-            @log_io ||= StringIO.new
+        class LogCollector < Array
+            def write(message)
+                self << message
+            end
+
+            def close
+            end
+        end
+
+        def logs
+            @logs ||= LogCollector.new
         end
 
         def logger
-            destination = ENV["TESTING"] ? log_io : STDERR
+            destination = ENV["TESTING"] ? logs : STDERR
             @logger ||= Logger.new(destination).tap do |logger|
                 logger.progname = self.class.name
                 logger.level = Logger::DEBUG

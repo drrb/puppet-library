@@ -59,3 +59,10 @@ RSpec::Matchers.define :be_tgz_with do |expected_file_name, expected_content|
         end
     end
 end
+
+RSpec::Matchers.define :include_string_matching do |expected_regex|
+    match do |array|
+        found = array.find { |e| e =~ expected_regex }
+        ! found.nil?
+    end
+end
