@@ -20,7 +20,7 @@ require 'spec_helper'
 module PuppetLibrary::Util
     describe TempDir do
         describe "#use" do
-            it "creates a directory and changes to it for the life of the block" do
+            it "creates a directory for the life of the block" do
                 dir_path = nil
                 dir_existed_in_block = false
                 TempDir.use("xxx") do |path|
@@ -29,6 +29,22 @@ module PuppetLibrary::Util
                 end
                 expect(dir_existed_in_block).to be_true
                 expect(File.exist? dir_path).to be_false
+            end
+        end
+
+        describe "#cd" do
+            it "creates a directory and changes to it for the life of the block" do
+                dir_path = nil
+                dir_existed_in_block = false
+                dir_in_block = ""
+                TempDir.cd("xxx") do |path|
+                    dir_existed_in_block = File.directory? path
+                    dir_path = path
+                    dir_in_block = Dir.pwd
+                end
+                expect(dir_existed_in_block).to be_true
+                expect(File.exist? dir_path).to be_false
+                expect(dir_in_block).not_to eq Dir.pwd
             end
         end
     end

@@ -39,11 +39,11 @@ module PuppetLibrary::Util
             git("tag").split
         end
 
-        def on_tag(tag)
+        def with_tag(tag)
             update_cache!
             PuppetLibrary::Util::TempDir.use "git" do |path|
                 git "checkout #{tag}", path
-                yield
+                yield(path)
             end
         end
 

@@ -78,8 +78,8 @@ module PuppetLibrary::Forge
             metadata = modulefile_for(version).to_metadata
             return nil unless metadata["name"] == "#{author}-#{name}"
 
-            on_tag_for(version) do
-                PuppetLibrary::Archive::Archiver.archive_dir('.', "#{metadata["name"]}-#{version}") do |archive|
+            with_tag_for(version) do |tag_path|
+                PuppetLibrary::Archive::Archiver.archive_dir(tag_path, "#{metadata["name"]}-#{version}") do |archive|
                     archive.add_file("metadata.json", 0644) do |entry|
                         entry.write metadata.to_json
                     end
@@ -121,8 +121,8 @@ module PuppetLibrary::Forge
             modulefile_for_tag(tag_for(version))
         end
 
-        def on_tag_for(version, &block)
-            @git.on_tag(tag_for(version), &block)
+        def with_tag_for(version, &block)
+            @git.with_tag(tag_for(version), &block)
         end
 
         def tag_for(version)

@@ -64,10 +64,11 @@ module PuppetLibrary::Util
             end
         end
 
-        describe "#on_tag" do
-            it "yields to the block in a directory containing the tag" do
-                git.on_tag("1.0.0") do
-                    expect(File.read("Modulefile")).to include "version '1.0.0'"
+        describe "#with_tag" do
+            it "yields to the block with a directory containing the tag" do
+                git.with_tag("1.0.0") do |tag_path|
+                    modulefile = File.join(tag_path, "Modulefile")
+                    expect(File.read(modulefile)).to include "version '1.0.0'"
                 end
             end
         end

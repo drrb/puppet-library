@@ -21,7 +21,14 @@ module PuppetLibrary::Util
     class TempDir
         attr_reader :path
 
-        def self.use(name, &block)
+        def self.use(name)
+            path = create(name)
+            yield(path)
+        ensure
+            FileUtils.rm_rf path
+        end
+
+        def self.cd(name, &block)
             path = create(name)
             Dir.chdir(path, &block)
         ensure
