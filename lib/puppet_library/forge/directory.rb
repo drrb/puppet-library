@@ -65,21 +65,23 @@ module PuppetLibrary::Forge
             end
         end
 
-        def get_metadata(author, module_name)
-            Dir["#{@module_dir.path}/**/#{author}-#{module_name}*.tar.gz"].map do |module_path|
-                begin
-                    archive = PuppetLibrary::Archive::ArchiveReader.new(module_path)
-                    metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
-                    JSON.parse(metadata_file)
-                rescue => error
-                    warn "Error reading from module archive #{module_path}: #{error}"
-                    nil
-                end
-            end.compact
+        def get_all_metadata
+            get_metadata("*", "*")
         end
 
-        def get_all_metadata
-            get_metadata("*", "")
+        def get_metadata(author, module_name)
+            archives = Dir["#{@module_dir.path}/**/#{author}-#{module_name}-*.tar.gz"]
+            archives.map {|path| read_metadata(path) }.compact
+        end
+
+        private
+        def read_metadata(archive_path)
+            archive = PuppetLibrary::Archive::ArchiveReader.new(archive_path)
+            metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
+            JSON.parse(metadata_file)
+        rescue => error
+            warn "Error reading from module archive #{archive_path}: #{error}"
+            return nil
         end
     end
 end
