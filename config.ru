@@ -19,10 +19,10 @@ require 'rubygems'
 require 'puppet_library'
 
 server = PuppetLibrary::Server.configure do
-    # My custom modules
-    forge :directory do
-        path "/var/puppet/modules"
-    end
+    ## My custom modules
+    #forge :directory do
+    #    path "/var/puppet/modules"
+    #end
 
     # Unreleased versions from Github
     forge :git_repository do
