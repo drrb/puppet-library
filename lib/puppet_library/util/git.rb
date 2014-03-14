@@ -74,9 +74,8 @@ module PuppetLibrary::Util
         private
         def create_cache
             @mutex.synchronize do
-                info "Git version: #{`git --version`}"
                 info "Cloning Git repository from #{@source} to #{@git_dir}"
-                git "clone --origin origin --bare #{@source} #{@git_dir}"
+                git "clone --mirror #{@source} #{@git_dir}"
                 FileUtils.touch fetch_file
             end
         end
