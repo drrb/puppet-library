@@ -60,8 +60,8 @@ module PuppetLibrary::Forge
             super(self)
             @version_tag_regex = version_tag_regex
             @git = git
-            @modulefile_cache = PuppetLibrary::Http::Cache::InMemory.new
-            @tags_cache = PuppetLibrary::Http::Cache::InMemory.new
+            @modulefile_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
+            @tags_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
         end
 
         def prime
