@@ -20,7 +20,7 @@ Plugins can be created to serve modules from arbitrary sources. Puppet Library c
 
 ## Demo
 
-Puppet Library has a simple web UI. A demo is available [here](http://puppet-library.herokuapp.com).
+Puppet Library has a web UI to browse the modules. A demo is available [here](http://puppet-library.herokuapp.com).
 
 ## Installation
 
