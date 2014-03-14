@@ -18,6 +18,10 @@ Plugins can be created to serve modules from arbitrary sources. Puppet Library c
  - serving modules from source on disk
  - serving modules from Git repositories using tags as version numbers!
 
+## Demo
+
+Puppet Library has a simple web UI. A demo is available [here](http://puppet-library.herokuapp.com).
+
 ## Installation
 
 Install the server as a Gem:
