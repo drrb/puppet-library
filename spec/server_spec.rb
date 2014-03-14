@@ -64,7 +64,7 @@ module PuppetLibrary
 
                 get "/"
 
-                expect(last_response.body).to include '"modules.json?q="'
+                expect(last_response.body).to include '"modules.json"'
             end
 
             context "when a search term is provided" do
