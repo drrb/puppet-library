@@ -1,4 +1,5 @@
 features:
+  - Support Forge API v3
   - Git repo forge:
     - make it more flexible:
       - fail gracefully if we can't contact the remote repo
