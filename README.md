@@ -2,12 +2,12 @@
 
 A private Puppet Forge. Compatible with [librarian-puppet](http://librarian-puppet.com).
 
-[![Build Status](https://travis-ci.org/drrb/puppet-library.png?branch=master)](https://travis-ci.org/drrb/puppet-library)
-[![Coverage Status](https://coveralls.io/repos/drrb/puppet-library/badge.png)](https://coveralls.io/r/drrb/puppet-library)
+[![Build Status](https://api.travis-ci.org/drrb/puppet-library.svg)](https://travis-ci.org/drrb/puppet-library)
+[![Coverage Status](https://img.shields.io/coveralls/drrb/puppet-library.svg)](https://coveralls.io/r/drrb/puppet-library)
 [![Code Climate](https://codeclimate.com/github/drrb/puppet-library.png)](https://codeclimate.com/github/drrb/puppet-library)
 
-[![Gem Version](https://badge.fury.io/rb/puppet-library.png)](http://badge.fury.io/rb/puppet-library)
-[![Dependency Status](https://gemnasium.com/drrb/puppet-library.png)](https://gemnasium.com/drrb/puppet-library)
+[![Gem Version](https://badge.fury.io/rb/puppet-library.svg)](http://badge.fury.io/rb/puppet-library)
+[![Dependency Status](https://gemnasium.com/drrb/puppet-library.svg)](https://gemnasium.com/drrb/puppet-library)
 
 Puppet Library serves Puppet modules in the same format as [the Puppet Forge](http://forge.puppetlabs.com). This allows you to create a private Puppet Forge and manage all the modules you use completely within your infrastructure.
 
