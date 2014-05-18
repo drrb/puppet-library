@@ -20,6 +20,7 @@ require 'puppet_library'
 require 'module_spec_helper'
 require 'pry'
 require 'rack'
+require 'rspec'
 require 'tempfile'
 require 'fileutils'
 
