@@ -82,7 +82,7 @@ module PuppetLibrary::Util
 
         def update_cache
             @mutex.synchronize do
-                git "fetch origin --tags"
+                git "fetch origin --tags --update-head-ok"
             end
         end
 
