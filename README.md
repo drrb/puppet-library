@@ -4,7 +4,7 @@ A private Puppet Forge. Compatible with [librarian-puppet](http://librarian-pupp
 
 [![Build Status](https://api.travis-ci.org/drrb/puppet-library.svg)](https://travis-ci.org/drrb/puppet-library)
 [![Coverage Status](https://img.shields.io/coveralls/drrb/puppet-library.svg)](https://coveralls.io/r/drrb/puppet-library)
-[![Code Climate](https://codeclimate.com/github/drrb/puppet-library.png)](https://codeclimate.com/github/drrb/puppet-library)
+[![Code Climate](https://img.shields.io/codeclimate/github/drrb/puppet-library.svg)](https://codeclimate.com/github/drrb/puppet-library)
 
 [![Gem Version](https://badge.fury.io/rb/puppet-library.svg)](http://badge.fury.io/rb/puppet-library)
 [![Dependency Status](https://gemnasium.com/drrb/puppet-library.svg)](https://gemnasium.com/drrb/puppet-library)
