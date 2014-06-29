@@ -100,17 +100,29 @@ Puppet Library contains built-in support for:
 
 ## Compatibility with other tools
 
+### Dependency Resolution/Installation
+
 Puppet Library currently supports:
 - search with Puppet (`puppet module search apache`)
 - dependency resolution and installation with Puppet (`puppet module install puppetlabs/apache`)
 - dependency resolution and installation with [librarian-puppet](http://librarian-puppet.com)
 - installation with [r10k](https://github.com/adrienthebo/r10k)
 
+### Ruby
+
 Puppet Library is tested against Ruby versions:
 - 1.8.7
 - 1.9.3
 - 2.0.0
 - 2.1.0
+
+### Puppet
+
+Puppet Library implements version 1 of the Forge API, and supports reading
+module metadata from modules' Modulefiles. This means that Puppet Library
+can currently only work with Puppet < 3.6, which uses the new Forge API (v3)
+and has switched to using `metadata.json` instead of `Modulefile`. Progress
+can be tracked [here](https://github.com/drrb/puppet-library/issues?milestone=1).
 
 ## Config file (EXPERIMENTAL)
 
