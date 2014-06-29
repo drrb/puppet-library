@@ -91,7 +91,7 @@
 - tag: v0.13.0
   changes:
       - Fixed "Invalid gemspec" error (#5)
-- tag: v0.14.0
+- tag: v0.15.0
   changes:
       - Use `metadata.json` in place of `Modulefile` if it exists (and `Modulefile` doesn't exist)
       - Ignore corrupt module files on disk
