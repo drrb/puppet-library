@@ -25,7 +25,8 @@ module PuppetLibrary::Forge
     # Metadata (+metadata.json+) is generated on the fly.
     #
     # <b>Note:</b>
-    # The module directory must have a +Modulefile+.
+    # The module directory must have either a +metadata.json+ or a +Modulefile+.
+    # If it contains both, +metadata.json+ will be used.
     #
     # <b>Usage:</b>
     #
@@ -52,41 +53,42 @@ module PuppetLibrary::Forge
             raise "Module directory '#{module_dir.path}' doesn't exist" unless File.directory? module_dir.path
             raise "Module directory '#{module_dir.path}' isn't readable" unless File.executable? module_dir.path
             @module_dir = module_dir
-            @cache = PuppetLibrary::Http::Cache::InMemory.new(CACHE_TTL_MILLIS)
+            @metadata_cache = PuppetLibrary::Http::Cache::InMemory.new(CACHE_TTL_MILLIS)
         end
 
         def get_module(author, name, version)
             return nil unless this_module?(author, name, version)
             PuppetLibrary::Archive::Archiver.archive_dir(@module_dir.path, "#{author}-#{name}-#{version}") do |archive|
                 archive.add_file("metadata.json", 0644) do |entry|
-                    entry.write modulefile.to_metadata.to_json
+                    entry.write metadata.to_json
                 end
             end
         end
 
         def get_metadata(author, module_name)
             return [] unless this_module?(author, module_name)
-            [ modulefile.to_metadata ]
+            [ metadata ]
         end
 
         def get_all_metadata
-            get_metadata(modulefile.get_author, modulefile.get_simple_name)
+            get_metadata(metadata["author"], metadata["name"].split("-").last)
         end
 
         private
         def this_module?(author, module_name, version = nil)
-            same_module = modulefile.get_name == "#{author}-#{module_name}"
+            same_module = metadata["name"] == "#{author}-#{module_name}"
             if version.nil?
                 return same_module
             else
-                return same_module && modulefile.get_version == version
+                return same_module && metadata["version"] == version
             end
         end
 
-        def modulefile
-            modulefile_path = File.join(@module_dir.path, "Modulefile")
-            @cache.get modulefile_path do
-                PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
+        def metadata
+            @metadata_cache.get "metadata" do
+                modulefile_path = File.join(@module_dir.path, "Modulefile")
+                modulefile = PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
+                modulefile.to_metadata
             end
         end
     end

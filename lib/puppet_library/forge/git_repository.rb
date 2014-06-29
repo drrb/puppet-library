@@ -60,7 +60,7 @@ module PuppetLibrary::Forge
             super(self)
             @version_tag_regex = version_tag_regex
             @git = git
-            @modulefile_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
+            @metadata_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
             @tags_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
         end
 
@@ -75,7 +75,7 @@ module PuppetLibrary::Forge
         def get_module(author, name, version)
             return nil unless tags.include? tag_for(version)
 
-            metadata = modulefile_for(version).to_metadata
+            metadata = metadata_for(version)
             return nil unless metadata["name"] == "#{author}-#{name}"
 
             with_tag_for(version) do |tag_path|
@@ -89,7 +89,7 @@ module PuppetLibrary::Forge
 
         def get_all_metadata
             tags.map do |tag|
-                modulefile_for_tag(tag).to_metadata
+                metadata_for_tag(tag)
             end
         end
 
@@ -110,15 +110,16 @@ module PuppetLibrary::Forge
             end
         end
 
-        def modulefile_for_tag(tag)
-            @modulefile_cache.get(tag) do
+        def metadata_for_tag(tag)
+            @metadata_cache.get(tag) do
                 modulefile_source = @git.read_file("Modulefile", tag)
-                PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+                modulefile = PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+                modulefile.to_metadata
             end
         end
 
-        def modulefile_for(version)
-            modulefile_for_tag(tag_for(version))
+        def metadata_for(version)
+            metadata_for_tag(tag_for(version))
         end
 
         def with_tag_for(version, &block)
@@ -131,7 +132,7 @@ module PuppetLibrary::Forge
 
         def tag_versions
             tags_to_versions = tags.map do |tag|
-                [ modulefile_for_tag(tag).get_version, tag ]
+                [ metadata_for_tag(tag)["version"], tag ]
             end
             Hash[tags_to_versions]
         end
