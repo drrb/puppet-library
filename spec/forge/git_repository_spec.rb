@@ -73,7 +73,7 @@ module PuppetLibrary::Forge
                     end
                 end
 
-                git "add . -A"
+                git "add . --all"
                 git "commit --message='Version #{version}'"
                 git "tag #{tag}"
             end
