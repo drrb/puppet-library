@@ -19,31 +19,27 @@ require 'spec_helper'
 module PuppetLibrary::Forge
     describe Source do
         let(:module_dir) { Tempdir.new("module_dir") }
+        let(:metadata_file_path) { File.join(module_dir.path, "metadata.json") }
         let(:modulefile_path) { File.join(module_dir.path, "Modulefile") }
         let(:forge) { Source.new(module_dir) }
 
         before do
-            set_module! "puppetlabs", "apache", "1.0.0"
-            add_module_dependency! "puppetlabs", "stdlib", ">= 2.4.0"
-            add_module_dependency! "puppetlabs", "concat", ">= 1.0.1"
-        end
-
-        def set_module!(author, name, version)
-            File.open(modulefile_path, "w") do |modulefile|
-                modulefile.puts <<-EOF
-                name '#{author}-#{name}'
-                version '#{version}'
-                author '#{author}'
-                description '#{author} #{name} module, version #{version}'
-                EOF
-            end
-        end
-
-        def add_module_dependency!(author, name, spec)
-            File.open(modulefile_path, "a") do |modulefile|
-                modulefile.puts <<-EOF
-                dependency "#{author}/#{name}", "#{spec}"
-                EOF
+            File.open(metadata_file_path, "w") do |metadata_file|
+                metadata = {
+                  "name" => "puppetlabs-apache",
+                  "version" => "1.0.0",
+                  "author" => "puppetlabs",
+                  "description" => "puppetlabs apache module, version 1.0.0",
+                  "license" => "Apache 2.0",
+                  "source" => "http://github.com/puppetlabs/puppetlabs-apache.git",
+                  "project_page" => "https://github.com/puppetlabs/puppetlabs-apache",
+                  "issues_url" => "https://github.com/puppetlabs/puppetlabs-apache/issues",
+                  "dependencies" => [
+                    { "name" => "puppetlabs/stdlib", "version_requirement" => ">= 2.4.0" },
+                    { "name" => "puppetlabs/concat", "version_requirement" => ">= 1.0.1" }
+                  ]
+                }
+                metadata_file.puts metadata.to_json
             end
         end
 
@@ -95,16 +91,41 @@ module PuppetLibrary::Forge
             end
 
             context "when the source module is requested" do
-                it "returns a buffer of the packaged module" do
-                    buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
+                context "when there is a metadata file" do
+                    it "includes the metadata file in the packaged application" do
+                        buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
 
-                    expect(buffer).to be_tgz_with(/Modulefile/, /puppetlabs-apache/)
+                        expect(buffer).to be_tgz_with(/metadata.json/, /"name":"puppetlabs-apache"/)
+                    end
                 end
 
-                it "generates a metadata file in the packaged application" do
-                    buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
+                context "when there is a modulefile with no metadata file" do
+                    before do
+                        FileUtils.rm metadata_file_path
+                        File.open(modulefile_path, "w") do |modulefile|
+                            modulefile.puts <<-EOF
+                            name 'puppetlabs-apache'
+                            version '2.0.0'
+                            author 'puppetlabs'
+                            description 'puppetlabs apache module, version 2.0.0'
 
-                    expect(buffer).to be_tgz_with(/metadata.json/, /"name":"puppetlabs-apache"/)
+                            dependency "puppetlabs/stdlib", ">= 2.4.0"
+                            dependency "puppetlabs/concat", ">= 1.0.1"
+                            EOF
+                        end
+                    end
+
+                    it "returns a buffer of the packaged module" do
+                        buffer = forge.get_module("puppetlabs", "apache", "2.0.0")
+
+                        expect(buffer).to be_tgz_with(/Modulefile/, /puppetlabs-apache/)
+                    end
+
+                    it "generates a metadata file in the packaged application" do
+                        buffer = forge.get_module("puppetlabs", "apache", "2.0.0")
+
+                        expect(buffer).to be_tgz_with(/metadata.json/, /"name":"puppetlabs-apache"/)
+                    end
                 end
             end
         end
@@ -117,7 +138,7 @@ module PuppetLibrary::Forge
             end
 
             context "when the requested module is the source module" do
-                it "returns an empty list" do
+                it "returns the module's metadata" do
                     metadata = forge.get_metadata("puppetlabs", "apache").first
 
                     expect(metadata["name"]).to eq "puppetlabs-apache"

@@ -86,9 +86,14 @@ module PuppetLibrary::Forge
 
         def metadata
             @metadata_cache.get "metadata" do
-                modulefile_path = File.join(@module_dir.path, "Modulefile")
-                modulefile = PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
-                modulefile.to_metadata
+                metadata_file_path = File.join(@module_dir.path, "metadata.json")
+                if File.exist? metadata_file_path
+                    JSON.parse(File.read(metadata_file_path))
+                else
+                    modulefile_path = File.join(@module_dir.path, "Modulefile")
+                    modulefile = PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path)
+                    modulefile.to_metadata
+                end
             end
         end
     end

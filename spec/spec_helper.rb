@@ -52,11 +52,15 @@ end
 
 RSpec::Matchers.define :be_tgz_with do |expected_file_name, expected_content|
     match do |buffer|
-        file_content = Tgz.new(buffer).read expected_file_name
-        if Regexp === expected_content
-            file_content =~ expected_content
-        else
-            file_content == expected_content
+        begin
+            file_content = Tgz.new(buffer).read expected_file_name
+            if Regexp === expected_content
+                file_content =~ expected_content
+            else
+                file_content == expected_content
+            end
+        rescue
+            false
         end
     end
 end
