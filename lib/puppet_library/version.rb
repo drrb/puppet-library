@@ -16,5 +16,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module PuppetLibrary
-    VERSION = "0.14.0"
+    VERSION = "0.15.0"
 end
