@@ -109,6 +109,7 @@ module PuppetLibrary::Forge
                 tags = tags.select do |tag|
                     @git.file_exists?("metadata.json", tag) || @git.file_exists?("Modulefile", tag)
                 end
+                tags.version_sort
             end
         end
 
