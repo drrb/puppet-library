@@ -106,15 +106,24 @@ module PuppetLibrary::Forge
             @tags_cache.get do
                 tags = @git.tags
                 tags = tags.select {|tag| tag =~ @version_tag_regex }
-                tags = tags.select {|tag| @git.file_exists?("Modulefile", tag) }
+                tags = tags.select do |tag|
+                    @git.file_exists?("metadata.json", tag) || @git.file_exists?("Modulefile", tag)
+                end
             end
         end
 
         def metadata_for_tag(tag)
             @metadata_cache.get(tag) do
-                modulefile_source = @git.read_file("Modulefile", tag)
-                modulefile = PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
-                modulefile.to_metadata
+                metadata_file_exists = @git.file_exists?("metadata.json", tag)
+                modulefile_exists = @git.file_exists?("Modulefile", tag)
+                if metadata_file_exists && !modulefile_exists
+                    metadata_file = @git.read_file("metadata.json", tag)
+                    JSON.parse(metadata_file)
+                else
+                    modulefile_source = @git.read_file("Modulefile", tag)
+                    modulefile = PuppetLibrary::PuppetModule::Modulefile.parse(modulefile_source)
+                    modulefile.to_metadata
+                end
             end
         end
 

@@ -19,7 +19,7 @@ require 'spec_helper'
 module PuppetLibrary::Forge
     describe GitRepository do
         @@repo_dir = Tempdir.new("git-repo")
-        @@versions = [ "0.1.0", "0.9.0", "1.0.0-rc1", "1.0.0" ]
+        @@versions = [ "0.1.0", "0.9.0", "1.0.0-rc1", "1.0.0", "1.0.1" ]
         @@tags = @@versions.map {|version| "v#{version}"} + [ "xxx" ]
 
         before :all do
@@ -42,8 +42,10 @@ module PuppetLibrary::Forge
                     change_file.puts "Version #{version}"
                 end
 
-                # Update the module file
                 modulefile_path = File.join(@@repo_dir.path, "Modulefile")
+                metadata_file_path = File.join(@@repo_dir.path, "metadata.json")
+
+                # Update the module file
                 File.open(modulefile_path, "w") do |modulefile|
                     modulefile.write <<-MODULEFILE
                     name 'puppetlabs-apache'
@@ -53,7 +55,24 @@ module PuppetLibrary::Forge
                 end
 
                 # A dodgy early version with no modulefile
-                File.delete modulefile_path if version == "0.1.0"
+                if version == "0.1.0"
+                    File.delete modulefile_path
+                end
+
+                # A later version with metadata.json instead of modulefile
+                if version == "1.0.1"
+                    File.delete modulefile_path
+                    File.open(metadata_file_path, "w") do |metadata_file|
+                        metadata = {
+                            "name" => "puppetlabs-apache",
+                            "version" => "1.0.1",
+                            "author" => "puppetlabs"
+                        }
+
+                        metadata_file.write metadata.to_json
+                    end
+                end
+
                 git "add ."
                 git "commit --message='Version #{version}'"
                 git "tag #{tag}"
@@ -148,11 +167,22 @@ module PuppetLibrary::Forge
             end
 
             context "when the module is requested" do
-                it "generates the metadata for the each version" do
-                    metadata = forge.get_metadata("puppetlabs", "apache")
-                    expect(metadata.size).to eq(3)
-                    expect(metadata.first["name"]).to eq "puppetlabs-apache"
-                    expect(metadata.first["version"]).to eq "0.9.0"
+                context "when there is a metadata file, but no modulefile" do
+                    it "returns the metadata for each version" do
+                        metadata = forge.get_metadata("puppetlabs", "apache")
+                        expect(metadata.size).to eq(4)
+                        expect(metadata.last["name"]).to eq "puppetlabs-apache"
+                        expect(metadata.last["version"]).to eq "1.0.1"
+                    end
+                end
+
+                context "when there is a modulefile" do
+                    it "generates the metadata for the each version" do
+                        metadata = forge.get_metadata("puppetlabs", "apache")
+                        expect(metadata.size).to eq(4)
+                        expect(metadata.first["name"]).to eq "puppetlabs-apache"
+                        expect(metadata.first["version"]).to eq "0.9.0"
+                    end
                 end
             end
         end
@@ -160,12 +190,12 @@ module PuppetLibrary::Forge
         describe "#get_all_metadata" do
             it "generates the metadata for the each version" do
                 metadata = forge.get_all_metadata
-                expect(metadata.size).to eq(3)
+                expect(metadata.size).to eq(4)
                 expect(metadata.first["name"]).to eq "puppetlabs-apache"
                 expect(metadata.first["version"]).to eq "0.9.0"
             end
 
-            it "doesn't include versions with no Modulefile" do
+            it "doesn't include versions with no metadata file and no Modulefile" do
                 metadata = forge.get_all_metadata
                 dodgy_version = metadata.find {|m| m["version"] == "0.1.0" }
                 expect(dodgy_version).to be_nil

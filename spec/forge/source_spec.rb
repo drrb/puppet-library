@@ -91,7 +91,7 @@ module PuppetLibrary::Forge
             end
 
             context "when the source module is requested" do
-                context "when there is a metadata file" do
+                context "when there is a metadata file but no modulefile" do
                     it "includes the metadata file in the packaged application" do
                         buffer = forge.get_module("puppetlabs", "apache", "1.0.0")
 
@@ -99,9 +99,8 @@ module PuppetLibrary::Forge
                     end
                 end
 
-                context "when there is a modulefile with no metadata file" do
+                context "when there is a modulefile" do
                     before do
-                        FileUtils.rm metadata_file_path
                         File.open(modulefile_path, "w") do |modulefile|
                             modulefile.puts <<-EOF
                             name 'puppetlabs-apache'
