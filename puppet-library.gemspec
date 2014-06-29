@@ -47,7 +47,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "gitsu"
   spec.add_development_dependency "librarian-puppet", "0.9.10" # 0.9.12 breaks on Ruby 1.8.7
   spec.add_development_dependency "mime-types", "< 2"
-  spec.add_development_dependency "pry"
+  spec.add_development_dependency "pry", "0.9.12.6"
   spec.add_development_dependency "puppet", "~> 3.3.0"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rake"
