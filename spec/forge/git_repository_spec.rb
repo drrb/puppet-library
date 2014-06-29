@@ -65,7 +65,7 @@ module PuppetLibrary::Forge
                     File.open(metadata_file_path, "w") do |metadata_file|
                         metadata = {
                             "name" => "puppetlabs-apache",
-                            "version" => "1.0.1",
+                            "version" => version,
                             "author" => "puppetlabs"
                         }
 
@@ -73,7 +73,7 @@ module PuppetLibrary::Forge
                     end
                 end
 
-                git "add ."
+                git "add . -A"
                 git "commit --message='Version #{version}'"
                 git "tag #{tag}"
             end
