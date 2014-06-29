@@ -150,7 +150,7 @@ module PuppetLibrary::Forge
             context "when the module is requested" do
                 it "generates the metadata for the each version" do
                     metadata = forge.get_metadata("puppetlabs", "apache")
-                    expect(metadata).to have(3).versions
+                    expect(metadata.size).to eq(3)
                     expect(metadata.first["name"]).to eq "puppetlabs-apache"
                     expect(metadata.first["version"]).to eq "0.9.0"
                 end
@@ -160,7 +160,7 @@ module PuppetLibrary::Forge
         describe "#get_all_metadata" do
             it "generates the metadata for the each version" do
                 metadata = forge.get_all_metadata
-                expect(metadata).to have(3).versions
+                expect(metadata.size).to eq(3)
                 expect(metadata.first["name"]).to eq "puppetlabs-apache"
                 expect(metadata.first["version"]).to eq "0.9.0"
             end

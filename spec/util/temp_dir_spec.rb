@@ -27,8 +27,8 @@ module PuppetLibrary::Util
                     dir_existed_in_block = File.directory? path
                     dir_path = path
                 end
-                expect(dir_existed_in_block).to be_true
-                expect(File.exist? dir_path).to be_false
+                expect(dir_existed_in_block).to be_truthy
+                expect(File.exist? dir_path).to be_falsey
             end
         end
 
@@ -42,8 +42,8 @@ module PuppetLibrary::Util
                     dir_path = path
                     dir_in_block = Dir.pwd
                 end
-                expect(dir_existed_in_block).to be_true
-                expect(File.exist? dir_path).to be_false
+                expect(dir_existed_in_block).to be_truthy
+                expect(File.exist? dir_path).to be_falsey
                 expect(dir_in_block).not_to eq Dir.pwd
             end
         end

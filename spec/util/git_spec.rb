@@ -89,7 +89,7 @@ module PuppetLibrary::Util
             it "creates Git's .git/FETCH_HEAD file so that we know that the cache was recently created" do
                 git.update_cache!
 
-                expect(File.exist?(File.join(cache_dir.path, ".git", "FETCH_HEAD"))).to be_true
+                expect(File.exist?(File.join(cache_dir.path, ".git", "FETCH_HEAD"))).to be_truthy
             end
 
             it "copes with a missing .git/FETCH_HEAD file" do
@@ -99,7 +99,7 @@ module PuppetLibrary::Util
 
                 git.update_cache!
 
-                expect(File.exist? fetch_file).to be_true
+                expect(File.exist? fetch_file).to be_truthy
             end
 
             it "doesn't update the cache if it was recently updated" do
@@ -137,7 +137,7 @@ module PuppetLibrary::Util
                 git.update_cache!
                 git.clear_cache!
 
-                expect(File.exist? cache_dir.path).to be_false
+                expect(File.exist? cache_dir.path).to be_falsey
             end
         end
     end

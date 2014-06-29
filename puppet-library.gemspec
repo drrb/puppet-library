@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "puppet", "~> 3.3.0"
   spec.add_development_dependency "rack-test"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec", "~> 3.0.0"
   spec.add_development_dependency "simplecov"
 
   # Guard has dependencies that don't work with Ruby < 1.9
