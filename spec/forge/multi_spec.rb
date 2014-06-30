@@ -258,6 +258,10 @@ module PuppetLibrary::Forge
                     end
                     expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", nil).and_return(apache_module_metadata_one)
                     expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", nil).and_return(apache_module_metadata_two)
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return({})
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return({})
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return({})
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return({})
 
                     metadata = multi_forge.get_module_metadata_with_dependencies("puppetlabs", "apache", nil)
 
@@ -313,6 +317,10 @@ module PuppetLibrary::Forge
                     end
                     expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", nil).and_return(apache_module_metadata_one)
                     expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "apache", nil).and_return(apache_module_metadata_two)
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return({})
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return({})
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return({})
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return({})
 
                     metadata = multi_forge.get_module_metadata_with_dependencies("puppetlabs", "apache", nil)
 
@@ -325,6 +333,38 @@ module PuppetLibrary::Forge
                     ]
                 end
             end
+
+            context "when a module's dependency is found in another forge" do
+                it "still includes the dependency" do
+                    concat_metadata_1 = {
+                        "puppetlabs/concat" => [ {
+                            "version" => "1",
+                            "dependencies" => [
+                                [ "puppetlabs/stdlib", "1" ]
+                            ]
+                        } ],
+                        "puppetlabs/stdlib" => []
+                    }
+                    stdlib_meta_2 = {
+                        "puppetlabs/stdlib" => [ {
+                            "version" => "1",
+                            "dependencies" => [ ]
+                        } ]
+                    }
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return(concat_metadata_1)
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "concat", nil).and_return({})
+                    expect(subforge_one).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return({})
+                    expect(subforge_two).to receive(:get_module_metadata_with_dependencies).with("puppetlabs", "stdlib", nil).and_return(stdlib_meta_2)
+
+                    metadata = multi_forge.get_module_metadata_with_dependencies("puppetlabs", "concat", nil)
+
+                    expect(metadata).to eq({
+                        "puppetlabs/concat" => [ { "version"=>"1", "dependencies"=> [["puppetlabs/stdlib", "1"]] } ],
+                        "puppetlabs/stdlib" => [ { "version"=>"1", "dependencies"=> [] } ]
+                    })
+                end
+            end
+
         end
     end
 end

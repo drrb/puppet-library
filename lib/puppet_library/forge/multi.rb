@@ -18,6 +18,7 @@
 require 'puppet_library/forge/forge'
 require 'puppet_library/forge/search_result'
 require 'puppet_library/util/patches'
+require 'ostruct'
 
 module PuppetLibrary::Forge
 
@@ -89,14 +90,35 @@ module PuppetLibrary::Forge
         end
 
         def get_module_metadata_with_dependencies(author, name, version)
+            modules_to_search = [ OpenStruct.new(:author => author, :name => name, :version => version) ]
+
+            already_searched_modules =  []
+
             metadata_list = []
-            @forges.each do |forge|
-                begin
-                    metadata_list << forge.get_module_metadata_with_dependencies(author, name, version)
-                rescue ModuleNotFound
-                    # Try the next one
+            while spec = modules_to_search.shift
+                if already_searched_modules.include? spec
+                    next
+                else
+                    already_searched_modules << spec
+                end
+
+                @forges.each do |forge|
+                    begin
+                        metadata = forge.get_module_metadata_with_dependencies(spec.author, spec.name, spec.version)
+
+                        # Search all subforges for all versions of the dependencies too
+                        modules_to_search += metadata.keys.map do |dep_full_name|
+                            dep_author, dep_name = dep_full_name.split("/")
+                            OpenStruct.new(:author => dep_author, :name => dep_name, :version => nil)
+                        end
+
+                        metadata_list << metadata
+                    rescue ModuleNotFound
+                        # Try the next one
+                    end
                 end
             end
+
             raise ModuleNotFound if metadata_list.empty?
             metadata_list.deep_merge.tap do |metadata|
                 metadata.each do |module_name, releases|
