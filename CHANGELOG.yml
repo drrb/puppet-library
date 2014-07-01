@@ -97,3 +97,7 @@
       - Ignore corrupt module files on disk
       - Added logging for when module files can't be read from disk
       - Recurse into module directories when serving modules from disk
+- tag: v0.16.0
+  changes:
+      - Fix dependency problems across multiple forges (#8)
+
