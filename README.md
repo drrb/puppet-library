@@ -164,20 +164,10 @@ require "rubygems"
 require "puppet_library"
 
 # NB: this config API is not yet stable, and may change without notice.
-# The format shown is valid from Puppet Library v0.11.0
+# The format shown is valid from Puppet Library v0.11.0. See below for
+# all valid config items
 server = PuppetLibrary::Server.configure do
-    # Serve our private modules out of a directory on disk
-    forge :directory do
-        path = "/var/lib/modules"
-    end
-
-    # Serve the latest versions from GitHub
-    forge :git_repository do
-        source "http://github.com/example/puppetlabs-apache-fork.git"
-        include_tags /[0-9.]+/
-    end
-
-    # Download all other modules from the Puppet Forge
+    # Proxy the Puppet Forge
     forge :proxy do
         url "http://forge.puppetlabs.com"
     end
@@ -198,6 +188,37 @@ cat > /etc/httpd/conf.d/puppetlibrary.conf <<EOF
 </VirtualHost>
 EOF
 ```
+
+The following config items will currently work with the Rack config format (see above):
+
+```ruby
+# NB: this config API is not yet stable, and may change without notice.
+# The format shown is valid from Puppet Library v0.11.0
+server = PuppetLibrary::Server.configure do
+    # Serve modules from a directory on disk
+    forge :directory do
+        path = "/var/lib/modules"
+    end
+
+    # Serve module versions from a Git repository
+    forge :git_repository do
+        source "http://github.com/example/puppetlabs-apache-fork.git"
+        include_tags /[0-9.]+/
+    end
+
+    # Proxy a remote forge
+    forge :proxy do
+        url "http://forge.example.com"
+    end
+
+    # Proxy a remote forge, caching modules to disk
+    forge :cache do
+        url "http://forge.puppetlabs.com"
+        path "/var/puppet/modules/cache"
+    end
+end
+```
+
 
 ## Contributing
 
