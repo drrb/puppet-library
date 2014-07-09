@@ -22,6 +22,7 @@ module PuppetLibrary::Forge
     require 'puppet_library/forge/abstract'
     require 'puppet_library/forge/cache'
     require 'puppet_library/forge/directory'
+    require 'puppet_library/forge/source_directory'
     require 'puppet_library/forge/forge'
     require 'puppet_library/forge/git_repository'
     require 'puppet_library/forge/multi'

@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
+require 'redcarpet'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/archive/archive_reader'
 require 'puppet_library/util/config_api'
@@ -78,7 +79,16 @@ module PuppetLibrary::Forge
         def read_metadata(archive_path)
             archive = PuppetLibrary::Archive::ArchiveReader.new(archive_path)
             metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
-            JSON.parse(metadata_file)
+           
+            
+            markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
+            readmeText = archive.read_entry %r[/README\.(md|markdown)]
+            readmeHTML = markdown.render(readmeText)
+            parsedJSON = JSON.parse(metadata_file)
+            
+            parsedJSON["documentation"] = readmeHTML
+            parsedJSON
+            
         rescue => error
             warn "Error reading from module archive #{archive_path}: #{error}"
             return nil
