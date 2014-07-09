@@ -18,6 +18,7 @@
 require 'optparse'
 require 'rack'
 require 'yaml'
+require 'puppet_library/forge/source_directory'
 require 'puppet_library/forge/directory'
 require 'puppet_library/forge/multi'
 require 'puppet_library/forge/proxy'
@@ -85,6 +86,11 @@ module PuppetLibrary
 
                 opts.on("--cache-basedir DIR", "Cache all proxies' downloaded modules under this directory") do |cache_basedir|
                     options[:cache_basedir] = cache_basedir
+                end
+                
+                #new option --modulepath
+                opts.on("--modulepath DIR", "Directory containing all module's sources") do |modulepath|
+                    options[:forges] << [Forge::SourceDirectory, modulepath]
                 end
             end
             begin
@@ -161,7 +167,7 @@ module PuppetLibrary
 
         def process_options!(options)
             options[:forges].map! do |(forge_type, config)|
-                if [ Forge::Directory, Forge::Source ].include? forge_type
+                if [ Forge::Directory, Forge::Source, Forge::SourceDirectory ].include? forge_type
                     [ forge_type, [ Dir.new(sanitize_path(config)) ]]
                 elsif forge_type == Forge::Proxy && options[:cache_basedir]
                     cache_dir = File.join(options[:cache_basedir], url_hostname(config))
