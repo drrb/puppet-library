@@ -42,22 +42,14 @@ module PuppetLibrary::Util
         def with_tag(tag)
             update_cache!
             PuppetLibrary::Util::TempDir.use "git" do |path|
-                # Synchronize here, because we're moving HEAD. This can be removed when
-                # we work out how to update the working copy from Git without 'checkout'
-                @mutex.synchronize do
-                    git "checkout -f #{tag}", path
-                end
+                git "checkout -f #{tag} .", path
                 yield(path)
             end
         end
 
         def read_file(path, tag)
             update_cache!
-            # Synchronize here, because we're moving HEAD. This can be removed when
-            # we work out how to update the working copy from Git without 'checkout'
-            @mutex.synchronize do
-                git "show refs/tags/#{tag}:#{path}"
-            end
+            git "show refs/tags/#{tag}:#{path}"
         end
 
         def file_exists?(path, tag)
