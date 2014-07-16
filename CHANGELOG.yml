@@ -100,4 +100,7 @@
 - tag: v0.16.0
   changes:
       - Fix dependency problems across multiple forges (#8)
+- tag: v0.17.0
+  changes:
+      - Fix Git repo forges serving empty modules (#11)
 
