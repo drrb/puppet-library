@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "coveralls"
+  spec.add_development_dependency "rest-client", "~> 1.6.0"
   spec.add_development_dependency "gitsu"
   spec.add_development_dependency "librarian-puppet", "0.9.10" # 0.9.12 breaks on Ruby 1.8.7
   spec.add_development_dependency "mime-types", "< 2"
