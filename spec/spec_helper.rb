@@ -27,7 +27,9 @@ require 'fileutils'
 include FileUtils
 Tempdir = PuppetLibrary::Util::TempDir
 
-ENV["TESTING"] = "true"
+unless ENV["LOG"]
+    ENV["TESTING"] = "true"
+end
 
 class Tgz
     def initialize(buffer)
