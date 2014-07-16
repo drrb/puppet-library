@@ -71,6 +71,17 @@ module PuppetLibrary::Util
                     expect(File.read(modulefile)).to include "version '1.0.0'"
                 end
             end
+
+            context "when called twice" do
+                it "still works, and doesn't do funny stuff because the tag is already checked out in the cache" do
+                    git.with_tag("1.0.0") do |tag_path|
+                    end
+                    git.with_tag("1.0.0") do |tag_path|
+                        modulefile = File.join(tag_path, "Modulefile")
+                        expect(File.read(modulefile)).to include "version '1.0.0'"
+                    end
+                end
+            end
         end
 
         describe "#read_file" do
