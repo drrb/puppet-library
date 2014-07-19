@@ -51,11 +51,11 @@ module PuppetLibrary::Forge
       @module_dir = module_dir
     end
 
-    def get_module(name)
+    def get_module(author, name, version)
       file_name = "#{name}"
       path = File.join(@module_dir.path, file_name)
       if File.exist? path
-        File.open(path, 'r')
+        File.open(path, 'r:UTF-8')
       else
         nil
       end
@@ -72,20 +72,29 @@ module PuppetLibrary::Forge
 
     private
     def read_metadata(directory_path)
-      metadata_file = File.open(File.join(directory_path, "metadata.json"), "r").read
+      metadata_file_path = File.join(directory_path, "metadata.json")
+      modulefile_path = File.join(directory_path, "Modulefile")
+
+      if File.exist?(metadata_file_path)
+        metadata_file = File.open(metadata_file_path, "r:UTF-8").read
+        parsedJSON = JSON.parse(metadata_file)
+      elsif File.exist?(modulefile_path)
+        parsedJSON = PuppetLibrary::PuppetModule::Modulefile.read(modulefile_path).to_metadata
+      else
+        return nil
+      end
 
       markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
-      Dir.chdir(directory_path)
-      readmePath = Dir["README.{md,markdown}"].first
-      readmeText = File.open("#{directory_path}/#{readmePath}").read
+      Dir.chdir("#{directory_path}")
+      readmePath = Dir["README*"].first
+      readmeText = File.open("#{directory_path}/#{readmePath}", "r:UTF-8").read
       readmeHTML = markdown.render(readmeText)
-      parsedJSON = JSON.parse(metadata_file)
 
       parsedJSON["documentation"] = readmeHTML
       parsedJSON
 
     rescue => error
-      warn "Error reading from module archive #{directory_path}: #{error}"
+      warn "Error reading from module archive #{directory_path}: #{error.backtrace.join("\n")}"
       return nil
     end
   end
