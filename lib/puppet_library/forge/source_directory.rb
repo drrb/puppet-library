@@ -20,7 +20,7 @@ require 'puppet_library/forge/abstract'
 require 'puppet_library/util/config_api'
 
 module PuppetLibrary::Forge
-  
+
   # A forge that serves modules in unpacked format from a directory on disk.
   #
   # <b>Note:</b>
@@ -42,10 +42,10 @@ module PuppetLibrary::Forge
                       end
                   end
                   config = config_api.configure(&block)
-                  Source.new(config.get_path)
+                  SourceDirectory.new(config.get_path)
     end
 
-    # * <tt>:module_dir</tt> - The directory containing the packaged modules.
+    # * <tt>:module_dir</tt> - The directory containing the unpackaged modules.
     def initialize(module_dir)
       super(self)
       @module_dir = module_dir
@@ -62,21 +62,22 @@ module PuppetLibrary::Forge
     end
 
     def get_all_metadata
-      get_metadata("*")
+      get_metadata("*","*")
     end
 
-    def get_metadata(module_name)
+    def get_metadata(author, module_name)
       archives = Dir["#{@module_dir.path}/#{module_name}"]
       archives.map {|path| read_metadata(path) }.compact
     end
 
     private
-
-    def read_metadata(archive_path)
-      metadata_file = File.open(File.join(@module_dir.path, "metadata.json"), "r").read
+    def read_metadata(directory_path)
+      metadata_file = File.open(File.join(directory_path, "metadata.json"), "r").read
 
       markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
-      readmeText = File.open("README.md", "r").read
+      Dir.chdir(directory_path)
+      readmePath = Dir["README.{md,markdown}"].first
+      readmeText = File.open("#{directory_path}/#{readmePath}").read
       readmeHTML = markdown.render(readmeText)
       parsedJSON = JSON.parse(metadata_file)
 
@@ -84,7 +85,7 @@ module PuppetLibrary::Forge
       parsedJSON
 
     rescue => error
-      warn "Error reading from module archive #{archive_path}: #{error}"
+      warn "Error reading from module archive #{directory_path}: #{error}"
       return nil
     end
   end
