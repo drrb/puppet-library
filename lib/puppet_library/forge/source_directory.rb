@@ -8,11 +8,11 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
 require 'redcarpet'
@@ -30,10 +30,10 @@ module PuppetLibrary::Forge
   #
   # <b>Usage:</b>
   #
-  #    forge = PuppetLibrary::Forge::SourceDirectory.configure do
-  #        # The path to serve the modules from
-  #        path "/var/modules/cache"
-  #    end
+  # forge = PuppetLibrary::Forge::SourceDirectory.configure do
+  # # The path to serve the modules from
+  # path "/var/modules/cache"
+  # end
   class SourceDirectory < PuppetLibrary::Forge::Abstract
     def self.configure(&block)
       config_api = PuppetLibrary::Util::ConfigApi.for(SourceDirectory) do
@@ -63,6 +63,7 @@ module PuppetLibrary::Forge
 
     def get_all_metadata
       get_metadata("*","*")
+#.sort! { |x,y| "#{x["name"]}" <=> "#{y["name"]}" }
     end
 
     def get_metadata(author, module_name)
@@ -84,19 +85,30 @@ module PuppetLibrary::Forge
         return nil
       end
 
-      markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
       Dir.chdir("#{directory_path}")
       readmePath = Dir["README*"].first
-      readmeText = File.open("#{directory_path}/#{readmePath}", "r:UTF-8").read
-      readmeHTML = markdown.render(readmeText)
+      if File.exist?(readmePath)
+        markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
+        readmeText = File.open("#{directory_path}/#{readmePath}", "r:UTF-8").read
+        readmeHTML = markdown.render(readmeText)
+        parsedJSON["documentation"] = readmeHTML
+      end
 
-      parsedJSON["documentation"] = readmeHTML
       parsedJSON
 
     rescue => error
       warn "Error reading from module archive #{directory_path}: #{error.backtrace.join("\n")}"
-      return nil
+      return {
+                "name" => "unknown/#{directory_path.split("/").last}",
+                "version" => "unknown",
+                "source" => "unknown",
+                "author" => "unknown",
+                "license" => "unknown",
+                "summary" => "unknown",
+                "description" => "unknown",
+                "project_page" => "unknown",
+                "dependencies" => "unknown"
+            }
     end
   end
 end
-
