@@ -17,7 +17,7 @@
 module PuppetLibrary::PuppetModule
     class Modulefile
         def self.read(modulefile_path)
-            parse(File.open(modulefile_path, "r:UTF-8").read)
+            parse(File.read(modulefile_path))
         end
 
         def self.parse(modulefile_source)
