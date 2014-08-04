@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Puppet Library
 # Copyright (C) 2014 drrb
 #
