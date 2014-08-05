@@ -91,7 +91,7 @@ module PuppetLibrary::Forge
       if File.exist?(readmePath)
         markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
         readmeText = File.open("#{directory_path}/#{readmePath}", "r:UTF-8").read
-        readmeHTML = markdown.render(readmeText)
+        readmeHTML = markdown.render(readmeText).force_encoding("UTF-8")
         parsedJSON["documentation"] = readmeHTML
       end
 

@@ -17,3 +17,4 @@ test/version_tmp
 tmp
 .rake_t_cache
 /Gemfile.lock
+.DS_Store
