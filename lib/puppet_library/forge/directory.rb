@@ -79,16 +79,18 @@ module PuppetLibrary::Forge
         def read_metadata(archive_path)
             archive = PuppetLibrary::Archive::ArchiveReader.new(archive_path)
             metadata_file = archive.read_entry %r[[^/]+/metadata\.json$]
-           
-            
-            markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
-            readmeText = archive.read_entry %r[/README\.(md|markdown)]
-            readmeHTML = markdown.render(readmeText)
             parsedJSON = JSON.parse(metadata_file)
-            
-            parsedJSON["documentation"] = readmeHTML
+
+
+            readmeText = archive.read_entry %r[/README[\.(md|markdown)]]
+            if !readmeText.empty? && readmeText.length > 0
+              markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML, extensions = {})
+              readmeHTML = markdown.render(readmeText).force_encoding("UTF-8")
+              parsedJSON["documentation"] = readmeHTML
+            end
+
             parsedJSON
-            
+
         rescue => error
             warn "Error reading from module archive #{archive_path}: #{error}"
             return nil
