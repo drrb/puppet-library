@@ -84,7 +84,7 @@ module PuppetLibrary::Forge
             readme_regex = %r[/README[\.(md|markdown)]]
             if archive.check_entry? readme_regex
               readmeText = archive.read_entry readme_regex
-              markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(escape_html => true, with_tocdata => true), extensions = {quote => true, lax_spacing => true})
+              markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(:with_tocdata => true), extensions = {})
               readmeHTML = markdown.render(readmeText).force_encoding("UTF-8")
               parsedJSON["documentation"] = readmeHTML
             end
