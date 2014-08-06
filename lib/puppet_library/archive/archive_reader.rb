@@ -26,8 +26,10 @@ module PuppetLibrary::Archive
         def read_entry(entry_name_regex)
             tar = Gem::Package::TarReader.new(Zlib::GzipReader.open(@path))
             tar.rewind
-            entry = tar.find {|e| e.full_name =~ entry_name_regex } or raise "Couldn't find entry in archive matching #{entry_name_regex.inspect}"
-            entry.read
+            entry = tar.find {|e| e.full_name =~ entry_name_regex } # or raise "Couldn't find entry in archive matching #{entry_name_regex.inspect}"
+            if !entry.nil?
+              entry.read
+            end
         end
     end
 end
