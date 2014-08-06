@@ -68,7 +68,7 @@ module PuppetLibrary::Forge
     end
 
     def get_metadata(author, module_name)
-      archives = Dir["#{@module_dir.path}/#{module_name}"]
+      archives = Dir["#{@module_dir.path}/*#{module_name}*"]
       archives.map {|path| read_metadata(path) }.compact
     end
 
@@ -96,7 +96,7 @@ module PuppetLibrary::Forge
       if readmePath.nil? || !File.exist?(readmePath)
         readmePath = Dir["README*"].last
       end
-      puts "Second: #{readmePath}"
+
       if !readmePath.nil? && File.exist?(readmePath)
         markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(:with_toc_data => true), extensions = {})
         readmeText = File.open("#{directory_path}/#{readmePath}").read
