@@ -91,15 +91,16 @@ module PuppetLibrary::Forge
 
       # firstly trying to get the README.md file
       readmePath = Dir["README.md"].last
+      puts "First: #{readmePath}"
 
-      if ! File.exist?(readmePath)
+      if readmePath.nil? || !File.exist?(readmePath)
         readmePath = Dir["README*"].last
       end
-
-      if File.exist?(readmePath)
-        markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(escape_html => true, with_tocdata => true), extensions = {quote => true, lax_spacing => true})
-        readmeText = File.open("#{directory_path}/#{readmePath}", "r:UTF-8").read
-        readmeHTML = markdown.render(readmeText).force_encoding("UTF-8")
+      puts "Second: #{readmePath}"
+      if !readmePath.nil? && File.exist?(readmePath)
+        markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(:with_toc_data => true), extensions = {})
+        readmeText = File.open("#{directory_path}/#{readmePath}").read
+        readmeHTML = markdown.render(readmeText) #rendering twice for table of contents
         parsedJSON["documentation"] = readmeHTML
       end
 
@@ -117,7 +118,7 @@ module PuppetLibrary::Forge
                 "description" => "unknown",
                 "project_page" => "unknown",
                 "dependencies" => "unknown",
-                "documentation" => ""
+                "documentation" => nil
             }
     end
   end
