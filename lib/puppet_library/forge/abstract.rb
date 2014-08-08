@@ -71,128 +71,125 @@ module PuppetLibrary::Forge
             end.flatten
             versions = Hash[versions.select do |name, info|
                 name == full_name || dependencies.include?(name)
-                end]
-                return versions
+            end]
+            return versions
+        end
+
+        def collect_dependencies_versions(module_full_name, metadata = {})
+            author, module_name = module_full_name.split "/"
+            module_versions = retrieve_metadata(author, module_name)
+            metadata[module_full_name] = module_versions.map {|v| v.to_version }
+
+            dependencies = module_versions.map {|v| v.dependency_names }.flatten
+            dependencies.each do |dependency|
+                collect_dependencies_versions(dependency, metadata) unless metadata.include? dependency
             end
+            return metadata
+        end
 
-            def collect_dependencies_versions(module_full_name, metadata = {})
-                author, module_name = module_full_name.split "/"
-                module_versions = retrieve_metadata(author, module_name)
-                metadata[module_full_name] = module_versions.map {|v| v.to_version }
+        def get_module_buffer(author, name, version)
+            @repo.get_module(author, name, version) or raise ModuleNotFound
+        end
 
-                dependencies = module_versions.map {|v| v.dependency_names }.flatten
-                dependencies.each do |dependency|
-                    collect_dependencies_versions(dependency, metadata) unless metadata.include? dependency
+        def retrieve_metadata(author, module_name)
+            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
+        end
+
+        def retrieve_all_metadata
+            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata)}
+        end
+    end
+
+    class Search
+        def initialize(query)
+            @query = query
+        end
+
+        def matches?(metadata)
+            return true if @query.nil?
+            return true if metadata.name.include? @query
+            return true if metadata.author.include? @query
+            return false
+        end
+    end
+
+    class ModuleMetadata
+        def initialize(metadata)
+            @metadata = metadata
+        end
+
+        def author
+            @metadata["name"][/^[^-]+/]
+        end
+
+        def name
+            @metadata["name"].sub(/^[^-]+-/, "")
+        end
+
+        def full_name
+            @metadata["name"].sub("-", "/")
+        end
+
+        def version
+            @metadata["version"]
+        end
+
+        def dependencies
+            @metadata["dependencies"]
+        end
+
+        def summary
+            @metadata["summary"]
+        end
+
+        def description
+            @metadata["description"]
+        end
+
+        def project_page
+            @metadata["project_page"]
+        end
+
+        def dependency_names
+            dependencies.map {|d| d["name"]}
+        end
+
+        def documentation
+            @metadata["documentation"]
+        end
+
+        def to_info
+            {
+                "author" => author,
+                "full_name" => full_name,
+                "name" => name,
+                "desc" => description,
+                "releases" => [ { "version" => version } ]
+            }
+        end
+
+        def to_version
+            {
+                "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
+                "version" => version,
+                "dependencies" => dependencies.map do |dependency|
+                    [ dependency["name"], dependency["version_requirement"] ]
                 end
-                return metadata
-            end
-
-            def get_module_buffer(author, name, version)
-                @repo.get_module(author, name, version) or raise ModuleNotFound
-            end
-
-            def retrieve_metadata(author, module_name)
-                @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
-            end
-
-            def retrieve_all_metadata
-                @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata)}
-            end
+            }
         end
 
-        class Search
-            def initialize(query)
-                @query = query
-            end
-
-            def matches?(metadata)
-                return true if @query.nil?
-                return true if metadata.name.include? @query
-                return true if metadata.author.include? @query
-                return false
-            end
-        end
-
-        class ModuleMetadata
-            def initialize(metadata)
-                @metadata = metadata
-            end
-
-            def author
-                @metadata["name"][/^[^-]+/]
-            end
-
-            def name
-                @metadata["name"].sub(/^[^-]+-/, "")
-            end
-
-            def full_name
-                @metadata["name"].sub("-", "/")
-            end
-
-            def version
-                @metadata["version"]
-            end
-
-            def dependencies
-                @metadata["dependencies"]
-            end
-
-            def summary
-                @metadata["summary"]
-            end
-
-            def description
-                @metadata["description"]
-            end
-
-            def project_page
-                @metadata["project_page"]
-            end
-
-            def dependency_names
-                dependencies.map {|d| d["name"]}
-            end
-
-            def documentation
-                @metadata["documentation"]
-            end
-
-            def to_info
-                {
-                    "author" => author,
-                    "full_name" => full_name,
-                    "name" => name,
-                    "desc" => description,
-                    "releases" => [ { "version" => version } ],
-                    "documentation" => documentation
-                }
-            end
-
-            def to_version
-                {
-                    "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
-                    "version" => version,
-                    "dependencies" => dependencies.map do |dependency|
-                        [ dependency["name"], dependency["version_requirement"] ]
-                    end
-                }
-            end
-
-            def to_search_result
-                {
-                    "author" => author,
-                    "full_name" => full_name,
-                    "name" => name,
-                    "desc" => summary,
-                    "project_url" => project_page,
-                    "releases" => [{ "version" => version}],
-                    "documentation" => documentation,
-                    "version" => version,
-                    "tag_list" => [author, name]
-                }
-            end
+        def to_search_result
+            {
+                "author" => author,
+                "full_name" => full_name,
+                "name" => name,
+                "desc" => summary,
+                "project_url" => project_page,
+                "releases" => [{ "version" => version}],
+                "documentation" => documentation,
+                "version" => version,
+                "tag_list" => [author, name]
+            }
         end
     end
 end
-
