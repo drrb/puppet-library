@@ -22,7 +22,9 @@
 %div= "Versions:"
 %ul
   - metadata["releases"].each do |release|
-    %li= release["version"]
+    %li
+      %a{:href => "/modules/#{metadata["author"]}-#{metadata["name"]}-#{release["version"]}.tar.gz"} #{release["version"]}
+
 
 %hr
 
