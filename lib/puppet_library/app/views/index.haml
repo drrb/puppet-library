@@ -24,6 +24,13 @@
   $(document).ready(function() {
     var source = "modules.json#{ query.nil? ? '' : '?q=' + query }";
     $.getJSON(source, function(modules) {
+
+      modules.sort(function(a, b){
+        var aFull_name = a.full_name.toLowerCase();
+        var bFull_name = b.full_name.toLowerCase();
+        return ((aFull_name < bFull_name) ? -1 : ((aFull_name > bFull_name) ? 1 : 0));
+      });
+
       $.each(modules, function(index, module) {
         var item = $("<li/>");
         item.append($("<b/>").append($("<a/>").attr("href", module.full_name).text(module.full_name)));
