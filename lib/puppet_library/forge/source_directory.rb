@@ -64,7 +64,7 @@ module PuppetLibrary::Forge
 
     def get_all_metadata
       get_metadata("*","*")
-#.sort! { |x,y| "#{x["name"]}" <=> "#{y["name"]}" }
+
     end
 
     def get_metadata(author, module_name)
@@ -91,7 +91,6 @@ module PuppetLibrary::Forge
 
       # firstly trying to get the README.md file
       readmePath = Dir["README.md"].last
-      puts "First: #{readmePath}"
 
       if readmePath.nil? || !File.exist?(readmePath)
         readmePath = Dir["README*"].last
