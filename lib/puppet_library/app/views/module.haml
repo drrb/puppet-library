@@ -22,9 +22,9 @@
 %div= "Versions:"
 %ul
   - metadata["releases"].each do |release|
-    %li release["version"]
+    %li= release["version"]
 
 
 %hr
 
-%div= "#{metadata["documentation"]}"
+%div= metadata["documentation"]
