@@ -56,9 +56,11 @@ module PuppetLibrary::Forge
 
         # * <tt>:source</tt> - The URL or path of the git repository
         # * <tt>:version_tag_regex</tt> - A regex that describes which tags to serve
-        def initialize(git, version_tag_regex)
+        def initialize(source, version_tag_regex)
             super(self)
-            @version_tag_regex = version_tag_regex
+            @version_tag_regex = Regexp.new version_tag_regex[1]
+            cache_dir = PuppetLibrary::Util::TempDir.new("git-repo-cache")
+            git = PuppetLibrary::Util::Git.new(source[1], cache_dir)
             @git = git
             @metadata_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
             @tags_cache = PuppetLibrary::Http::Cache::InMemory.new(60)
@@ -105,7 +107,7 @@ module PuppetLibrary::Forge
         def tags
             @tags_cache.get do
                 tags = @git.tags
-                tags = tags.select {|tag| tag =~ @version_tag_regex }
+                tags = tags.select {|tag| @version_tag_regex =~ tag }
                 tags = tags.select do |tag|
                     @git.file_exists?("metadata.json", tag) || @git.file_exists?("Modulefile", tag)
                 end

@@ -145,6 +145,9 @@ forges:
     - Directory: /var/lib/other-modules
     - Source: /var/code/puppetlabs-apache
     - Proxy: http://forge.puppetlabs.com
+    - GitRepository:
+        source:       https://github.com/puppetlabs/puppetlabs-stdlib.git
+        include_tags: '[0-9.]+'
 ```
 
 ## Running with Phusion Passenger (EXPERIMENTAL)
