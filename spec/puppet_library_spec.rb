@@ -114,6 +114,7 @@ module PuppetLibrary
                         "daemonize" => true,
                         "server" => "thin",
                         "pidfile" => "/var/run/puppet-library.pid",
+                        "hostname" => "example.com",
                         "forges" => [
                             { "Directory" => forge_dir.path },
                             { "Proxy" => "http://forge.puppetlabs.com" }
@@ -123,7 +124,7 @@ module PuppetLibrary
                     expect(Forge::Directory).to receive(:new)
                     expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com")
                     expect(forge).to receive(:add_forge).twice
-                    expect(Rack::Server).to receive(:start).with(default_options_with(:Port => 4567, :daemonize => true, :pid => "/var/run/puppet-library.pid", :server => "thin"))
+                    expect(Rack::Server).to receive(:start).with(default_options_with(:Port => 4567, :Host => "example.com", :daemonize => true, :pid => "/var/run/puppet-library.pid", :server => "thin"))
 
                     library.go(["--config-file", config_file.path])
                 end

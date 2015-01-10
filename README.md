@@ -137,6 +137,7 @@ A configuration file looks like this:
 
 ```yaml
 port: 4567
+hostname: example.com
 server: thin
 daemonize: true
 pidfile: /var/run/puppetlibrary.pid

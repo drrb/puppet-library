@@ -143,6 +143,7 @@ module PuppetLibrary
             options[:port] = config["port"]
             options[:pidfile] = config["pidfile"]
             options[:server] = config["server"]
+            options[:hostname] = config["hostname"]
 
             forges_config = config["forges"] || []
             configured_forges = forges_config.map do |forge|
