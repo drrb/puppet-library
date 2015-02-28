@@ -132,7 +132,7 @@ module PuppetLibrary::Forge
                 forge.get_modules(query)
             end.flatten
 
-            results = SearchResult.merge_by_full_name(all_results)
+            results = SearchResult.merge_v3(all_results)
             {
 	        'pagination' => {
 	            'limit'  => results.size,

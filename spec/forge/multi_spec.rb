@@ -418,7 +418,10 @@ module PuppetLibrary::Forge
                     expect(multi_forge.get_modules("apache")["results"].size).to eq 3
                 end
                 it "aggregates releases from multiple sources" do
-                    expect(multi_forge.get_modules("apache")["results"].select{ |i| i['name']=='apache' }['releases'][0].size).to eq 4
+                    forge_count = puppetlabs_search.find{ |i| i['owner']['username']=='puppetlabs' && i['name']=='apache' }['releases'].size
+                    results = multi_forge.get_modules("apache")["results"]
+                    result = results.find{ |i| i['owner']['username']=='puppetlabs' && i['name']=='apache' }
+                    expect(result['releases'].size).to eq forge_count+1
                 end
             end
         end
