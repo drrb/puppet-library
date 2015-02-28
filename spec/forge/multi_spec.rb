@@ -368,8 +368,25 @@ module PuppetLibrary::Forge
         end
 
         describe "#get_modules" do
-            let(:other_apache) { { "results" => [ { "author" => "other", "name" => "other-apache", "version" => "1.4.0"} ] } }
-            let(:puppetlabs_search) { JSON.parse(File.read('spec/fixtures/modules.json')) }
+            let(:other_apache) { [
+                {
+                    "name" => "apache",
+                    "owner" => { "username" => "other" },
+                    "version" => "1.4.0",
+                    "current_release" => {
+                        "version" => "1.4.0",
+                        "metadata" => {
+                            "author" => "other",
+                            "name" => "other-apache",
+                            "version" => "1.4.0"
+                        }
+                    },
+                    "releases" => [
+                        { "version" => "1.4.0" }
+                    ]
+                }
+            ] }
+            let(:puppetlabs_search) { JSON.parse(File.read('spec/fixtures/modules.json'))['results'] }
             before :each do
                 expect(subforge_one).to receive(:get_modules).with("apache").and_return(other_apache)
                 expect(subforge_two).to receive(:get_modules).with("apache").and_return(puppetlabs_search)
@@ -383,9 +400,6 @@ module PuppetLibrary::Forge
                 end
             end
             context "paginates aggregated results" do
-                it "modifies total count" do
-                    expect(multi_forge.get_modules("apache")["pagination"]["total"]).to eq (puppetlabs_search["pagination"]["total"]+1).to_s
-                end
                 it "return all matches" do
                     expect(multi_forge.get_modules("apache")["results"].size).to eq 3
                 end

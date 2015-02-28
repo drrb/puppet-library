@@ -132,7 +132,15 @@ module PuppetLibrary::Forge
                 forge.get_modules(query)
             end.flatten
 
-            SearchResult.merge_by_full_name(all_results)
+            results = SearchResult.merge_by_full_name(all_results)
+            {
+	        'pagination' => {
+	            'limit'  => results.size,
+	            'offset' => 0,
+	            'total'  => results.size
+		},
+		'results' => results
+            }
         end
 
         def get_releases(author, name)
