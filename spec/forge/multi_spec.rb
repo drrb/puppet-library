@@ -384,6 +384,20 @@ module PuppetLibrary::Forge
                     "releases" => [
                         { "version" => "1.4.0" }
                     ]
+                }, {
+                    "name" => "apache",
+                    "owner" => { "username" => "puppetlabs" },
+                    "current_release" => {
+                        "version" => "1.4.0-rc1",
+                        "metadata" => {
+                            "author" => "puppetlabs",
+                            "name" => "puppetlabs-apache",
+                            "version" => "1.4.0-rc1"
+                        }
+                    },
+                    "releases" => [
+                        { "version" => "1.4.0-rc1" }
+                    ]
                 }
             ] }
             let(:puppetlabs_search) { JSON.parse(File.read('spec/fixtures/modules.json'))['results'] }
@@ -402,6 +416,9 @@ module PuppetLibrary::Forge
             context "paginates aggregated results" do
                 it "return all matches" do
                     expect(multi_forge.get_modules("apache")["results"].size).to eq 3
+                end
+                it "aggregates releases from multiple sources" do
+                    expect(multi_forge.get_modules("apache")["results"].select{ |i| i['name']=='apache' }['releases'][0].size).to eq 4
                 end
             end
         end
