@@ -79,6 +79,12 @@ module PuppetLibrary::Forge
             end
         end
 
+        def get_modules(query)
+            query_parameter = query.nil? ? "" : "?query=#{query}"
+            results = get("/v3/modules#{query_parameter}")
+            JSON.parse results
+        end
+
         def get_module_metadata_with_dependencies(author, name, version)
             begin
                 look_up_releases(author, name, version) do |full_name, release_info|

@@ -75,6 +75,20 @@ module PuppetLibrary::Forge
             return versions
         end
 
+        def get_modules(query)
+            search = Search.new(query)
+
+            search_results = retrieve_all_metadata.select do |result|
+                search.matches? result
+            end.sort_by do |result|
+                result.version
+            end.reverse.map do |result|
+                result.to_search_result
+            end
+
+            SearchResult.merge_by_full_name(search_results)
+        end
+
         def collect_dependencies_versions(module_full_name, metadata = {})
             author, module_name = module_full_name.split "/"
             module_versions = retrieve_metadata(author, module_name)
