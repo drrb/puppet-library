@@ -126,5 +126,27 @@ module PuppetLibrary::Forge
                 end
             end
         end
+
+        def get_modules(query)
+            all_results = @forges.map do |forge|
+                forge.get_modules(query)
+            end.flatten
+
+            SearchResult.merge_by_full_name(all_results)
+        end
+
+        def get_releases(author, name)
+            metadata_list = @forges.inject([]) do |metadata_list, forge|
+                begin
+                    metadata_list << forge.get_module_metadata(author, name)
+                rescue ModuleNotFound
+                    metadata_list
+                end
+            end
+            raise ModuleNotFound if metadata_list.empty?
+            metadata_list.deep_merge.tap do |metadata|
+                metadata["releases"] = metadata["releases"].unique_by { |release| release["version"] }
+            end
+        end
     end
 end
