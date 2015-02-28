@@ -75,6 +75,24 @@ module PuppetLibrary
             set :root, File.expand_path("app", File.dirname(__FILE__))
         end
 
+        get "/v3/modules" do
+            search_term = params[:query]
+            @forge.get_modules(search_term).to_json
+        end
+
+        get "/v3/releases" do
+            unless params[:module]
+                halt 400, {"error" => "Supply the module whose releases will be retrived"}.to_json
+            end
+
+            author, module_name = params[:module].split "-"
+            begin
+                @forge.get_releases(author, module_name).to_json
+            rescue Forge::ModuleNotFound
+                halt 410, {"error" => "No release found for #{params[:module]}"}.to_json
+            end
+        end
+
         get "/" do
             query = params[:search]
             haml :index, { :locals => { "query" => query } }
