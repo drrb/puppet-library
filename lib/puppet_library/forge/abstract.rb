@@ -80,13 +80,32 @@ module PuppetLibrary::Forge
 
             search_results = retrieve_all_metadata.select do |result|
                 search.matches? result
-            end.sort_by do |result|
-                result.version
-            end.reverse.map do |result|
+            end.map do |result|
                 result.to_search_result
+            end.group_by do |result|
+                result["name"]
             end
 
-            SearchResult.merge_by_full_name(search_results)
+            search_results.values.map do |module_results|
+              current = module_results.sort do |a,b|
+                Gem::Version.new(a['version']) <=> Gem::Version.new(b['version'])
+              end.last
+              {
+              #  'uri' => '...',
+                'name' => current.classname,
+                'current_release' => {
+              #  #  'uri' => '...',
+              #  #  'module' => {
+              #  #    'uri' => '...',
+              #  #    'name' => '...'
+              #  #  },
+                  'version' => current['version'],
+                  'metadata' => current
+              #  #  'tags' => '...'
+                },
+                'releases' => '...'
+              }
+            end
         end
 
         def collect_dependencies_versions(module_full_name, metadata = {})
@@ -142,6 +161,10 @@ module PuppetLibrary::Forge
 
         def full_name
             @metadata["name"].sub("/", "-")
+        end
+
+        def classname
+             name.sub(/^[^-]+-/, "")
         end
 
         def version
