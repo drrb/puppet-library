@@ -214,6 +214,30 @@ module PuppetLibrary
             end
         end
 
+        describe "puppet module search" do
+            let(:search_results) { JSON.parse(File.read('spec/fixtures/modules.json')) }
+            it "gets metadata for module and dependencies" do
+                expect(forge).to receive(:get_modules).with("apache").and_return(search_results)
+
+                get "/v3/modules?query=apache"
+
+                expect(last_response.body).to eq search_results.to_json
+                expect(last_response).to be_ok
+            end
+        end
+
+        describe "puppet module fetch" do
+            let(:metadata) { JSON.parse(File.read('spec/fixtures/releases.json')) }
+            it "gets metadata for module and dependencies" do
+                expect(forge).to receive(:get_releases).with("puppetlabs", "apache").and_return(metadata)
+
+                get "/v3/releases?module=puppetlabs-apache"
+
+                expect(last_response.body).to eq metadata.to_json
+                expect(last_response).to be_ok
+            end
+        end
+
         describe "GET /api/v1/releases.json" do
             context "when module parameter not specified" do
                 it "returns an error" do
