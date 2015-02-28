@@ -72,10 +72,10 @@ module PuppetLibrary::Forge
                 search_results = forge.search_modules("apache")
                 expect(search_results).to eq [{
                     "author"=>"puppetlabs",
-                    "full_name"=>"puppetlabs/apache",
+                    "full_name"=>"puppetlabs-apache",
                     "name"=>"apache",
-                    "desc"=>"Puppet module for Apache",
-                    "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                    "summary"=>"Puppet module for Apache",
+                    "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache",
                     "releases"=>[{"version"=>"0.10.0"}],
                     "version"=>"0.10.0",
                     "tag_list"=>["puppetlabs", "apache"]
@@ -86,10 +86,10 @@ module PuppetLibrary::Forge
                 search_results = forge.search_modules("dodgybrothers")
                 expect(search_results).to eq [{
                     "author"=>"dodgybrothers",
-                    "full_name"=>"dodgybrothers/ntp",
+                    "full_name"=>"dodgybrothers-ntp",
                     "name"=>"ntp",
-                    "desc"=>"Puppet module for NTP",
-                    "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                    "summary"=>"Puppet module for NTP",
+                    "project_page"=>"https://github.com/dodgybrothers/puppet-ntp",
                     "releases"=>[{"version"=>"1.0.0"}],
                     "version"=>"1.0.0",
                     "tag_list"=>["dodgybrothers", "ntp"]
@@ -122,10 +122,10 @@ module PuppetLibrary::Forge
                     search_results = forge.search_modules("apache")
                     expect(search_results).to eq [{
                         "author"=>"puppetlabs",
-                        "full_name"=>"puppetlabs/apache",
+                        "full_name"=>"puppetlabs-apache",
                         "name"=>"apache",
-                        "desc"=>"New Puppet module for Apache",
-                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
+                        "summary"=>"New Puppet module for Apache",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
                         "releases"=>[{"version"=>"1.0.0"},{"version"=>"0.10.0"}],
                         "version"=>"1.0.0",
                         "tag_list"=>["puppetlabs", "apache"]
@@ -140,19 +140,19 @@ module PuppetLibrary::Forge
                     search_results = search_results.sort_by {|r| r["name"]}
                     expect(search_results).to eq [{
                         "author"=>"puppetlabs",
-                        "full_name"=>"puppetlabs/apache",
+                        "full_name"=>"puppetlabs-apache",
                         "name"=>"apache",
-                        "desc"=>"Puppet module for Apache",
-                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                        "summary"=>"Puppet module for Apache",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache",
                         "releases"=>[{"version"=>"0.10.0"}],
                         "version"=>"0.10.0",
                         "tag_list"=>["puppetlabs", "apache"]
                     },{
                         "author"=>"dodgybrothers",
-                        "full_name"=>"dodgybrothers/ntp",
+                        "full_name"=>"dodgybrothers-ntp",
                         "name"=>"ntp",
-                        "desc"=>"Puppet module for NTP",
-                        "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                        "summary"=>"Puppet module for NTP",
+                        "project_page"=>"https://github.com/dodgybrothers/puppet-ntp",
                         "releases"=>[{"version"=>"1.0.0"}],
                         "version"=>"1.0.0",
                         "tag_list"=>["dodgybrothers", "ntp"]
@@ -177,12 +177,12 @@ module PuppetLibrary::Forge
                     metadata = [ {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
+                        "summary" => "Apache module",
                         "version" => "1.1.0"
                     }, {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Old Apache module",
+                        "summary" => "Old Apache module",
                         "version" => "1.0.0"
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
@@ -190,9 +190,9 @@ module PuppetLibrary::Forge
                     metadata = forge.get_module_metadata("puppetlabs", "apache")
 
                     expect(metadata["author"]).to eq "puppetlabs"
-                    expect(metadata["full_name"]).to eq "puppetlabs/apache"
+                    expect(metadata["full_name"]).to eq "puppetlabs-apache"
                     expect(metadata["name"]).to eq "apache"
-                    expect(metadata["desc"]).to eq "Apache module"
+                    expect(metadata["summary"]).to eq "Apache module"
                     expect(metadata["releases"]).to eq [
                         {"version" => "1.0.0"},
                         {"version" => "1.1.0"}
@@ -217,7 +217,7 @@ module PuppetLibrary::Forge
                     metadata = [ {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
+                        "summary" => "Apache module",
                         "version" => "1.0.0",
                         "dependencies" => []
                     } ]

@@ -55,7 +55,7 @@ module PuppetLibrary
                         "name" => "apache",
                         "tag_list" => ["apache", "httpd"],
                         "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                        "full_name" => "puppetlabs/apache",
+                        "full_name" => "puppetlabs-apache",
                         "version" => "0.0.2",
                         "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                         "desc" => "Puppet module for Apache"
@@ -75,7 +75,7 @@ module PuppetLibrary
                             "name" => "apache",
                             "tag_list" => ["apache", "httpd"],
                             "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                            "full_name" => "puppetlabs/apache",
+                            "full_name" => "puppetlabs-apache",
                             "version" => "0.0.2",
                             "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                             "desc" => "Puppet module for Apache"
@@ -105,7 +105,7 @@ module PuppetLibrary
                         "name" => "apache",
                         "tag_list" => ["apache", "httpd"],
                         "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                        "full_name" => "puppetlabs/apache",
+                        "full_name" => "puppetlabs-apache",
                         "version" => "0.0.2",
                         "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                         "desc" => "Puppet module for Apache"
@@ -151,7 +151,7 @@ module PuppetLibrary
             it "displays module metadata" do
                 metadata = {
                     "author" => "puppetlabs",
-                    "full_name" => "puppetlabs/apache",
+                    "full_name" => "puppetlabs-apache",
                     "name" => "apache",
                     "desc" => "Puppet module for Apache",
                     "releases" => [
@@ -176,7 +176,7 @@ module PuppetLibrary
 
                     get "/nonexistant/nonexistant"
 
-                    expect(last_response.body).to include 'Module "nonexistant/nonexistant" not found'
+                    expect(last_response.body).to include 'Module "nonexistant-nonexistant" not found'
                     expect(last_response.status).to eq(404)
                 end
             end
@@ -186,7 +186,7 @@ module PuppetLibrary
             it "gets module metadata for all versions" do
                 metadata = {
                     "author" => "puppetlabs",
-                    "full_name" => "puppetlabs/apache",
+                    "full_name" => "puppetlabs-apache",
                     "name" => "apache",
                     "desc" => "Puppet module for Apache",
                     "releases" => [
@@ -289,7 +289,7 @@ module PuppetLibrary
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 
-                    expect(last_response.body).to eq('{"error":"Module nonexistant/nonexistant not found"}')
+                    expect(last_response.body).to eq('{"error":"Module nonexistant-nonexistant not found"}')
                     expect(last_response.status).to eq(410)
                 end
             end

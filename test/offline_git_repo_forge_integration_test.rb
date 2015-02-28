@@ -105,7 +105,7 @@ module PuppetLibrary
             # Search
             search_results = JSON.parse(open("http://localhost:#{port}/modules.json").read)
             apache_result = search_results.first
-            expect(apache_result["full_name"]).to eq "puppetlabs/apache"
+            expect(apache_result["full_name"]).to eq "puppetlabs-apache"
             expect(apache_result["releases"]).to eq [{"version"=>"1.0.0"}, {"version"=>"1.0.0-rc1"}, {"version"=>"0.9.0"}]
 
             # Download

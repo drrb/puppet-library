@@ -124,7 +124,7 @@ module PuppetLibrary
             begin
                 @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
             rescue Forge::ModuleNotFound
-                halt 410, {"error" => "Module #{author}/#{module_name} not found"}.to_json
+                halt 410, {"error" => "Module #{author}-#{module_name} not found"}.to_json
             end
         end
 

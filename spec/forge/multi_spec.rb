@@ -68,8 +68,8 @@ module PuppetLibrary::Forge
 
             context "when modules match in subforges" do
                 it "returns an array with all of them" do
-                    apache = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "version" => "1"}
-                    concat = { "author" => "puppetlabs", "full_name" => "puppetlabs/concat", "version" => "1"}
+                    apache = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "version" => "1"}
+                    concat = { "author" => "puppetlabs", "full_name" => "puppetlabs-concat", "version" => "1"}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache])
                     expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([concat])
 
@@ -82,20 +82,20 @@ module PuppetLibrary::Forge
 
             context "when modules match in subforges that overlap" do
                 it "favors the details of the ones in the first repository" do
-                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1"}
-                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2"}
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "one", "version" => "1"}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "two", "version" => "2"}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
                     expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
 
                     result = multi_forge.search_modules("puppetlabs")
 
                     expect(result.size).to eq 1
-                    expect(result.first["desc"]).to eq "one"
+                    expect(result.first["summary"]).to eq "one"
                 end
 
                 it "sets the version to the maximum version" do
-                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1"}
-                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2"}
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "one", "version" => "1"}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "two", "version" => "2"}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
                     expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
 
@@ -106,8 +106,8 @@ module PuppetLibrary::Forge
                 end
 
                 it "combines the available tags" do
-                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1", "tag_list" => ["a", "b"]}
-                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2", "tag_list" => ["a", "c"]}
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "desc" => "one", "version" => "1", "tag_list" => ["a", "b"]}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "desc" => "two", "version" => "2", "tag_list" => ["a", "c"]}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1])
                     expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
 
@@ -118,9 +118,9 @@ module PuppetLibrary::Forge
                 end
 
                 it "combines the available versions, in order" do
-                    apache_3 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "3", "releases" => [{"version" => "3"}]}
-                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "one", "version" => "1", "releases" => [{"version" => "1"}]}
-                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs/apache", "desc" => "two", "version" => "2", "releases" => [{"version" => "2"}]}
+                    apache_3 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "two", "version" => "3", "releases" => [{"version" => "3"}]}
+                    apache_1 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "one", "version" => "1", "releases" => [{"version" => "1"}]}
+                    apache_2 = { "author" => "puppetlabs", "full_name" => "puppetlabs-apache", "summary" => "two", "version" => "2", "releases" => [{"version" => "2"}]}
                     expect(subforge_one).to receive(:search_modules).with("puppetlabs").and_return([apache_1, apache_3])
                     expect(subforge_two).to receive(:search_modules).with("puppetlabs").and_return([apache_2])
 
@@ -387,7 +387,7 @@ module PuppetLibrary::Forge
                     expect(multi_forge.get_modules("apache")["pagination"]["total"]).to eq (puppetlabs_search["pagination"]["total"]+1).to_s
                 end
                 it "return all matches" do
-                    expect(multi_forge.get_modules("apache")["results"][0].size).to eq 3
+                    expect(multi_forge.get_modules("apache")["results"].size).to eq 3
                 end
             end
         end

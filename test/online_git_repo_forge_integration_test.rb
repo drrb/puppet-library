@@ -76,7 +76,7 @@ module PuppetLibrary
             # Search
             search_results = JSON.parse(open("http://localhost:#{port}/modules.json").read)
             stdlib_result = search_results.first
-            expect(stdlib_result["full_name"]).to eq "puppetlabs/stdlib"
+            expect(stdlib_result["full_name"]).to eq "puppetlabs-stdlib"
             expect(stdlib_result["releases"]).to include({"version"=>"4.0.2"})
 
             # Download

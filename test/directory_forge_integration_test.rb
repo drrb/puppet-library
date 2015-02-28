@@ -86,9 +86,9 @@ module PuppetLibrary
             found_modules = Hash[search_results.map do |result|
                 [ result["full_name"], result["version"] ]
             end]
-            expect(found_modules["puppetlabs/apache"]).to eq "1.0.0"
-            expect(found_modules["puppetlabs/concat"]).to eq "2.0.0"
-            expect(found_modules["puppetlabs/stdlib"]).to eq "3.0.0"
+            expect(found_modules["puppetlabs-apache"]).to eq "1.0.0"
+            expect(found_modules["puppetlabs-concat"]).to eq "2.0.0"
+            expect(found_modules["puppetlabs-stdlib"]).to eq "3.0.0"
         end
     end
 end

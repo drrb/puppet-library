@@ -133,7 +133,7 @@ module PuppetLibrary::Forge
         end
 
         def author
-            @metadata["name"][/^[^-]+/]
+            @metadata["author"]
         end
 
         def name
@@ -141,7 +141,7 @@ module PuppetLibrary::Forge
         end
 
         def full_name
-            @metadata["name"].sub("-", "/")
+            @metadata["name"].sub("/", "-")
         end
 
         def version
@@ -154,10 +154,6 @@ module PuppetLibrary::Forge
 
         def summary
             @metadata["summary"]
-        end
-
-        def description
-            @metadata["description"]
         end
 
         def project_page
@@ -173,14 +169,14 @@ module PuppetLibrary::Forge
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
-                "desc" => description,
+                "summary" => summary,
                 "releases" => [ { "version" => version } ]
             }
         end
 
         def to_version
             {
-                "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
+                "file" => "/modules/#{full_name}-#{version}.tar.gz",
                 "version" => version,
                 "dependencies" => dependencies.map do |dependency|
                     [ dependency["name"], dependency["version_requirement"] ]
@@ -193,8 +189,8 @@ module PuppetLibrary::Forge
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
-                "desc" => summary,
-                "project_url" => project_page,
+                "summary" => summary,
+                "project_page" => project_page,
                 "releases" => [{ "version" => version}],
                 "version" => version,
                 "tag_list" => [author, name]

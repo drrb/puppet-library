@@ -84,7 +84,7 @@ module PuppetLibrary
             found_modules = Hash[search_results.map do |result|
                 [ result["full_name"], result["version"] ]
             end]
-            expect(found_modules["puppetlabs/ficticious"]).to eq "0.2.0"
+            expect(found_modules["puppetlabs-ficticious"]).to eq "0.2.0"
 
             # Download
             archive = open("http://localhost:#{port}/modules/puppetlabs-ficticious-0.2.0.tar.gz")
