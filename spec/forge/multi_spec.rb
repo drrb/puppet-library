@@ -425,5 +425,38 @@ module PuppetLibrary::Forge
                 end
             end
         end
+
+        describe "#get_releases" do
+            let(:other_apache) { [
+                {
+                    "version" => "1.4.0-rc1",
+                    "metadata" => {
+                        "author" => "puppetlabs",
+                        "name" => "puppetlabs-apache",
+                        "version" => "1.4.0-rc1"
+                    }
+                }
+            ] }
+            let(:puppetlabs_search) { JSON.parse(File.read('spec/fixtures/releases.json'))['results'] }
+            before :each do
+                expect(subforge_one).to receive(:get_releases).with("puppetlabs", "apache").and_return(other_apache)
+                expect(subforge_two).to receive(:get_releases).with("puppetlabs", "apache").and_return(puppetlabs_search)
+            end
+            context "returns right model" do
+                it "has pagination" do
+                    expect(multi_forge.get_releases("puppetlabs", "apache")["pagination"]).to be
+                end
+                it "has results" do
+                    expect(multi_forge.get_releases("puppetlabs", "apache")["results"]).to be
+                end
+            end
+            context "paginates aggregated results" do
+                it "aggregates releases from multiple sources" do
+                    forge_count = puppetlabs_search.size
+                    results = multi_forge.get_releases("puppetlabs", "apache")["results"]
+                    expect(result.size).to eq forge_count+1
+                end
+            end
+        end
     end
 end
