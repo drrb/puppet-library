@@ -84,13 +84,7 @@ module PuppetLibrary
             unless params[:module]
                 halt 400, {"error" => "Supply the module whose releases will be retrived"}.to_json
             end
-
-            author, module_name = params[:module].split "-"
-            begin
-                @forge.get_releases(author, module_name).to_json
-            rescue Forge::ModuleNotFound
-                halt 410, {"error" => "No release found for #{params[:module]}"}.to_json
-            end
+            @forge.get_releases(params[:module]).to_json
         end
 
         get "/" do

@@ -454,7 +454,7 @@ module PuppetLibrary::Forge
                 it "aggregates releases from multiple sources" do
                     forge_count = puppetlabs_search.size
                     results = multi_forge.get_releases("puppetlabs", "apache")["results"]
-                    expect(result.size).to eq forge_count+1
+                    expect(results.size).to eq forge_count+1
                 end
             end
         end

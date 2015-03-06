@@ -85,6 +85,11 @@ module PuppetLibrary::Forge
             JSON.parse(results)['results']
         end
 
+        def get_releases(module_name)
+            response = get("/v3/releases?module=#{module_name}")
+            JSON.parse(response)['results']
+        end
+
         def get_module_metadata_with_dependencies(author, name, version)
             begin
                 look_up_releases(author, name, version) do |full_name, release_info|

@@ -134,27 +134,27 @@ module PuppetLibrary::Forge
 
             results = SearchResult.merge_v3(all_results)
             {
-	        'pagination' => {
-	            'limit'  => results.size,
-	            'offset' => 0,
-	            'total'  => results.size
-		},
-		'results' => results
+                'pagination' => {
+                    'limit'  => results.size,
+                    'offset' => 0,
+                    'total'  => results.size
+                },
+                'results' => results
             }
         end
 
-        def get_releases(author, name)
-            metadata_list = @forges.inject([]) do |metadata_list, forge|
-                begin
-                    metadata_list << forge.get_module_metadata(author, name)
-                rescue ModuleNotFound
-                    metadata_list
-                end
-            end
-            raise ModuleNotFound if metadata_list.empty?
-            metadata_list.deep_merge.tap do |metadata|
-                metadata["releases"] = metadata["releases"].unique_by { |release| release["version"] }
-            end
+        def get_releases(module_name)
+            results = @forges.map do |forge|
+                forge.get_releases(module_name)
+            end.flatten
+            {
+                'pagination' => {
+                    'limit'  => results.size,
+                    'offset' => 0,
+                    'total'  => results.size
+                },
+                'results' => results
+            }
         end
     end
 end

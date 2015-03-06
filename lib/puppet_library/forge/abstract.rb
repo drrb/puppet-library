@@ -108,6 +108,11 @@ module PuppetLibrary::Forge
             end
         end
 
+        def get_releases(module_name)
+            author, name = module_name.split "-"
+            retrieve_metadata(author, name).map{ |m| m.to_release }
+        end
+
         def collect_dependencies_versions(module_full_name, metadata = {})
             author, module_name = module_full_name.split "/"
             module_versions = retrieve_metadata(author, module_name)
@@ -219,5 +224,13 @@ module PuppetLibrary::Forge
                 "tag_list" => [author, name]
             }
         end
+
+        def to_release
+            {
+                "version" => version,
+                "metadata" => @metadata
+            }
+        end
+
     end
 end
