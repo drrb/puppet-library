@@ -87,6 +87,22 @@ module PuppetLibrary
             @forge.get_releases(params[:module]).to_json
         end
 
+        get "/v3/files/:module_name-:version.tar.gz" do
+            module_name = params[:module_name]
+            version = params[:version]
+
+            content_type "application/octet-stream"
+
+            begin
+                buffer = @forge.get_module_v3(module_name, version).tap do
+                    attachment "#{module_name}-#{version}.tar.gz"
+                end
+                download buffer
+            rescue Forge::ModuleNotFound
+                halt 404
+            end
+        end
+
         get "/" do
             query = params[:search]
             haml :index, { :locals => { "query" => query } }

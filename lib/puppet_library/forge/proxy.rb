@@ -90,6 +90,16 @@ module PuppetLibrary::Forge
             JSON.parse(response)['results']
         end
 
+        def get_module_v3(module_name, version)
+            begin
+                author , name = module_name.split '-'
+                response = JSON.parse get("/v3/releases/#{author}-#{name}-#{version}")
+                download_module(author, name, version, response['file_uri'])
+            rescue OpenURI::HTTPError
+                raise ModuleNotFound
+            end
+        end
+
         def get_module_metadata_with_dependencies(author, name, version)
             begin
                 look_up_releases(author, name, version) do |full_name, release_info|

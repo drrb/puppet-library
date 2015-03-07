@@ -113,6 +113,10 @@ module PuppetLibrary::Forge
             retrieve_metadata(author, name).map{ |m| m.to_release }
         end
 
+        def get_module_v3(module_name, version)
+            @repo.get_module(module_name, version) or raise ModuleNotFound
+        end
+
         def collect_dependencies_versions(module_full_name, metadata = {})
             author, module_name = module_full_name.split "/"
             module_versions = retrieve_metadata(author, module_name)

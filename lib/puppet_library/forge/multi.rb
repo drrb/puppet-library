@@ -156,5 +156,16 @@ module PuppetLibrary::Forge
                 'results' => results
             }
         end
+
+        def get_module_v3(module_name, version)
+            @forges.each do |forge|
+                begin
+                    return forge.get_module_v3(module_name, version)
+                rescue ModuleNotFound
+                    # Try the next one
+                end
+            end
+            raise ModuleNotFound
+        end
     end
 end
