@@ -37,7 +37,7 @@ module PuppetLibrary::Forge
     #     # A forge that serves modules from disk, and proxies a remote forge
     #     multi_forge = Multi.new
     #     multi_forge.add_forge(Directory.new("/var/modules"))
-    #     multi_forge.add_forge(Proxy.new("http://forge.puppetlabs.com"))
+    #     multi_forge.add_forge(Proxy.new("https://forgeapi.puppetlabs.com"))
     class Multi < Forge
         def initialize
             @forges = []

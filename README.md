@@ -9,7 +9,7 @@ A private Puppet Forge. Compatible with [librarian-puppet](http://librarian-pupp
 [![Gem Version](https://badge.fury.io/rb/puppet-library.svg)](http://badge.fury.io/rb/puppet-library)
 [![Dependency Status](https://gemnasium.com/drrb/puppet-library.svg)](https://gemnasium.com/drrb/puppet-library)
 
-Puppet Library serves Puppet modules in the same format as [the Puppet Forge](http://forge.puppetlabs.com). This allows you to create a private Puppet Forge and manage all the modules you use completely within your infrastructure.
+Puppet Library serves Puppet modules in the same format as [the Puppet Forge](https://forge.puppetlabs.com). This allows you to create a private Puppet Forge and manage all the modules you use completely within your infrastructure.
 
 Plugins can be created to serve modules from arbitrary sources. Puppet Library contains built-in support for:
  - serving packaged (`.tar.gz`) modules from a directory (or directories) of your choosing
@@ -71,11 +71,11 @@ Serve modules from a specific directory
 
 Serve modules from a remote forge as a proxy
 
-    $ puppet-library --proxy http://forge.puppetlabs.com
+    $ puppet-library --proxy https://forgeapi.puppetlabs.com
 
 Proxy a remote forge, caching downloaded modules on disk
 
-    $ puppet-library --proxy http://forge.puppetlabs.com --cache-basedir
+    $ puppet-library --proxy https://forgeapi.puppetlabs.com --cache-basedir
 
 Serve a module from source
 
@@ -145,7 +145,7 @@ forges:
     - Directory: /var/lib/modules
     - Directory: /var/lib/other-modules
     - Source: /var/code/puppetlabs-apache
-    - Proxy: http://forge.puppetlabs.com
+    - Proxy: https://forgeapi.puppetlabs.com
 ```
 
 ## Running with Phusion Passenger (EXPERIMENTAL)
@@ -170,7 +170,7 @@ require "puppet_library"
 server = PuppetLibrary::Server.configure do
     # Proxy the Puppet Forge
     forge :proxy do
-        url "http://forge.puppetlabs.com"
+        url "https://forgeapi.puppetlabs.com"
     end
 end
 
@@ -214,7 +214,7 @@ server = PuppetLibrary::Server.configure do
 
     # Proxy a remote forge, caching modules to disk
     forge :cache do
-        url "http://forge.puppetlabs.com"
+        url "https://forgeapi.puppetlabs.com"
         path "/var/puppet/modules/cache"
     end
 end

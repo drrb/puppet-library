@@ -156,7 +156,7 @@ module PuppetLibrary
             options[:daemonize] ||= false
             options[:pidfile] ||= nil
             if options[:forges].empty?
-                options[:forges] << [ Forge::Proxy, "http://forge.puppetlabs.com" ]
+                options[:forges] << [ Forge::Proxy, "https://forgeapi.puppetlabs.com" ]
             end
         end
 

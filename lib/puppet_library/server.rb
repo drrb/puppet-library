@@ -35,7 +35,7 @@ module PuppetLibrary
     #
     #        # Get everything else from the Puppet Forge
     #        forge :proxy do
-    #            url "http://forge.puppetlabs.com"
+    #            url "https://forgeapi.puppetlabs.com"
     #        end
     #    end
     #

@@ -439,21 +439,21 @@ module PuppetLibrary::Forge
             ] }
             let(:puppetlabs_search) { JSON.parse(File.read('spec/fixtures/releases.json'))['results'] }
             before :each do
-                expect(subforge_one).to receive(:get_releases).with("puppetlabs", "apache").and_return(other_apache)
-                expect(subforge_two).to receive(:get_releases).with("puppetlabs", "apache").and_return(puppetlabs_search)
+                expect(subforge_one).to receive(:get_releases).with("puppetlabs-apache").and_return(other_apache)
+                expect(subforge_two).to receive(:get_releases).with("puppetlabs-apache").and_return(puppetlabs_search)
             end
             context "returns right model" do
                 it "has pagination" do
-                    expect(multi_forge.get_releases("puppetlabs", "apache")["pagination"]).to be
+                    expect(multi_forge.get_releases("puppetlabs-apache")["pagination"]).to be
                 end
                 it "has results" do
-                    expect(multi_forge.get_releases("puppetlabs", "apache")["results"]).to be
+                    expect(multi_forge.get_releases("puppetlabs-apache")["results"]).to be
                 end
             end
             context "paginates aggregated results" do
                 it "aggregates releases from multiple sources" do
                     forge_count = puppetlabs_search.size
-                    results = multi_forge.get_releases("puppetlabs", "apache")["results"]
+                    results = multi_forge.get_releases("puppetlabs-apache")["results"]
                     expect(results.size).to eq forge_count+1
                 end
             end

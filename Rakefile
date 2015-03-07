@@ -55,7 +55,7 @@ def ruby_version_supports_acceptance_tests?(version = RUBY_VERSION)
 end
 
 def offline?
-    Net::HTTP.get_response(URI.parse("http://forge.puppetlabs.com"))
+    Net::HTTP.get_response(URI.parse("https://forgeapi.puppetlabs.com"))
     return false
 rescue
     return true

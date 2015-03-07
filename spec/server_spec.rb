@@ -229,7 +229,7 @@ module PuppetLibrary
         describe "puppet module fetch" do
             let(:metadata) { JSON.parse(File.read('spec/fixtures/releases.json')) }
             it "gets metadata for module and dependencies" do
-                expect(forge).to receive(:get_releases).with("puppetlabs", "apache").and_return(metadata)
+                expect(forge).to receive(:get_releases).with("puppetlabs-apache").and_return(metadata)
 
                 get "/v3/releases?module=puppetlabs-apache"
 
