@@ -129,16 +129,20 @@ module PuppetLibrary::Forge
             return metadata
         end
 
+        def get_md5(author, name, version)
+            "00000000000000000000000000000000"
+        end
+
         def get_module_buffer(author, name, version)
             @repo.get_module(author, name, version) or raise ModuleNotFound
         end
 
         def retrieve_metadata(author, module_name)
-            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
+            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata, @repo)}
         end
 
         def retrieve_all_metadata
-            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata)}
+            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata, @repo)}
         end
     end
 
@@ -156,8 +160,11 @@ module PuppetLibrary::Forge
     end
 
     class ModuleMetadata
-        def initialize(metadata)
+        attr_reader :md5
+
+        def initialize(metadata, repo)
             @metadata = metadata
+            @md5 = repo.get_md5(author, name, version)
         end
 
         def author
@@ -233,7 +240,7 @@ module PuppetLibrary::Forge
             {
                 "version" => version,
                 "metadata" => @metadata,
-                "file_md5" => nil,
+                "file_md5" => md5,
                 "file_uri" => "/modules/#{full_name}-#{version}.tar.gz"
             }
         end

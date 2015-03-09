@@ -66,6 +66,7 @@ module PuppetLibrary::Forge
                     "project_page"=>"https://github.com/dodgybrothers/puppet-ntp"
                 }]
                 allow(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
+                allow(module_repo).to receive(:get_md5).and_return("md5hexdigest")
             end
 
             it "matches by name" do
@@ -186,6 +187,7 @@ module PuppetLibrary::Forge
                         "version" => "1.0.0"
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
+                    expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                     metadata = forge.get_module_metadata("puppetlabs", "apache")
 
@@ -222,6 +224,7 @@ module PuppetLibrary::Forge
                         "dependencies" => []
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(metadata)
+                    expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                     result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "2.0.0")
                     expect(result).to eq({"puppetlabs/apache" => []})
@@ -275,6 +278,7 @@ module PuppetLibrary::Forge
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "newthing").and_return(newthing_metadata)
+                        expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                         result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
                         expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
@@ -322,6 +326,7 @@ module PuppetLibrary::Forge
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(apache_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                        expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                         result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", nil)
                         expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])

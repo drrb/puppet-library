@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'json'
+require 'digest/md5'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/archive/archive_reader'
 require 'puppet_library/util/config_api'
@@ -55,9 +56,17 @@ module PuppetLibrary::Forge
             @module_dir = module_dir
         end
 
+        def get_md5(author, name, version)
+            path = get_filepath(author, name, version)
+            if File.exist? path
+                Digest::MD5.file(path).hexdigest
+            else
+                super
+            end
+        end
+
         def get_module(author, name, version)
-            file_name = "#{author}-#{name}-#{version}.tar.gz"
-            path = File.join(File.expand_path(@module_dir.path), file_name)
+            path = get_filepath(author, name, version)
             if File.exist? path
                 File.open(path, 'r')
             else
@@ -82,6 +91,11 @@ module PuppetLibrary::Forge
         rescue => error
             warn "Error reading from module archive #{archive_path}: #{error}"
             return nil
+        end
+
+        def get_filepath(author, name, version)
+            file_name = "#{author}-#{name}-#{version}.tar.gz"
+            File.join(File.expand_path(@module_dir.path), file_name)
         end
     end
 end
