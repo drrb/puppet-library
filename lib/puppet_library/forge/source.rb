@@ -18,6 +18,7 @@ require 'puppet_library/archive/archiver'
 require 'puppet_library/forge/abstract'
 require 'puppet_library/puppet_module/modulefile'
 require 'json'
+require 'digest/md5'
 
 module PuppetLibrary::Forge
 
@@ -56,13 +57,14 @@ module PuppetLibrary::Forge
             @metadata_cache = PuppetLibrary::Http::Cache::InMemory.new(CACHE_TTL_MILLIS)
         end
 
+        def get_md5(author, name, version)
+            return super unless this_module?(author, name, version)
+            Digest::MD5.hexdigest(get_archive(author, name, version).string)
+        end
+
         def get_module(author, name, version)
             return nil unless this_module?(author, name, version)
-            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir.path, "#{author}-#{name}-#{version}") do |archive|
-                archive.add_file("metadata.json", 0644) do |entry|
-                    entry.write metadata.to_json
-                end
-            end
+            get_archive(author, name, version)
         end
 
         def get_metadata(author, module_name)
@@ -81,6 +83,14 @@ module PuppetLibrary::Forge
                 return same_module
             else
                 return same_module && metadata["version"] == version
+            end
+        end
+
+        def get_archive(author, name, version)
+            PuppetLibrary::Archive::Archiver.archive_dir(@module_dir.path, "#{author}-#{name}-#{version}") do |archive|
+                archive.add_file("metadata.json", 0644) do |entry|
+                    entry.write metadata.to_json
+                end
             end
         end
 
