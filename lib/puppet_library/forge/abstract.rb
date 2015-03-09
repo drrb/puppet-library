@@ -232,7 +232,9 @@ module PuppetLibrary::Forge
         def to_release
             {
                 "version" => version,
-                "metadata" => @metadata
+                "metadata" => @metadata,
+                "file_md5" => nil,
+                "file_uri" => "/modules/#{full_name}-#{version}.tar.gz"
             }
         end
 
