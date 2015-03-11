@@ -74,9 +74,9 @@ module PuppetLibrary::Forge
             begin
                 # librarian-puppet does some special handling for forgeapi.puppetlabs.com,
                 # so naive passthrough will fail
-                response = get_modules("#{author}-#{name}")
+                response = JSON.parse get("/v3/modules/#{author}-#{name}")
                 raise ModuleNotFound if response.empty?
-                to_info(response[0])
+                to_module(response)
             rescue OpenURI::HTTPError
                 raise ModuleNotFound
             end
@@ -114,14 +114,19 @@ module PuppetLibrary::Forge
         end
 
         private
-        def to_info(metadata_v3)
-            {
-                "author" => metadata_v3["owner"]["username"],
-                "full_name" => metadata_v3["current_release"]["metadata"]["name"].sub("-", "/"),
-                "name" => metadata_v3["name"],
-                "summary" => metadata_v3["current_release"]["metadata"]["summary"],
-                "releases" => metadata_v3["releases"].collect{ |r| { "version" => r["version"] } }
-            }
+        def to_module(metadata_v3)
+            current = metadata_v3["current_release"]["metadata"]
+            # Only dependencies for current release are available without additional queries
+            deplist = current["dependencies"].collect{ |d| [ d["name"] , d["version_requirement"] ] }
+            version = current["version"]
+            releases = metadata_v3["releases"].inject([]) do |ary,release|
+                ary << {
+                    "version" => release["version"],
+                    "dependencies" => release["version"] == version ? deplist : []
+                }
+            end
+            full_name = current["name"].sub("-", "/")
+            { full_name => releases }
         end
 
         def to_version(metadata_v3)

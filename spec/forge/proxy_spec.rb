@@ -24,6 +24,35 @@ module PuppetLibrary::Forge
         let(:download_cache) { PuppetLibrary::Http::Cache::InMemory.new }
         let(:forge) { Proxy.new("http://puppetforge.example.com", query_cache, download_cache, http_client) }
 
+        let(:modules_v3) { '{
+                            "name" : "apache",
+                            "owner" : {
+                                "username" : "puppetlabs"
+                            },
+                            "current_release" : {
+                                "version" : "1.0.0",
+                                "metadata" : {
+                                    "name" : "puppetlabs-apache",
+                                    "version" : "1.0.0",
+                                    "dependencies": [
+                                        {
+                                            "name": "puppetlabs/concat",
+                                            "version_requirement": ">= 1.0.0"
+                                        },
+                                        {
+                                            "name": "puppetlabs/stdlib",
+                                            "version_requirement": "~> 2.0.0"
+                                        }
+                                    ],
+                                    "summary": "..."
+                                }
+                            },
+                            "releases": [
+                                { "version" : "1.0.0" },
+                                { "version" : "2.0.0" }
+                            ]
+                        }' }
+
         describe "#configure" do
             it "exposes a configuration API" do
                 forge = Proxy.configure do
@@ -135,7 +164,7 @@ module PuppetLibrary::Forge
             context "when the module doesn't exist" do
                 it "raises an error" do
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
+                        with("http://puppetforge.example.com/v3/modules/puppetlabs-apache").
                         and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
                     expect {
@@ -148,8 +177,8 @@ module PuppetLibrary::Forge
                 it "forwards the query directly" do
                     response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
-                        and_return(response)
+                        with("http://puppetforge.example.com/v3/modules/puppetlabs-apache").
+                        and_return(modules_v3)
 
                     metadata = forge.get_module_metadata("puppetlabs", "apache")
                     expect(metadata).to eq JSON.parse(response)
@@ -157,8 +186,8 @@ module PuppetLibrary::Forge
 
                 it "caches requests" do
                     expect(http_client).to receive(:get).once.
-                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
-                        and_return('{}')
+                        with("http://puppetforge.example.com/v3/modules/puppetlabs-apache").
+                        and_return(modules_v3)
 
                     forge.get_module_metadata("puppetlabs", "apache")
                     forge.get_module_metadata("puppetlabs", "apache")
