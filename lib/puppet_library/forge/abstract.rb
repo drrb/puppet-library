@@ -114,7 +114,8 @@ module PuppetLibrary::Forge
         end
 
         def get_module_v3(module_name, version)
-            @repo.get_module(module_name, version) or raise ModuleNotFound
+            author, name = module_name.split "-"
+            @repo.get_module(author, name, version) or raise ModuleNotFound
         end
 
         def collect_dependencies_versions(module_full_name, metadata = {})
