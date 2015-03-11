@@ -72,6 +72,17 @@ module PuppetLibrary::Forge
             @git.clear_cache!
         end
 
+        def get_md5(author, name, version)
+            return nil unless tags.include? tag_for(version)
+
+            metadata = metadata_for(version)
+            return nil unless metadata["name"] == "#{author}-#{name}"
+
+            with_tag_for(version) do |tag_path|
+                Digest::MD5.hexdigest(get_archive(tag_path, metadata, version).string)
+            end
+        end
+
         def get_module(author, name, version)
             return nil unless tags.include? tag_for(version)
 
@@ -79,11 +90,7 @@ module PuppetLibrary::Forge
             return nil unless metadata["name"] == "#{author}-#{name}"
 
             with_tag_for(version) do |tag_path|
-                PuppetLibrary::Archive::Archiver.archive_dir(tag_path, "#{metadata["name"]}-#{version}") do |archive|
-                    archive.add_file("metadata.json", 0644) do |entry|
-                        entry.write metadata.to_json
-                    end
-                end
+                get_archive(tag_path, metadata, version)
             end
         end
 
@@ -110,6 +117,14 @@ module PuppetLibrary::Forge
                     @git.file_exists?("metadata.json", tag) || @git.file_exists?("Modulefile", tag)
                 end
                 tags.version_sort
+            end
+        end
+
+        def get_archive(tag_path, metadata, version)
+            PuppetLibrary::Archive::Archiver.archive_dir(tag_path, "#{metadata["name"]}-#{version}") do |archive|
+                archive.add_file("metadata.json", 0644) do |entry|
+                    entry.write metadata.to_json
+                end
             end
         end
 
