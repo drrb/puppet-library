@@ -135,7 +135,7 @@ module PuppetLibrary::Forge
             context "when the module doesn't exist" do
                 it "raises an error" do
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
                         and_raise(OpenURI::HTTPError.new("404 Not Found", "Module not found"))
 
                     expect {
@@ -148,7 +148,7 @@ module PuppetLibrary::Forge
                 it "forwards the query directly" do
                     response = '{"puppetlabs/apache":[{"version":"1.0.0","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}'
                     expect(http_client).to receive(:get).
-                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
                         and_return(response)
 
                     metadata = forge.get_module_metadata("puppetlabs", "apache")
@@ -157,7 +157,7 @@ module PuppetLibrary::Forge
 
                 it "caches requests" do
                     expect(http_client).to receive(:get).once.
-                        with("http://puppetforge.example.com/puppetlabs/apache.json").
+                        with("http://puppetforge.example.com/v3/modules?query=puppetlabs-apache").
                         and_return('{}')
 
                     forge.get_module_metadata("puppetlabs", "apache")
