@@ -91,19 +91,25 @@ module PuppetLibrary::Forge
                 Gem::Version.new(a['version']) <=> Gem::Version.new(b['version'])
               end.last
               {
-              #  'uri' => '...',
-                'name' => current.classname,
+                'uri' => '/v3/modules/' + current['full_name'],
+                'name' => current['name'],
+                'owner' => {
+                  'username' => current['author']
+                 },
                 'current_release' => {
-              #  #  'uri' => '...',
-              #  #  'module' => {
-              #  #    'uri' => '...',
-              #  #    'name' => '...'
-              #  #  },
+                  'uri' => "/v3/releases/#{current['full_name']}-#{current['version']}" ,
+                  'module' => {
+                    'uri' => '/v3/modules/' + current['full_name'],
+                    'name' => current['name'],
+                    'owner' => {
+                      'username' => current['author']
+                     },
+                  },
                   'version' => current['version'],
-                  'metadata' => current
-              #  #  'tags' => '...'
+                  'metadata' => current,
+                  'tags' => current['tag_list']
                 },
-                'releases' => '...'
+                'releases' => current['releases'].collect{ |h| h.merge( "uri" => "/v3/releases/#{current['full_name']}-#{current['version']}" ) }
               }
             end
         end
