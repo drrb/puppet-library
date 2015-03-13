@@ -109,7 +109,7 @@ module PuppetLibrary::Forge
                   'metadata' => current,
                   'tags' => current['tag_list']
                 },
-                'releases' => current['releases'].collect{ |h| h.merge( "uri" => "/v3/releases/#{current['full_name']}-#{current['version']}" ) }
+                'releases' => module_results.collect{ |h| { "version" => h["version"] , "uri" => "/v3/releases/#{current['full_name']}-#{current['version']}" } }
               }
             end
         end
