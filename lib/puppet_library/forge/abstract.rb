@@ -245,6 +245,14 @@ module PuppetLibrary::Forge
 
         def to_release
             {
+                "uri" => "/v3/releases/#{full_name}-#{version}" ,
+                "module" => {
+                  "uri" => "/v3/modules/#{full_name}",
+                  "name" => name,
+                  "owner" => {
+                    "username" => author
+                   },
+                },
                 "version" => version,
                 "metadata" => @metadata,
                 "file_md5" => md5,
