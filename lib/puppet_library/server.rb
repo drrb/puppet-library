@@ -145,7 +145,7 @@ module PuppetLibrary
 
             begin
                 this = @forge.get_module_metadata(author, module_name)
-                this.merge( this["releases"].last )
+                this.update( this["releases"].last )
                 all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
                 deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
                 deplist[this["full_name"]] = this["version"]
@@ -168,7 +168,7 @@ module PuppetLibrary
             tempdir = Dir.mktmpdir
             begin
                 this = @forge.get_module_metadata(author, module_name)
-                this.merge( this["releases"].last )
+                this.update( this["releases"].last )
                 all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
                 deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
 
