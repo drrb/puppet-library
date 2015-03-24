@@ -147,6 +147,7 @@ module PuppetLibrary
                 this = @forge.get_module_metadata(author, module_name)
                 this.merge( this["releases"].last )
                 all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
+                all_results.reject!{ |k| k == this["full_name"] }
                 metadata = all_results.inject({}){ |h,(k,v)| h.update( k => v.first ) }
                 haml :pack, { :locals => { "this" => this, "metadata" => metadata } }
             rescue Forge::ModuleNotFound
