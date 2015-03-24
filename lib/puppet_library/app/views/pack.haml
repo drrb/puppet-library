@@ -16,9 +16,11 @@
 -# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %h1= "Module #{this["full_name"]}"
-%div= "Name: #{this["author"]}-#{this["name"]}"
-%div= "Version: #{this["version"]}"
 %div= "Description: #{this["desc"]}"
+%div
+  Version: #{this["version"]}
+  %a(href="download")
+    [Download]
 %div= "Dependencies:"
 %ul
   - metadata.each do |name,mod|
