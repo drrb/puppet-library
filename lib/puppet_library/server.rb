@@ -139,6 +139,20 @@ module PuppetLibrary
             end
         end
 
+        get "/:author/:module/pack" do
+            author = params[:author]
+            module_name = params[:module]
+
+            begin
+                this = @forge.get_module_metadata(author, module_name)
+                version = this["releases"].last["version"]
+                metadata = @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
+                haml :pack, { :locals => { "this" => this, "metadata" => metadata } }
+            rescue Forge::ModuleNotFound
+                halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
+            end
+        end
+
         post "/api/forge/clear-cache" do
             @forge.clear_cache
         end
