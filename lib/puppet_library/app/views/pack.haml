@@ -19,6 +19,7 @@
 %div= "Name: #{this["author"]}-#{this["name"]}"
 %div= "Version: #{this["version"]}"
 %div= "Description: #{this["desc"]}"
+%div= "Dependencies:"
 %ul
   - metadata.each do |name,mod|
-    %li= " #{name} -> #{mod["version"]} #{mod["dependencies"]}"
+    %li= " #{name} - #{mod["version"]}"

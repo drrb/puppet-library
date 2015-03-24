@@ -147,8 +147,14 @@ module PuppetLibrary
                 this = @forge.get_module_metadata(author, module_name)
                 this.merge( this["releases"].last )
                 all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
+                deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
+                deplist[this["full_name"]] = this["version"]
                 all_results.reject!{ |k| k == this["full_name"] }
-                metadata = all_results.inject({}){ |h,(k,v)| h.update( k => v.first ) }
+                metadata = all_results.inject({}) do |h,(k,v)|
+                    s = v.sort{ |x,y| x["version"] <=> y["version"] }
+                    item = s.find{ |i| i["version"] == deplist[k] }
+                    h.update( k => item || s.last )
+                end
                 haml :pack, { :locals => { "this" => this, "metadata" => metadata } }
             rescue Forge::ModuleNotFound
                 halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
