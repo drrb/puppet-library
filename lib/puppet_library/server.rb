@@ -161,6 +161,25 @@ module PuppetLibrary
             end
         end
 
+        get "/:author/:module/download" do
+            author = params[:author]
+            module_name = params[:module]
+
+            begin
+                this = @forge.get_module_metadata(author, module_name)
+                this.merge( this["releases"].last )
+                all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
+                deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
+                filelist = all_results.inject([]) do |a,(k,v)|
+                    s = v.sort{ |x,y| x["version"] <=> y["version"] }
+                    item = s.find{ |i| i["version"] == deplist[k] } || s.last
+                    a << item["file"]
+                end
+            rescue Forge::ModuleNotFound
+                halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
+            end
+        end
+
         post "/api/forge/clear-cache" do
             @forge.clear_cache
         end
