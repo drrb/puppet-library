@@ -83,14 +83,26 @@ module PuppetLibrary::Forge
         end
 
         def get_modules(query)
+            results = []
             query_parameter = query.nil? ? "" : "?query=#{query}"
-            results = get("/v3/modules#{query_parameter}")
-            JSON.parse(results)['results']
+            uri = "/v3/modules#{query_parameter}"
+            while uri
+                result = JSON.parse(get(uri))
+                uri = result['pagination']['next']
+                results.concat result['results']
+            end
+            results
         end
 
         def get_releases(module_name)
-            response = get("/v3/releases?module=#{module_name}")
-            JSON.parse(response)['results']
+            response = []
+            uri = "/v3/releases?module=#{module_name}"
+            while uri
+                result = JSON.parse(get(uri))
+                uri = result['pagination']['next']
+                response.concat result['results']
+            end
+            response
         end
 
         def get_module_v3(module_name, version)
