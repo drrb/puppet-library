@@ -129,7 +129,7 @@ module PuppetLibrary::Forge
             out = {
                 "author" => mod["owner"]["username"],
                 "desc" => metadata["summary"],
-                "full_name" => "#{mod["owner"]["username"]}/#{mod["name"]}",
+                "full_name" => "#{mod["owner"]["username"]}-#{mod["name"]}",
                 "name" => mod["name"],
                 "releases" => module_v3["releases"].collect{ |x| { "version" => x["version"] } },
                 "tag_list" => module_v3["current_release"]["tags"]

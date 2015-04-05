@@ -26,11 +26,14 @@ module PuppetLibrary::Forge
 
         let(:modules_v3) { '{
                             "name" : "apache",
-                            "owner" : {
-                                "username" : "puppetlabs"
-                            },
                             "current_release" : {
                                 "version" : "1.0.0",
+                                "module" : {
+                                    "name" : "apache",
+                                    "owner" : {
+                                        "username" : "puppetlabs"
+                                    }
+                                },
                                 "metadata" : {
                                     "name" : "puppetlabs-apache",
                                     "version" : "1.0.0",

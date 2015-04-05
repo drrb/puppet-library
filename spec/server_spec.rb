@@ -161,7 +161,7 @@ module PuppetLibrary
                 }
                 expect(forge).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(metadata)
 
-                get "/puppetlabs/apache"
+                get "/puppetlabs-apache"
 
                 expect(last_response.body).to include "Author: puppetlabs"
                 expect(last_response.body).to include "Name: apache"
@@ -174,7 +174,7 @@ module PuppetLibrary
                 it "returns an error" do
                     expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(Forge::ModuleNotFound)
 
-                    get "/nonexistant/nonexistant"
+                    get "/nonexistant-nonexistant"
 
                     expect(last_response.body).to include 'Module "nonexistant-nonexistant" not found'
                     expect(last_response.status).to eq(404)

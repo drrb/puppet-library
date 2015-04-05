@@ -23,7 +23,7 @@ Feature: Module page
     Scenario: Visit the module page
         Given the "puppetlabs-apache" module is available at version "1.0.0"
         And the "puppetlabs-apache" module is available at version "1.1.0"
-        When I visit the module page for "puppetlabs/apache"
+        When I visit the module page for "puppetlabs-apache"
         Then I should see "Author: puppetlabs"
         Then I should see "Name: apache"
         And I should see "1.0.0"
@@ -31,5 +31,5 @@ Feature: Module page
         And I should see "puppetlabs-apache module, version 1.1.0"
 
     Scenario: Visit a nonexistant module page
-        When I visit the module page for "nonexistant/nonexistant"
+        When I visit the module page for "nonexistant-nonexistant"
         Then I should see 'Module "nonexistant-nonexistant" not found'
