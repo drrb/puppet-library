@@ -122,7 +122,7 @@ module PuppetLibrary::Forge
             raise ModuleNotFound if metadata_list.empty?
             metadata_list.deep_merge.tap do |metadata|
                 metadata.each do |module_name, releases|
-                    metadata[module_name] = releases.unique_by { |release| release["version"] }
+                    metadata[module_name] = releases.unique_by { |release| release["version"] }.sort_by{ |release| release["version"] }
                 end
             end
         end

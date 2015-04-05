@@ -110,7 +110,9 @@ module PuppetLibrary
 
         get "/modules.json" do
             search_term = params[:q]
-            @forge.search_modules(search_term).to_json
+            @forge.search_modules(search_term).sort_by do |mod|
+                mod["author"]
+            end.to_json
         end
 
         get "/:author/:module.json" do
