@@ -55,9 +55,7 @@ module PuppetLibrary::Forge
         end
 
         def search_modules(query)
-            query_parameter = query.nil? ? "" : "?q=#{query}" # .sub("-","/")}"
-            results = get("/modules.json#{query_parameter}")
-            JSON.parse results
+            get_modules(query).collect{ |mod| translate_to_v1(mod) }
         end
 
         def get_module_buffer(author, name, version)
@@ -72,11 +70,9 @@ module PuppetLibrary::Forge
 
         def get_module_metadata(author, name)
             begin
-                # librarian-puppet does some special handling for forgeapi.puppetlabs.com,
-                # so naive passthrough will fail
                 response = JSON.parse get("/v3/modules/#{author}-#{name}")
                 raise ModuleNotFound if response.empty?
-                to_module(response)
+                translate_to_v1(response)
             rescue OpenURI::HTTPError
                 raise ModuleNotFound
             end
@@ -126,19 +122,19 @@ module PuppetLibrary::Forge
         end
 
         private
-        def to_module(metadata_v3)
-            current = metadata_v3["current_release"]["metadata"]
-            # Only dependencies for current release are available without additional queries
-            deplist = current["dependencies"].collect{ |d| [ d["name"] , d["version_requirement"] ] }
-            version = current["version"]
-            releases = metadata_v3["releases"].inject([]) do |ary,release|
-                ary << {
-                    "version" => release["version"],
-                    "dependencies" => release["version"] == version ? deplist : []
-                }
-            end
-            full_name = current["name"].sub("-", "/")
-            { full_name => releases }
+
+        def translate_to_v1(module_v3)
+            metadata = module_v3["current_release"]["metadata"]
+                {
+                "author" => metadata["author"],
+                "desc" => metadata["description"],
+                "full_name" => metadata["name"],
+                "name" => metadata["name"].sub("#{metadata["author"]}-",""),
+                "project_url" => metadata["project_page"],
+                "releases" => module_v3["releases"].collect{ |x| { "version" => x["version"] } },
+                "tag_list" => module_v3["current_release"]["tags"],
+                "version" => metadata["version"]
+            }
         end
 
         def to_version(metadata_v3)

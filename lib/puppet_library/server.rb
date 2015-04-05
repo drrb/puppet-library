@@ -155,7 +155,7 @@ module PuppetLibrary
             end
         end
 
-        get "/:author/:module" do
+        get "/:author-:module" do
             author = params[:author]
             module_name = params[:module]
 
