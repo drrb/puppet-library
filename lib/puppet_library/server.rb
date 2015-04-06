@@ -87,9 +87,10 @@ module PuppetLibrary
             @forge.get_releases(params[:module]).to_json
         end
 
-        get "/v3/files/:module_name-:version.tar.gz" do
-            module_name = params[:module_name]
-            version = params[:version]
+        get "/v3/files/:modname.tar.gz" do
+            parts = params[:modname].split('-',3)
+            module_name = "#{parts[0]}-#{parts[1]}"
+            version = parts[2]
 
             content_type "application/octet-stream"
 
@@ -140,10 +141,11 @@ module PuppetLibrary
             end
         end
 
-        get "/modules/:author-:module-:version.tar.gz" do
-            author = params[:author]
-            name = params[:module]
-            version = params[:version]
+        get "/modules/:modname.tar.gz" do
+            parts = params[:modname].split('-',3)
+            author = parts[0]
+            name = parts[1]
+            version = parts[2]
 
             content_type "application/octet-stream"
 
