@@ -90,7 +90,7 @@ module PuppetLibrary
         it "services queries, downloads and searches through a proxy to a directory" do
             add_module("puppetlabs", "apache", "1.0.0") do |metadata|
                 metadata["dependencies"] << { "name" => "puppetlabs/concat", "version_requirement" => ">= 2.0.0" }
-                metadata["dependencies"] << { "name" => "puppetlabs/stdlib", "version_requirement" => "~> 3.0.0" }
+                metadata["dependencies"] << { "name" => "puppetlabs/stdlib", "version_requirement" => "3.x" }
             end
             add_module("puppetlabs", "concat", "2.0.0")
             add_module("puppetlabs", "stdlib", "3.0.0")
