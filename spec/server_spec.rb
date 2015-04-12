@@ -124,7 +124,7 @@ module PuppetLibrary
             context "when the module is on the server" do
                 it "serves the module" do
                     file_buffer = StringIO.new("module content")
-                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
+                    expect(forge).to receive(:get_module_v3).with("puppetlabs-apache", "1.0.0").and_return(file_buffer)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -137,7 +137,7 @@ module PuppetLibrary
 
             context "when the module is not on the server" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_raise(Forge::ModuleNotFound)
+                    expect(forge).to receive(:get_module_v3).with("puppetlabs-apache", "1.0.0").and_raise(Forge::ModuleNotFound)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 

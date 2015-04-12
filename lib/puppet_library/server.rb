@@ -141,17 +141,17 @@ module PuppetLibrary
             end
         end
 
+        # This is an exact copy of /v3/files/
         get "/modules/:modname.tar.gz" do
             parts = params[:modname].split('-',3)
-            author = parts[0]
-            name = parts[1]
+            module_name = "#{parts[0]}-#{parts[1]}"
             version = parts[2]
 
             content_type "application/octet-stream"
 
             begin
-                buffer = @forge.get_module_buffer(author, name, version).tap do
-                    attachment "#{author}-#{name}-#{version}.tar.gz"
+                buffer = @forge.get_module_v3(module_name, version).tap do
+                    attachment "#{module_name}-#{version}.tar.gz"
                 end
                 download buffer
             rescue Forge::ModuleNotFound
