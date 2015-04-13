@@ -40,7 +40,7 @@ module PuppetLibrary::Forge
         describe "#get_module_buffer" do
             before do
                 allow(http_client).to receive(:get).
-                    with("http://forge.example.com/api/v1/releases.json?module=puppetlabs/apache").
+                    with("http://forge.example.com/v1/releases.json?module=puppetlabs/apache").
                     and_return('{"puppetlabs/apache":[{"version":"1.0.0","file":"/puppetlabs/apache.tgz","dependencies":[["puppetlabs/concat",">= 1.0.0"],["puppetlabs/stdlib","~> 2.0.0"]]},{"version":"2.0.0","dependencies":[]}]}')
             end
 
