@@ -101,6 +101,7 @@ module PuppetLibrary
             EOF
 
             # Install modules through the proxy
+            pending "librarian-puppet ends up on V1 query"
             system "librarian-puppet install" or fail "call to puppet-library failed"
             expect("apache").to be_installed
             expect("concat").to be_installed

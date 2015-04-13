@@ -22,8 +22,6 @@ require 'yaml'
 require 'net/http'
 
 SUPPORTED_RUBY_VERSIONS = %w[1.8 1.9 2.0 2.1 system]
-# Puppet doesn't work on 2.1
-INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[2.1]
 # Capybara needs Nokogiri, which needs 1.9+
 ACCEPTANCE_TEST_INCOMPATIBLE_RUBY_VERSIONS = %w[1.8]
 
@@ -38,12 +36,6 @@ class String
 
     def yellow
         "\e[33m#{self}\e[0m"
-    end
-end
-
-def ruby_version_supports_integration_test?(version = RUBY_VERSION)
-    ! INTEGRATION_TEST_INCOMPATIBLE_RUBY_VERSIONS.find do |bad_version|
-        version.start_with? bad_version
     end
 end
 
@@ -83,28 +75,21 @@ else
     end
 end
 
-if ruby_version_supports_integration_test?
-    desc "Run all the tests"
-    RSpec::Core::RakeTask.new(:test) do |rspec|
-        rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
-    end
-    task :test => :features
+desc "Run all the tests"
+RSpec::Core::RakeTask.new(:test) do |rspec|
+    rspec.pattern = "{spec,test}/**/*_{spec,integration_test}.rb"
+end
+task :test => :features
 
-    desc "Run the integration tests"
-    RSpec::Core::RakeTask.new(:integration_test) do |rspec|
-        rspec.pattern = "test/**/*_integration_test.rb"
-        tags = []
-        tags << "~online" if offline?
-        tags << "~no_1_8" if RUBY_VERSION.start_with? "1.8"
-        unless tags.empty?
-            rspec.rspec_opts = tags.map { |tag| "--tag #{tag}" }.join(" ")
-        end
+desc "Run the integration tests"
+RSpec::Core::RakeTask.new(:integration_test) do |rspec|
+    rspec.pattern = "test/**/*_integration_test.rb"
+    tags = []
+    tags << "~online" if offline?
+    tags << "~no_1_8" if RUBY_VERSION.start_with? "1.8"
+    unless tags.empty?
+        rspec.rspec_opts = tags.map { |tag| "--tag #{tag}" }.join(" ")
     end
-else
-    task :integration_test do
-        puts "Skipping integration tests because this version of Ruby doesn't support them"
-    end
-    task :test => [:features, :spec]
 end
 
 task :default => [:test, 'coveralls:push']
@@ -143,11 +128,7 @@ task :verify => [ 'check-license', 'test-imports' ] do
         v = version.ljust(7)
         g = gem_version.ljust(8)
         s = spec_result ? "pass".green : "fail".red
-        if ruby_version_supports_integration_test? version
-            i = integration_test_result ? "pass".green : "fail".red
-        else
-            i = "skip".yellow
-        end
+        i = integration_test_result ? "pass".green : "fail".red
 
         if ruby_version_supports_acceptance_tests? version
             a = acceptance_test_result ? "pass".green : "fail".red

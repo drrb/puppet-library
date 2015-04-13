@@ -92,6 +92,7 @@ module PuppetLibrary
             cd start_dir
         end
 
+        # random failures, on the fly creation doesn't keep md5
         it "services queries, downloads and searches from a git repository" do
             write_puppetfile <<-EOF
                 forge 'http://localhost:#{port}'
