@@ -106,9 +106,16 @@ module PuppetLibrary
 
             Server.configure do
                 options[:forges].each do |(forge_type, config)|
+                    if forge_type == Forge::GitRepository
+                        forge :git_repository do
+                          source config[0]
+                          include_tags Regexp.new config[1]
+                        end
+                    else
                     forge forge_type.new(*config)
                 end
             end
+        end
         end
 
         def announce_server_start(options)
