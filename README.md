@@ -198,7 +198,7 @@ The following config items will currently work with the Rack config format (see 
 server = PuppetLibrary::Server.configure do
     # Serve modules from a directory on disk
     forge :directory do
-        path = "/var/lib/modules"
+        path "/var/lib/modules"
     end
 
     # Serve module versions from a Git repository
