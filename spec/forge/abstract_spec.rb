@@ -76,6 +76,7 @@ module PuppetLibrary::Forge
                     "name"=>"apache",
                     "desc"=>"Puppet module for Apache",
                     "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                    "documentation" => nil,
                     "releases"=>[{"version"=>"0.10.0"}],
                     "version"=>"0.10.0",
                     "tag_list"=>["puppetlabs", "apache"]
@@ -91,6 +92,7 @@ module PuppetLibrary::Forge
                     "desc"=>"Puppet module for NTP",
                     "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
                     "releases"=>[{"version"=>"1.0.0"}],
+                    "documentation" => nil,
                     "version"=>"1.0.0",
                     "tag_list"=>["dodgybrothers", "ntp"]
                 }]
@@ -127,6 +129,7 @@ module PuppetLibrary::Forge
                         "desc"=>"New Puppet module for Apache",
                         "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
                         "releases"=>[{"version"=>"1.0.0"},{"version"=>"0.10.0"}],
+                        "documentation" => nil,
                         "version"=>"1.0.0",
                         "tag_list"=>["puppetlabs", "apache"]
                     }]
@@ -145,6 +148,7 @@ module PuppetLibrary::Forge
                         "desc"=>"Puppet module for Apache",
                         "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
                         "releases"=>[{"version"=>"0.10.0"}],
+                        "documentation" => nil,
                         "version"=>"0.10.0",
                         "tag_list"=>["puppetlabs", "apache"]
                     },{
@@ -154,6 +158,7 @@ module PuppetLibrary::Forge
                         "desc"=>"Puppet module for NTP",
                         "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
                         "releases"=>[{"version"=>"1.0.0"}],
+                        "documentation" => nil,
                         "version"=>"1.0.0",
                         "tag_list"=>["dodgybrothers", "ntp"]
                     }]

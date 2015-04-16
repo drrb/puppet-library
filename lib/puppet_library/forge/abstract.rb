@@ -154,13 +154,18 @@ module PuppetLibrary::Forge
             dependencies.map {|d| d["name"]}
         end
 
+        def documentation
+            @metadata["documentation"]
+        end
+
         def to_info
             {
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
                 "desc" => description,
-                "releases" => [ { "version" => version } ]
+                "releases" => [ { "version" => version } ],
+                "documentation" => documentation
             }
         end
 
@@ -182,6 +187,7 @@ module PuppetLibrary::Forge
                 "desc" => summary,
                 "project_url" => project_page,
                 "releases" => [{ "version" => version}],
+                "documentation" => documentation,
                 "version" => version,
                 "tag_list" => [author, name]
             }
