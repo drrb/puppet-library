@@ -139,6 +139,63 @@ module PuppetLibrary
             end
         end
 
+        get "/:author/:module/pack" do
+            author = params[:author]
+            module_name = params[:module]
+
+            begin
+                this = @forge.get_module_metadata(author, module_name)
+                this.update( this["releases"].last )
+                all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
+                deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
+                deplist[this["full_name"]] = this["version"]
+                all_results.reject!{ |k| k == this["full_name"] }
+                metadata = all_results.inject({}) do |h,(k,v)|
+                    s = v.sort{ |x,y| x["version"] <=> y["version"] }
+                    item = s.find{ |i| i["version"] == deplist[k] }
+                    h.update( k => item || s.last )
+                end
+                haml :pack, { :locals => { "this" => this, "metadata" => metadata } }
+            rescue Forge::ModuleNotFound
+                halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
+            end
+        end
+
+        get "/:author/:module/download" do
+            author = params[:author]
+            module_name = params[:module]
+
+            tempdir = Dir.mktmpdir
+            begin
+                this = @forge.get_module_metadata(author, module_name)
+                this.update( this["releases"].last )
+                all_results = @forge.get_module_metadata_with_dependencies(author, module_name, this["version"])
+                deplist = all_results[this["full_name"]].first["dependencies"].inject({}){ |h,i| h.update( i.first => i.last ) }
+
+                all_results.each do |k,v|
+                    s = v.sort{ |x,y| x["version"] <=> y["version"] }
+                    item = s.find{ |i| i["version"] == deplist[k] } || s.last
+                    parts = item["file"].split('-',3)
+                    parts[0].slice! "/modules/"
+                    parts[2].slice! ".tar.gz"
+                    FileUtils.cp @forge.get_module_buffer(*parts), tempdir
+                end
+
+                require 'puppet_library/archive/archiver'
+                buffer = Archive::Archiver.archive_dir(tempdir, ".").tap do
+                    attachment "pack-#{author}-#{module_name}-#{this["version"]}.tar.gz"
+                end
+
+                content_type "application/x-tar"
+                download buffer
+
+            rescue Forge::ModuleNotFound
+                halt 404, haml(:module_not_found, { :locals => { "author" => author, "name" => module_name } })
+            ensure
+                FileUtils.rm_rf tempdir
+            end
+        end
+
         post "/api/forge/clear-cache" do
             @forge.clear_cache
         end
