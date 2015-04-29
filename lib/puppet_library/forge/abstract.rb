@@ -75,6 +75,55 @@ module PuppetLibrary::Forge
             return versions
         end
 
+        def get_modules(query)
+            search = Search.new(query)
+
+            search_results = retrieve_all_metadata.select do |result|
+                search.matches? result
+            end.map do |result|
+                result.to_search_result
+            end.group_by do |result|
+                result["name"]
+            end
+
+            search_results.values.map do |module_results|
+              current = module_results.sort do |a,b|
+                Gem::Version.new(a['version']) <=> Gem::Version.new(b['version'])
+              end.last
+              {
+                'uri' => '/v3/modules/' + current['full_name'],
+                'name' => current['name'],
+                'owner' => {
+                  'username' => current['author']
+                 },
+                'current_release' => {
+                  'uri' => "/v3/releases/#{current['full_name']}-#{current['version']}" ,
+                  'module' => {
+                    'uri' => '/v3/modules/' + current['full_name'],
+                    'name' => current['name'],
+                    'owner' => {
+                      'username' => current['author']
+                     },
+                  },
+                  'version' => current['version'],
+                  'metadata' => current,
+                  'tags' => current['tag_list']
+                },
+                'releases' => module_results.collect{ |h| { "version" => h["version"] , "uri" => "/v3/releases/#{current['full_name']}-#{current['version']}" } }
+              }
+            end
+        end
+
+        def get_releases(module_name)
+            author, name = module_name.split "-"
+            retrieve_metadata(author, name).map{ |m| m.to_release }
+        end
+
+        def get_module_v3(module_name, version)
+            author, name = module_name.split "-"
+            @repo.get_module(author, name, version) or raise ModuleNotFound
+        end
+
         def collect_dependencies_versions(module_full_name, metadata = {})
             author, module_name = module_full_name.split "/"
             module_versions = retrieve_metadata(author, module_name)
@@ -87,16 +136,20 @@ module PuppetLibrary::Forge
             return metadata
         end
 
+        def get_md5(author, name, version)
+            "00000000000000000000000000000000"
+        end
+
         def get_module_buffer(author, name, version)
             @repo.get_module(author, name, version) or raise ModuleNotFound
         end
 
         def retrieve_metadata(author, module_name)
-            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata)}
+            @repo.get_metadata(author, module_name).map {|metadata| ModuleMetadata.new(metadata, @repo)}
         end
 
         def retrieve_all_metadata
-            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata)}
+            @repo.get_all_metadata.map {|metadata| ModuleMetadata.new(metadata, @repo)}
         end
     end
 
@@ -114,12 +167,15 @@ module PuppetLibrary::Forge
     end
 
     class ModuleMetadata
-        def initialize(metadata)
+        attr_reader :md5
+
+        def initialize(metadata, repo)
             @metadata = metadata
+            @md5 = repo.get_md5(author, name, version)
         end
 
         def author
-            @metadata["name"][/^[^-]+/]
+            @metadata["author"]
         end
 
         def name
@@ -127,7 +183,11 @@ module PuppetLibrary::Forge
         end
 
         def full_name
-            @metadata["name"].sub("-", "/")
+            @metadata["name"].sub("/", "-")
+        end
+
+        def classname
+             name.sub(/^[^-]+-/, "")
         end
 
         def version
@@ -140,10 +200,6 @@ module PuppetLibrary::Forge
 
         def summary
             @metadata["summary"]
-        end
-
-        def description
-            @metadata["description"]
         end
 
         def project_page
@@ -159,14 +215,14 @@ module PuppetLibrary::Forge
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
-                "desc" => description,
+                "summary" => summary,
                 "releases" => [ { "version" => version } ]
             }
         end
 
         def to_version
             {
-                "file" => "/modules/#{author}-#{name}-#{version}.tar.gz",
+                "file" => "/modules/#{full_name}-#{version}.tar.gz",
                 "version" => version,
                 "dependencies" => dependencies.map do |dependency|
                     [ dependency["name"], dependency["version_requirement"] ]
@@ -179,12 +235,30 @@ module PuppetLibrary::Forge
                 "author" => author,
                 "full_name" => full_name,
                 "name" => name,
-                "desc" => summary,
-                "project_url" => project_page,
+                "summary" => summary,
+                "project_page" => project_page,
                 "releases" => [{ "version" => version}],
                 "version" => version,
                 "tag_list" => [author, name]
             }
         end
+
+        def to_release
+            {
+                "uri" => "/v3/releases/#{full_name}-#{version}" ,
+                "module" => {
+                  "uri" => "/v3/modules/#{full_name}",
+                  "name" => name,
+                  "owner" => {
+                    "username" => author
+                   },
+                },
+                "version" => version,
+                "metadata" => @metadata,
+                "file_md5" => md5,
+                "file_uri" => "/modules/#{full_name}-#{version}.tar.gz"
+            }
+        end
+
     end
 end

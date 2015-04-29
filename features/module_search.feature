@@ -22,9 +22,9 @@ Feature: Module search
     So that I can find details about specific modules
 
     Scenario: Visit the module list page
-        Given the "puppetlabs/apache" module is available at version "1.0.0"
-        And the "puppetlabs/stdlib" module is available at version "1.0.0"
+        Given the "puppetlabs-apache" module is available at version "1.0.0"
+        And the "puppetlabs-stdlib" module is available at version "1.0.0"
         When I visit the module list page
         And I search for "apache"
-        Then I should see "puppetlabs/apache"
-        And I should not see "puppetlabs/stdlib"
+        Then I should see "puppetlabs-apache"
+        And I should not see "puppetlabs-stdlib"

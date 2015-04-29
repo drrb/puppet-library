@@ -35,7 +35,7 @@ module PuppetLibrary
     #
     #        # Get everything else from the Puppet Forge
     #        forge :proxy do
-    #            url "http://forge.puppetlabs.com"
+    #            url "https://forgeapi.puppetlabs.com"
     #        end
     #    end
     #
@@ -75,6 +75,35 @@ module PuppetLibrary
             set :root, File.expand_path("app", File.dirname(__FILE__))
         end
 
+        get "/v3/modules" do
+            search_term = params[:query]
+            @forge.get_modules(search_term).to_json
+        end
+
+        get "/v3/releases" do
+            unless params[:module]
+                halt 400, {"error" => "Supply the module whose releases will be retrived"}.to_json
+            end
+            @forge.get_releases(params[:module]).to_json
+        end
+
+        get "/v3/files/:modname.tar.gz" do
+            parts = params[:modname].split('-',3)
+            module_name = "#{parts[0]}-#{parts[1]}"
+            version = parts[2]
+
+            content_type "application/octet-stream"
+
+            begin
+                buffer = @forge.get_module_v3(module_name, version).tap do
+                    attachment "#{module_name}-#{version}.tar.gz"
+                end
+                download buffer
+            rescue Forge::ModuleNotFound
+                halt 404
+            end
+        end
+
         get "/" do
             query = params[:search]
             haml :index, { :locals => { "query" => query } }
@@ -82,7 +111,9 @@ module PuppetLibrary
 
         get "/modules.json" do
             search_term = params[:q]
-            @forge.search_modules(search_term).to_json
+            @forge.search_modules(search_term).sort_by do |mod|
+                mod["author"]
+            end.to_json
         end
 
         get "/:author/:module.json" do
@@ -106,20 +137,21 @@ module PuppetLibrary
             begin
                 @forge.get_module_metadata_with_dependencies(author, module_name, version).to_json
             rescue Forge::ModuleNotFound
-                halt 410, {"error" => "Module #{author}/#{module_name} not found"}.to_json
+                halt 410, {"error" => "Module #{author}-#{module_name} not found"}.to_json
             end
         end
 
-        get "/modules/:author-:module-:version.tar.gz" do
-            author = params[:author]
-            name = params[:module]
-            version = params[:version]
+        # This is an exact copy of /v3/files/
+        get "/modules/:modname.tar.gz" do
+            parts = params[:modname].split('-',3)
+            module_name = "#{parts[0]}-#{parts[1]}"
+            version = parts[2]
 
             content_type "application/octet-stream"
 
             begin
-                buffer = @forge.get_module_buffer(author, name, version).tap do
-                    attachment "#{author}-#{name}-#{version}.tar.gz"
+                buffer = @forge.get_module_v3(module_name, version).tap do
+                    attachment "#{module_name}-#{version}.tar.gz"
                 end
                 download buffer
             rescue Forge::ModuleNotFound
@@ -127,7 +159,7 @@ module PuppetLibrary
             end
         end
 
-        get "/:author/:module" do
+        get "/:author-:module" do
             author = params[:author]
             module_name = params[:module]
 

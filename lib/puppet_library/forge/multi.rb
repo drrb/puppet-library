@@ -37,7 +37,7 @@ module PuppetLibrary::Forge
     #     # A forge that serves modules from disk, and proxies a remote forge
     #     multi_forge = Multi.new
     #     multi_forge.add_forge(Directory.new("/var/modules"))
-    #     multi_forge.add_forge(Proxy.new("http://forge.puppetlabs.com"))
+    #     multi_forge.add_forge(Proxy.new("https://forgeapi.puppetlabs.com"))
     class Multi < Forge
         def initialize
             @forges = []
@@ -122,9 +122,50 @@ module PuppetLibrary::Forge
             raise ModuleNotFound if metadata_list.empty?
             metadata_list.deep_merge.tap do |metadata|
                 metadata.each do |module_name, releases|
-                    metadata[module_name] = releases.unique_by { |release| release["version"] }
+                    metadata[module_name] = releases.unique_by { |release| release["version"] }.sort_by{ |release| release["version"] }
                 end
             end
+        end
+
+        def get_modules(query)
+            all_results = @forges.map do |forge|
+                forge.get_modules(query)
+            end.flatten
+
+            results = SearchResult.merge_v3(all_results)
+            {
+                'pagination' => {
+                    'limit'  => results.size,
+                    'offset' => 0,
+                    'total'  => results.size
+                },
+                'results' => results
+            }
+        end
+
+        def get_releases(module_name)
+            results = @forges.map do |forge|
+                forge.get_releases(module_name)
+            end.flatten
+            {
+                'pagination' => {
+                    'limit'  => results.size,
+                    'offset' => 0,
+                    'total'  => results.size
+                },
+                'results' => results
+            }
+        end
+
+        def get_module_v3(module_name, version)
+            @forges.each do |forge|
+                begin
+                    return forge.get_module_v3(module_name, version)
+                rescue ModuleNotFound
+                    # Try the next one
+                end
+            end
+            raise ModuleNotFound
         end
     end
 end

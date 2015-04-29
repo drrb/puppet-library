@@ -21,15 +21,15 @@ Feature: Module page
     So that I can tell exactly what's on the server
 
     Scenario: Visit the module page
-        Given the "puppetlabs/apache" module is available at version "1.0.0"
-        And the "puppetlabs/apache" module is available at version "1.1.0"
-        When I visit the module page for "puppetlabs/apache"
+        Given the "puppetlabs-apache" module is available at version "1.0.0"
+        And the "puppetlabs-apache" module is available at version "1.1.0"
+        When I visit the module page for "puppetlabs-apache"
         Then I should see "Author: puppetlabs"
         Then I should see "Name: apache"
         And I should see "1.0.0"
         And I should see "1.1.0"
-        And I should see "puppetlabs/apache module, version 1.1.0"
+        And I should see "puppetlabs-apache module, version 1.1.0"
 
     Scenario: Visit a nonexistant module page
-        When I visit the module page for "nonexistant/nonexistant"
-        Then I should see 'Module "nonexistant/nonexistant" not found'
+        When I visit the module page for "nonexistant-nonexistant"
+        Then I should see 'Module "nonexistant-nonexistant" not found'

@@ -55,7 +55,7 @@ module PuppetLibrary
                         "name" => "apache",
                         "tag_list" => ["apache", "httpd"],
                         "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                        "full_name" => "puppetlabs/apache",
+                        "full_name" => "puppetlabs-apache",
                         "version" => "0.0.2",
                         "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                         "desc" => "Puppet module for Apache"
@@ -75,7 +75,7 @@ module PuppetLibrary
                             "name" => "apache",
                             "tag_list" => ["apache", "httpd"],
                             "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                            "full_name" => "puppetlabs/apache",
+                            "full_name" => "puppetlabs-apache",
                             "version" => "0.0.2",
                             "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                             "desc" => "Puppet module for Apache"
@@ -105,7 +105,7 @@ module PuppetLibrary
                         "name" => "apache",
                         "tag_list" => ["apache", "httpd"],
                         "releases" => [{"version"=>"0.0.1"}, {"version"=>"0.0.2"}],
-                        "full_name" => "puppetlabs/apache",
+                        "full_name" => "puppetlabs-apache",
                         "version" => "0.0.2",
                         "project_url" => "http://github.com/puppetlabs/puppetlabs-apache",
                         "desc" => "Puppet module for Apache"
@@ -124,7 +124,7 @@ module PuppetLibrary
             context "when the module is on the server" do
                 it "serves the module" do
                     file_buffer = StringIO.new("module content")
-                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_return(file_buffer)
+                    expect(forge).to receive(:get_module_v3).with("puppetlabs-apache", "1.0.0").and_return(file_buffer)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -137,7 +137,7 @@ module PuppetLibrary
 
             context "when the module is not on the server" do
                 it "returns an error" do
-                    expect(forge).to receive(:get_module_buffer).with("puppetlabs", "apache", "1.0.0").and_raise(Forge::ModuleNotFound)
+                    expect(forge).to receive(:get_module_v3).with("puppetlabs-apache", "1.0.0").and_raise(Forge::ModuleNotFound)
 
                     get "/modules/puppetlabs-apache-1.0.0.tar.gz"
 
@@ -151,7 +151,7 @@ module PuppetLibrary
             it "displays module metadata" do
                 metadata = {
                     "author" => "puppetlabs",
-                    "full_name" => "puppetlabs/apache",
+                    "full_name" => "puppetlabs-apache",
                     "name" => "apache",
                     "desc" => "Puppet module for Apache",
                     "releases" => [
@@ -161,7 +161,7 @@ module PuppetLibrary
                 }
                 expect(forge).to receive(:get_module_metadata).with("puppetlabs", "apache").and_return(metadata)
 
-                get "/puppetlabs/apache"
+                get "/puppetlabs-apache"
 
                 expect(last_response.body).to include "Author: puppetlabs"
                 expect(last_response.body).to include "Name: apache"
@@ -174,9 +174,9 @@ module PuppetLibrary
                 it "returns an error" do
                     expect(forge).to receive(:get_module_metadata).with("nonexistant", "nonexistant").and_raise(Forge::ModuleNotFound)
 
-                    get "/nonexistant/nonexistant"
+                    get "/nonexistant-nonexistant"
 
-                    expect(last_response.body).to include 'Module "nonexistant/nonexistant" not found'
+                    expect(last_response.body).to include 'Module "nonexistant-nonexistant" not found'
                     expect(last_response.status).to eq(404)
                 end
             end
@@ -186,7 +186,7 @@ module PuppetLibrary
             it "gets module metadata for all versions" do
                 metadata = {
                     "author" => "puppetlabs",
-                    "full_name" => "puppetlabs/apache",
+                    "full_name" => "puppetlabs-apache",
                     "name" => "apache",
                     "desc" => "Puppet module for Apache",
                     "releases" => [
@@ -211,6 +211,30 @@ module PuppetLibrary
                     expect(last_response.body).to eq('{"error":"Could not find module \"nonexistant\""}')
                     expect(last_response.status).to eq(410)
                 end
+            end
+        end
+
+        describe "puppet module search" do
+            let(:search_results) { JSON.parse(File.read('spec/fixtures/modules.json')) }
+            it "gets metadata for module and dependencies" do
+                expect(forge).to receive(:get_modules).with("apache").and_return(search_results)
+
+                get "/v3/modules?query=apache"
+
+                expect(last_response.body).to eq search_results.to_json
+                expect(last_response).to be_ok
+            end
+        end
+
+        describe "puppet module fetch" do
+            let(:metadata) { JSON.parse(File.read('spec/fixtures/releases.json')) }
+            it "gets metadata for module and dependencies" do
+                expect(forge).to receive(:get_releases).with("puppetlabs-apache").and_return(metadata)
+
+                get "/v3/releases?module=puppetlabs-apache"
+
+                expect(last_response.body).to eq metadata.to_json
+                expect(last_response).to be_ok
             end
         end
 
@@ -265,7 +289,7 @@ module PuppetLibrary
 
                     get "/api/v1/releases.json?module=nonexistant/nonexistant"
 
-                    expect(last_response.body).to eq('{"error":"Module nonexistant/nonexistant not found"}')
+                    expect(last_response.body).to eq('{"error":"Module nonexistant-nonexistant not found"}')
                     expect(last_response.status).to eq(410)
                 end
             end

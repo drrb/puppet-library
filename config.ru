@@ -42,7 +42,7 @@ server = PuppetLibrary::Server.configure do
 
     # Everything from The Forge
     forge :proxy do
-        url "http://forge.puppetlabs.com"
+        url "https://forgeapi.puppetlabs.com"
     end
 end
 

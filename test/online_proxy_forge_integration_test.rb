@@ -34,7 +34,7 @@ module PuppetLibrary
                     path module_dir.path
                 end
                 forge :cache do
-                    url "http://forge.puppetlabs.com"
+                    url "https://forgeapi.puppetlabs.com"
                     path cache_dir.path
                 end
             end

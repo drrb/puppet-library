@@ -55,9 +55,7 @@ module PuppetLibrary::Forge
         end
 
         def search_modules(query)
-            query_parameter = query.nil? ? "" : "?q=#{query}"
-            results = get("/modules.json#{query_parameter}")
-            JSON.parse results
+            get_modules(query).collect{ |mod| translate_to_v1(mod) }
         end
 
         def get_module_buffer(author, name, version)
@@ -72,8 +70,42 @@ module PuppetLibrary::Forge
 
         def get_module_metadata(author, name)
             begin
-                response = get("/#{author}/#{name}.json")
-                JSON.parse(response)
+                response = JSON.parse get("/v3/modules/#{author}-#{name}")
+                raise ModuleNotFound if response.empty?
+                translate_to_v1(response, false)
+            rescue OpenURI::HTTPError
+                raise ModuleNotFound
+            end
+        end
+
+        def get_modules(query)
+            results = []
+            query_parameter = query.nil? ? "" : "?query=#{query}"
+            uri = "/v3/modules#{query_parameter}"
+            while uri
+                result = JSON.parse(get(uri))
+                uri = result['pagination']['next']
+                results.concat result['results']
+            end
+            results
+        end
+
+        def get_releases(module_name)
+            response = []
+            uri = "/v3/releases?module=#{module_name}"
+            while uri
+                result = JSON.parse(get(uri))
+                uri = result['pagination']['next']
+                response.concat result['results']
+            end
+            response
+        end
+
+        def get_module_v3(module_name, version)
+            begin
+                author , name = module_name.split '-'
+                response = JSON.parse get("/v3/releases/#{author}-#{name}-#{version}")
+                download_module(author, name, version, response['file_uri'])
             rescue OpenURI::HTTPError
                 raise ModuleNotFound
             end
@@ -90,6 +122,37 @@ module PuppetLibrary::Forge
         end
 
         private
+
+        def translate_to_v1(module_v3,detail=true)
+            mod = module_v3["current_release"]["module"]
+            metadata = module_v3["current_release"]["metadata"]
+            out = {
+                "author" => mod["owner"]["username"],
+                "desc" => metadata["summary"],
+                "full_name" => "#{mod["owner"]["username"]}-#{mod["name"]}",
+                "name" => mod["name"],
+                "releases" => module_v3["releases"].collect{ |x| { "version" => x["version"] } },
+                "tag_list" => module_v3["current_release"]["tags"]
+            }
+            out.update( {
+                "project_url" => module_v3["homepage_url"],
+                "version" => metadata["version"]
+            } ) if detail
+           Hash[out.sort]
+        end
+
+        def to_version(metadata_v3)
+            {
+                "dependencies" =>  metadata_v3["metadata"]["dependencies"].map do |dependency|
+                    [ dependency["name"], dependency["version_requirement"] ]
+                end.sort_by do |item|
+                    item[0]
+                end,
+                "file" => "/modules/#{metadata_v3['metadata']['name']}-#{metadata_v3['version']}.tar.gz",
+                "version" =>  metadata_v3["version"]
+            }
+        end
+
         def get_module_version(author, name, version)
             module_versions = get_module_versions(author, name)
             module_versions.find do |version_info|
@@ -104,7 +167,7 @@ module PuppetLibrary::Forge
 
         def look_up_releases(author, name, version = nil, &optional_processor)
             version_query = version ? "&version=#{version}" : ""
-            url = "/api/v1/releases.json?module=#{author}/#{name}#{version_query}"
+            url = "/v1/releases.json?module=#{author}/#{name}#{version_query}"
             response_text = get(url)
             response = JSON.parse(response_text)
             process_releases_response(response, &optional_processor)

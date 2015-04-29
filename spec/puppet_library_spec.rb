@@ -117,12 +117,12 @@ module PuppetLibrary
                         "hostname" => "example.com",
                         "forges" => [
                             { "Directory" => forge_dir.path },
-                            { "Proxy" => "http://forge.puppetlabs.com" }
+                            { "Proxy" => "https://forgeapi.puppetlabs.com" }
                         ]
                     }
                     File.open(config_file.path, "w") { |f| f << config.to_yaml }
                     expect(Forge::Directory).to receive(:new)
-                    expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com")
+                    expect(Forge::Proxy).to receive(:new).with("https://forgeapi.puppetlabs.com")
                     expect(forge).to receive(:add_forge).twice
                     expect(Rack::Server).to receive(:start).with(default_options_with(:Port => 4567, :Host => "example.com", :daemonize => true, :pid => "/var/run/puppet-library.pid", :server => "thin"))
 
@@ -225,7 +225,7 @@ module PuppetLibrary
             context "when no proxy URLs or module directories specified" do
                 it "proxies the Puppet Forge" do
                     proxy = double("proxy")
-                    expect(Forge::Proxy).to receive(:new).with("http://forge.puppetlabs.com").and_return(proxy)
+                    expect(Forge::Proxy).to receive(:new).with("https://forgeapi.puppetlabs.com").and_return(proxy)
                     expect(forge).to receive(:add_forge).with(proxy)
                     expect(Rack::Server).to receive(:start).with(default_options)
 

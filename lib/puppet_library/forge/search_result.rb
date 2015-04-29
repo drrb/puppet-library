@@ -45,6 +45,25 @@ module PuppetLibrary::Forge
             end
         end
 
+        def self.merge_v3(results)
+            results_by_module = results.group_by do |result|
+                "#{result['owner']['username']}-#{result['name']}"
+            end
+
+            results = results_by_module.values.map do |module_results|
+                combine_v3(module_results)
+            end
+        end
+
+        def self.combine_v3(search_results)
+	    releases = search_results.map{ |i| i['releases'] }.flatten
+            current = search_results.sort do |a,b|
+                Gem::Version.new(a['current_release']['version']) <=> Gem::Version.new(b['current_release']['version'])
+            end.last.tap do |result|
+	        result["releases"] = releases.uniq.version_sort_by {|r| r["version"]}.reverse
+            end
+        end
+
         def self.max_version(left, right)
             [Gem::Version.new(left), Gem::Version.new(right)].max.version
         end

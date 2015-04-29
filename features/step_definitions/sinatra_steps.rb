@@ -37,7 +37,7 @@ Before do
 end
 
 Given /^the "(.*?)" module is available at version "(.*?)"$/ do |full_name, version|
-    author, name = full_name.split "/"
+    author, name = full_name.split "-"
     module_writer.write_module(author, name, version)
 end
 

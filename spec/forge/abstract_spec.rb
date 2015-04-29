@@ -66,16 +66,17 @@ module PuppetLibrary::Forge
                     "project_page"=>"https://github.com/dodgybrothers/puppet-ntp"
                 }]
                 allow(module_repo).to receive(:get_all_metadata).and_return(all_metadata)
+                allow(module_repo).to receive(:get_md5).and_return("md5hexdigest")
             end
 
             it "matches by name" do
                 search_results = forge.search_modules("apache")
                 expect(search_results).to eq [{
                     "author"=>"puppetlabs",
-                    "full_name"=>"puppetlabs/apache",
+                    "full_name"=>"puppetlabs-apache",
                     "name"=>"apache",
-                    "desc"=>"Puppet module for Apache",
-                    "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                    "summary"=>"Puppet module for Apache",
+                    "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache",
                     "releases"=>[{"version"=>"0.10.0"}],
                     "version"=>"0.10.0",
                     "tag_list"=>["puppetlabs", "apache"]
@@ -86,10 +87,10 @@ module PuppetLibrary::Forge
                 search_results = forge.search_modules("dodgybrothers")
                 expect(search_results).to eq [{
                     "author"=>"dodgybrothers",
-                    "full_name"=>"dodgybrothers/ntp",
+                    "full_name"=>"dodgybrothers-ntp",
                     "name"=>"ntp",
-                    "desc"=>"Puppet module for NTP",
-                    "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                    "summary"=>"Puppet module for NTP",
+                    "project_page"=>"https://github.com/dodgybrothers/puppet-ntp",
                     "releases"=>[{"version"=>"1.0.0"}],
                     "version"=>"1.0.0",
                     "tag_list"=>["dodgybrothers", "ntp"]
@@ -122,10 +123,10 @@ module PuppetLibrary::Forge
                     search_results = forge.search_modules("apache")
                     expect(search_results).to eq [{
                         "author"=>"puppetlabs",
-                        "full_name"=>"puppetlabs/apache",
+                        "full_name"=>"puppetlabs-apache",
                         "name"=>"apache",
-                        "desc"=>"New Puppet module for Apache",
-                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
+                        "summary"=>"New Puppet module for Apache",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache-new",
                         "releases"=>[{"version"=>"1.0.0"},{"version"=>"0.10.0"}],
                         "version"=>"1.0.0",
                         "tag_list"=>["puppetlabs", "apache"]
@@ -140,19 +141,19 @@ module PuppetLibrary::Forge
                     search_results = search_results.sort_by {|r| r["name"]}
                     expect(search_results).to eq [{
                         "author"=>"puppetlabs",
-                        "full_name"=>"puppetlabs/apache",
+                        "full_name"=>"puppetlabs-apache",
                         "name"=>"apache",
-                        "desc"=>"Puppet module for Apache",
-                        "project_url"=>"https://github.com/puppetlabs/puppetlabs-apache",
+                        "summary"=>"Puppet module for Apache",
+                        "project_page"=>"https://github.com/puppetlabs/puppetlabs-apache",
                         "releases"=>[{"version"=>"0.10.0"}],
                         "version"=>"0.10.0",
                         "tag_list"=>["puppetlabs", "apache"]
                     },{
                         "author"=>"dodgybrothers",
-                        "full_name"=>"dodgybrothers/ntp",
+                        "full_name"=>"dodgybrothers-ntp",
                         "name"=>"ntp",
-                        "desc"=>"Puppet module for NTP",
-                        "project_url"=>"https://github.com/dodgybrothers/puppet-ntp",
+                        "summary"=>"Puppet module for NTP",
+                        "project_page"=>"https://github.com/dodgybrothers/puppet-ntp",
                         "releases"=>[{"version"=>"1.0.0"}],
                         "version"=>"1.0.0",
                         "tag_list"=>["dodgybrothers", "ntp"]
@@ -177,22 +178,23 @@ module PuppetLibrary::Forge
                     metadata = [ {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
+                        "summary" => "Apache module",
                         "version" => "1.1.0"
                     }, {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Old Apache module",
+                        "summary" => "Old Apache module",
                         "version" => "1.0.0"
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").and_return(metadata)
+                    expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                     metadata = forge.get_module_metadata("puppetlabs", "apache")
 
                     expect(metadata["author"]).to eq "puppetlabs"
-                    expect(metadata["full_name"]).to eq "puppetlabs/apache"
+                    expect(metadata["full_name"]).to eq "puppetlabs-apache"
                     expect(metadata["name"]).to eq "apache"
-                    expect(metadata["desc"]).to eq "Apache module"
+                    expect(metadata["summary"]).to eq "Apache module"
                     expect(metadata["releases"]).to eq [
                         {"version" => "1.0.0"},
                         {"version" => "1.1.0"}
@@ -217,11 +219,12 @@ module PuppetLibrary::Forge
                     metadata = [ {
                         "author" => "puppetlabs",
                         "name" => "puppetlabs-apache",
-                        "description" => "Apache module",
+                        "summary" => "Apache module",
                         "version" => "1.0.0",
                         "dependencies" => []
                     } ]
                     expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(metadata)
+                    expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                     result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "2.0.0")
                     expect(result).to eq({"puppetlabs/apache" => []})
@@ -275,6 +278,7 @@ module PuppetLibrary::Forge
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "newthing").and_return(newthing_metadata)
+                        expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                         result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", "1.0.0")
                         expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
@@ -322,6 +326,7 @@ module PuppetLibrary::Forge
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "apache").at_least(:once).and_return(apache_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "stdlib").and_return(stdlib_metadata)
                         expect(module_repo).to receive(:get_metadata).with("puppetlabs", "concat").and_return(concat_metadata)
+                        expect(module_repo).to receive(:get_md5).at_least(:once).and_return("md5hexdigest")
 
                         result = forge.get_module_metadata_with_dependencies("puppetlabs", "apache", nil)
                         expect(result.keys.sort).to eq(["puppetlabs/apache", "puppetlabs/concat", "puppetlabs/stdlib"])
